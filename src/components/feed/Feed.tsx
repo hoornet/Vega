@@ -42,7 +42,11 @@ export function Feed() {
 
   const filteredNotes = activeNotes.filter((event) => {
     const c = event.content.trim();
-    return c.length > 0 && !c.startsWith("{") && !c.startsWith("[");
+    if (!c || c.startsWith("{") || c.startsWith("[")) return false;
+    // Filter out notes that look like base64 blobs or relay protocol messages
+    if (c.length > 500 && /^[A-Za-z0-9+/=]{50,}$/.test(c.slice(0, 100))) return false;
+    if (c.startsWith("nlogpost:") || c.startsWith("T1772")) return false;
+    return true;
   });
 
   return (

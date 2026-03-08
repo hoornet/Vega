@@ -12,7 +12,7 @@ const NAV_ITEMS = [
 ] as const;
 
 export function Sidebar() {
-  const { currentView, setView, sidebarCollapsed, toggleSidebar, openThread, goBack } = useUIStore();
+  const { currentView, setView, sidebarCollapsed, toggleSidebar, openProfile } = useUIStore();
   const { connected, notes } = useFeedStore();
   const { loggedIn, profile, npub, logout } = useUserStore();
   const [showLogin, setShowLogin] = useState(false);
@@ -77,7 +77,10 @@ export function Sidebar() {
           <div className="border-t border-border shrink-0">
             {loggedIn ? (
               <div className="px-3 py-2">
-                <div className="flex items-center gap-2 mb-1.5">
+                <div
+                  className="flex items-center gap-2 mb-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+                  onClick={() => { const { pubkey } = useUserStore.getState(); if (pubkey) openProfile(pubkey); }}
+                >
                   {userAvatar ? (
                     <img
                       src={userAvatar}

@@ -45,7 +45,8 @@ function RootNote({ event }: { event: NDKEvent }) {
 export function ThreadView() {
   const { selectedNote, goBack } = useUIStore();
   const { loggedIn } = useUserStore();
-  const event = selectedNote!;
+  if (!selectedNote) { goBack(); return null; }
+  const event = selectedNote;
 
   const [replies, setReplies] = useState<NDKEvent[]>([]);
   const [loading, setLoading] = useState(true);

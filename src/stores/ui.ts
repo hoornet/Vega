@@ -26,6 +26,9 @@ export const useUIStore = create<UIState>((set, get) => ({
   setView: (currentView) => set({ currentView }),
   openProfile: (pubkey) => set((s) => ({ currentView: "profile", selectedPubkey: pubkey, previousView: s.currentView as View })),
   openThread: (note, from) => set({ currentView: "thread", selectedNote: note, previousView: from }),
-  goBack: () => set((s) => ({ currentView: s.previousView, selectedNote: null })),
+  goBack: () => set((s) => ({
+    currentView: s.previousView !== s.currentView ? s.previousView : "feed",
+    selectedNote: null,
+  })),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
 }));

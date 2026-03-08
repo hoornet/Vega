@@ -61,6 +61,25 @@ export async function fetchGlobalFeed(limit: number = 50): Promise<NDKEvent[]> {
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
+export async function publishProfile(fields: {
+  name?: string;
+  display_name?: string;
+  about?: string;
+  picture?: string;
+  banner?: string;
+  website?: string;
+  nip05?: string;
+  lud16?: string;
+}): Promise<void> {
+  const instance = getNDK();
+  if (!instance.signer) throw new Error("Not logged in");
+
+  const event = new NDKEvent(instance);
+  event.kind = 0;
+  event.content = JSON.stringify(fields);
+  await event.publish();
+}
+
 export async function publishArticle(opts: {
   title: string;
   content: string;
