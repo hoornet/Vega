@@ -4,6 +4,11 @@ import { fetchProfile } from "../lib/nostr";
 const profileCache = new Map<string, any>();
 const pendingRequests = new Map<string, Promise<any>>();
 
+export function invalidateProfileCache(pubkey: string) {
+  profileCache.delete(pubkey);
+  pendingRequests.delete(pubkey);
+}
+
 export function useProfile(pubkey: string) {
   const [profile, setProfile] = useState<any>(profileCache.get(pubkey) ?? null);
 

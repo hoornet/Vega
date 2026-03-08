@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { useUIStore } from "../../stores/ui";
 import { useUserStore } from "../../stores/user";
-import { useProfile } from "../../hooks/useProfile";
+import { useProfile, invalidateProfileCache } from "../../hooks/useProfile";
 import { fetchUserNotes, publishProfile } from "../../lib/nostr";
 import { shortenPubkey } from "../../lib/utils";
 import { NoteCard } from "../feed/NoteCard";
@@ -25,6 +25,7 @@ function EditProfileForm({ pubkey, onSaved }: { pubkey: string; onSaved: () => v
     setSaving(true);
     setError(null);
     try {
+      invalidateProfileCache(pubkey);
       await publishProfile({
         name: name.trim() || undefined,
         display_name: displayName.trim() || undefined,
