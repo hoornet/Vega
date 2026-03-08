@@ -51,6 +51,7 @@ npm run tauri build     # production binary
 - [ ] Direct messages (NIP-17/44)
 - [ ] Read long-form articles in-app
 - [ ] Relay management UI
+- [ ] GitHub Releases distribution + Tauri auto-updater
 
 ## License
 
