@@ -1,9 +1,12 @@
 import { useEffect } from "react";
 import { useFeedStore } from "../../stores/feed";
+import { useUserStore } from "../../stores/user";
 import { NoteCard } from "./NoteCard";
+import { ComposeBox } from "./ComposeBox";
 
 export function Feed() {
   const { notes, loading, connected, error, connect, loadFeed } = useFeedStore();
+  const { loggedIn } = useUserStore();
 
   useEffect(() => {
     connect().then(() => loadFeed());
@@ -31,6 +34,9 @@ export function Feed() {
         </div>
       </header>
 
+      {/* Compose */}
+      {loggedIn && <ComposeBox onPublished={loadFeed} />}
+
       {/* Feed */}
       <div className="flex-1 overflow-y-auto">
         {error && (
@@ -51,9 +57,14 @@ export function Feed() {
           </div>
         )}
 
-        {notes.map((event) => (
-          <NoteCard key={event.id} event={event} />
-        ))}
+        {notes
+          .filter((event) => {
+            const c = event.content.trim();
+            return c.length > 0 && !c.startsWith("{") && !c.startsWith("[");
+          })
+          .map((event) => (
+            <NoteCard key={event.id} event={event} />
+          ))}
       </div>
     </div>
   );

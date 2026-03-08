@@ -195,6 +195,36 @@ npm run tauri build     # production build
 
 ---
 
+## Thread View (next major feature after reactions/replies)
+
+Clicking a note should open a thread view showing:
+- The root note
+- All replies in chronological order (or threaded if nested)
+- An inline reply composer at the bottom
+
+This is essential for replies to feel complete — right now replies are posted to the network but there's no way to read them in context within the app.
+
+Implementation notes:
+- Fetch replies via `kinds: [1], #e: [noteId]` NDK filter
+- Thread view can be a new `currentView` in the UI store, with a `selectedNote` state
+- Back navigation returns to the feed
+
+---
+
+## Onboarding
+
+Nostr onboarding is notoriously bad across most clients. Wrystr should be the exception.
+Goals:
+- Key generation built-in (no "go get a browser extension first")
+- Human-readable explanation of what a key is, without crypto jargon
+- One-click backup flow (show nsec, prompt to save it somewhere)
+- Optional: sign up with email/password via a custodial key service for non-technical users, with a clear path to self-custody later
+- New users should see interesting content immediately, not a blank feed
+
+This is a first-class feature, not an afterthought.
+
+---
+
 ## What to Avoid
 
 - Do NOT add new dependencies without checking if something in the existing stack covers it

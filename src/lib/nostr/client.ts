@@ -61,6 +61,44 @@ export async function fetchGlobalFeed(limit: number = 50): Promise<NDKEvent[]> {
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
+export async function publishReaction(eventId: string, eventPubkey: string, reaction = "+"): Promise<void> {
+  const instance = getNDK();
+  if (!instance.signer) throw new Error("Not logged in");
+
+  const event = new NDKEvent(instance);
+  event.kind = NDKKind.Reaction;
+  event.content = reaction;
+  event.tags = [
+    ["e", eventId],
+    ["p", eventPubkey],
+  ];
+  await event.publish();
+}
+
+export async function publishReply(content: string, replyTo: { id: string; pubkey: string }): Promise<void> {
+  const instance = getNDK();
+  if (!instance.signer) throw new Error("Not logged in");
+
+  const event = new NDKEvent(instance);
+  event.kind = NDKKind.Text;
+  event.content = content;
+  event.tags = [
+    ["e", replyTo.id, "", "reply"],
+    ["p", replyTo.pubkey],
+  ];
+  await event.publish();
+}
+
+export async function publishNote(content: string): Promise<void> {
+  const instance = getNDK();
+  if (!instance.signer) throw new Error("Not logged in");
+
+  const event = new NDKEvent(instance);
+  event.kind = NDKKind.Text;
+  event.content = content;
+  await event.publish();
+}
+
 export async function fetchProfile(pubkey: string) {
   const instance = getNDK();
   const user = instance.getUser({ pubkey });

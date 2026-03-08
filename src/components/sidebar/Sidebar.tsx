@@ -42,7 +42,7 @@ export function Sidebar() {
         </div>
 
         {/* Nav */}
-        <nav className="flex-1 py-2">
+        <nav className="flex-1 overflow-y-auto py-2">
           {NAV_ITEMS.map((item) => (
             <button
               key={item.id}
@@ -61,7 +61,7 @@ export function Sidebar() {
 
         {/* User / Login */}
         {!sidebarCollapsed && (
-          <div className="border-t border-border">
+          <div className="border-t border-border shrink-0">
             {loggedIn ? (
               <div className="px-3 py-2">
                 <div className="flex items-center gap-2 mb-1.5">
@@ -105,7 +105,7 @@ export function Sidebar() {
 
         {/* Status footer */}
         {!sidebarCollapsed && (
-          <div className="border-t border-border px-3 py-2 text-[10px] text-text-dim">
+          <div className="border-t border-border px-3 py-2 text-[10px] text-text-dim shrink-0">
             <div className="flex items-center gap-1.5">
               <span className={`w-1.5 h-1.5 rounded-full ${connected ? "bg-success" : "bg-danger"}`} />
               <span>{connected ? "online" : "offline"}</span>
