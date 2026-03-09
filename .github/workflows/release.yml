@@ -17,6 +17,10 @@ jobs:
             args: ''
           - platform: windows-latest
             args: ''
+          - platform: macos-latest
+            args: '--target aarch64-apple-darwin'
+          - platform: macos-13
+            args: '--target x86_64-apple-darwin'
 
     runs-on: ${{ matrix.platform }}
 
@@ -30,6 +34,8 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin' || matrix.platform == 'macos-13' && 'x86_64-apple-darwin' || '' }}
 
       - name: Install Linux dependencies
         if: matrix.platform == 'ubuntu-22.04'
@@ -72,8 +78,11 @@ jobs:
             ### Install
             **Linux:** Download the `.AppImage`, make it executable (`chmod +x`), and run it.
             **Windows:** Download the `.exe` installer and run it.
+            **macOS (Apple Silicon):** Download the `aarch64.dmg` and open it.
+            **macOS (Intel):** Download the `x86_64.dmg` and open it.
 
             ### Requirements
             No dependencies required — everything is bundled.
           releaseDraft: false
           prerelease: false
+          args: ${{ matrix.args }}
