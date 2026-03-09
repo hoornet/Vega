@@ -4,6 +4,22 @@ _Generated 2026-03-09 based on codebase analysis._
 
 ---
 
+## Vision note: more than a Nostr client
+
+Wrystr is not just a great desktop Nostr client. **Long-form content is a first-class,
+distinguishing feature of this project** — not an afterthought, not a checkbox NIP.
+
+The article editor (NIP-23), the reading experience, the writing tools around it — these
+set Wrystr apart from other clients and define its identity. Think of it as a publishing
+platform that happens to live on Nostr, not a social feed that happens to support articles.
+
+> **TODO — brainstorm needed:** What does "owning long-form on Nostr desktop" actually
+> look like? Reading experience, discovery, editor features, monetization via zaps,
+> cross-posting, author identity — all of this needs a dedicated design session.
+> Leave this as an open thread until we sit down to work through it properly.
+
+---
+
 ## Quick wins (high impact, low effort)
 
 ### 1. Settings View
@@ -45,12 +61,20 @@ _Generated 2026-03-09 based on codebase analysis._
 
 ## Longer term
 
-### 7. SQLite note caching
+### 7. Onboarding flow
+- Nostr onboarding is notoriously bad across most clients; Wrystr should be the exception
+- Key generation built-in (no "go get a browser extension first")
+- Human-readable explanation of what a key is, without crypto jargon
+- One-click backup flow (show nsec, prompt to save)
+- New users should see interesting content immediately, not a blank feed
+- Optional: custodial key service path for non-technical users, with a clear path to self-custody later
+
+### 8. SQLite note caching
 - Notes disappear on every refresh — no persistence
 - Would make the app feel dramatically more solid and fast
 - Rust backend is the right place for this
 
-### 8. Direct Messages (NIP-44 — P3)
+### 9. Direct Messages (NIP-44 — P3)
 - Significant complexity (encryption, key handling)
 - Major feature gap but non-trivial to implement well
 
