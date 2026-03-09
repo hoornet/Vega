@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { nip19 } from "@nostr-dev-kit/ndk";
+import { useUIStore } from "../../stores/ui";
 
 // Regex patterns
 const URL_REGEX = /https?:\/\/[^\s<>"')\]]+/g;
@@ -116,7 +117,39 @@ function parseContent(content: string): ContentSegment[] {
   return segments;
 }
 
+// Returns true if we handled the URL internally (njump.me interception).
+function tryHandleUrlInternally(url: string): boolean {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "njump.me") {
+      const entity = u.pathname.replace(/^\//, "");
+      if (entity) return tryOpenNostrEntity(entity);
+    }
+  } catch { /* not a valid URL */ }
+  return false;
+}
+
+// Decodes a NIP-19 bech32 string and navigates internally where possible.
+// Returns true if handled, false if the caller should fall back to a browser open.
+function tryOpenNostrEntity(raw: string): boolean {
+  try {
+    const decoded = nip19.decode(raw);
+    const { openProfile } = useUIStore.getState();
+    if (decoded.type === "npub") {
+      openProfile(decoded.data as string);
+      return true;
+    }
+    if (decoded.type === "nprofile") {
+      openProfile((decoded.data as { pubkey: string }).pubkey);
+      return true;
+    }
+    // note / nevent / naddr — no internal reader yet, fall through to njump.me
+  } catch { /* invalid entity */ }
+  return false;
+}
+
 export function NoteContent({ content }: { content: string }) {
+  const { openSearch } = useUIStore();
   const segments = parseContent(content);
   const images: string[] = segments.filter((s) => s.type === "image").map((s) => s.value);
   const videos: string[] = segments.filter((s) => s.type === "video").map((s) => s.value);
@@ -136,6 +169,9 @@ export function NoteContent({ content }: { content: string }) {
             target="_blank"
             rel="noopener noreferrer"
             className="text-accent hover:text-accent-hover underline underline-offset-2 decoration-accent/40"
+            onClick={(e) => {
+              if (tryHandleUrlInternally(seg.value)) e.preventDefault();
+            }}
           >
             {seg.display}
           </a>
@@ -146,6 +182,10 @@ export function NoteContent({ content }: { content: string }) {
           <span
             key={i}
             className="text-accent cursor-pointer hover:text-accent-hover"
+            onClick={(e) => {
+              e.stopPropagation();
+              tryOpenNostrEntity(seg.value);
+            }}
           >
             @{seg.display}
           </span>
@@ -156,6 +196,10 @@ export function NoteContent({ content }: { content: string }) {
           <span
             key={i}
             className="text-accent/80 cursor-pointer hover:text-accent"
+            onClick={(e) => {
+              e.stopPropagation();
+              openSearch(`#${seg.value}`);
+            }}
           >
             {seg.display}
           </span>

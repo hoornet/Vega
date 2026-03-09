@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { searchNotes, searchUsers } from "../../lib/nostr";
 import { useUserStore } from "../../stores/user";
@@ -88,7 +88,8 @@ function UserRow({ user }: { user: ParsedUser }) {
 }
 
 export function SearchView() {
-  const [query, setQuery] = useState("");
+  const { pendingSearch } = useUIStore();
+  const [query, setQuery] = useState(pendingSearch ?? "");
   const [noteResults, setNoteResults] = useState<NDKEvent[]>([]);
   const [userResults, setUserResults] = useState<ParsedUser[]>([]);
   const [loading, setLoading] = useState(false);
@@ -98,14 +99,24 @@ export function SearchView() {
 
   const isHashtag = query.trim().startsWith("#");
 
-  const handleSearch = async () => {
-    const q = query.trim();
+  // If opened with a pending search query (e.g. from a hashtag click), run it immediately
+  useEffect(() => {
+    if (pendingSearch) {
+      useUIStore.setState({ pendingSearch: null });
+      handleSearch(pendingSearch);
+    }
+  }, []);
+
+  const handleSearch = async (overrideQuery?: string) => {
+    const q = (overrideQuery ?? query).trim();
     if (!q) return;
+    if (overrideQuery) setQuery(overrideQuery);
     setLoading(true);
     setSearched(false);
     try {
+      const isTag = q.startsWith("#");
       const notesPromise = searchNotes(q);
-      const usersPromise = isHashtag ? Promise.resolve([]) : searchUsers(q);
+      const usersPromise = isTag ? Promise.resolve([]) : searchUsers(q);
       const [notes, userEvents] = await Promise.all([notesPromise, usersPromise]);
       setNoteResults(notes);
       setUserResults(userEvents.map(parseUserEvent));
@@ -137,7 +148,7 @@ export function SearchView() {
             className="flex-1 bg-transparent text-text text-[13px] placeholder:text-text-dim focus:outline-none"
           />
           <button
-            onClick={handleSearch}
+            onClick={() => handleSearch()}
             disabled={!query.trim() || loading}
             className="text-[11px] px-3 py-1 border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
           >
