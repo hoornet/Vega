@@ -19,9 +19,11 @@ interface UIState {
   toggleSidebar: () => void;
 }
 
+const SIDEBAR_KEY = "wrystr_sidebar_collapsed";
+
 export const useUIStore = create<UIState>((set, _get) => ({
   currentView: "feed",
-  sidebarCollapsed: false,
+  sidebarCollapsed: localStorage.getItem(SIDEBAR_KEY) === "true",
   selectedPubkey: null,
   selectedNote: null,
   previousView: "feed",
@@ -34,5 +36,9 @@ export const useUIStore = create<UIState>((set, _get) => ({
     currentView: s.previousView !== s.currentView ? s.previousView : "feed",
     selectedNote: null,
   })),
-  toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
+  toggleSidebar: () => set((s) => {
+    const next = !s.sidebarCollapsed;
+    localStorage.setItem(SIDEBAR_KEY, String(next));
+    return { sidebarCollapsed: next };
+  }),
 }));
