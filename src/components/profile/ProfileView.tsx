@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { useUIStore } from "../../stores/ui";
 import { useUserStore } from "../../stores/user";
@@ -6,8 +6,120 @@ import { useMuteStore } from "../../stores/mute";
 import { useProfile, invalidateProfileCache } from "../../hooks/useProfile";
 import { fetchUserNotes, publishProfile } from "../../lib/nostr";
 import { shortenPubkey } from "../../lib/utils";
+import { uploadImage } from "../../lib/upload";
 import { NoteCard } from "../feed/NoteCard";
 import { ZapModal } from "../zap/ZapModal";
+
+// ── Profile helper sub-components ────────────────────────────────────────────
+
+function ImageField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const url = await uploadImage(file);
+      onChange(url);
+    } catch (err) {
+      setUploadError(String(err));
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
+  return (
+    <div>
+      <label className="text-text-dim text-[10px] block mb-1">{label}</label>
+      <div className="flex gap-1.5">
+        <input
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="https://…  or click upload →"
+          className="flex-1 bg-bg border border-border px-3 py-1.5 text-text text-[12px] focus:outline-none focus:border-accent/50"
+          style={{ WebkitUserSelect: "text", userSelect: "text" } as React.CSSProperties}
+        />
+        <button
+          type="button"
+          onClick={() => fileRef.current?.click()}
+          disabled={uploading}
+          className="px-2 py-1.5 text-[10px] border border-border text-text-dim hover:text-accent hover:border-accent/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+          title="Upload from your computer"
+        >
+          {uploading ? "uploading…" : "upload"}
+        </button>
+      </div>
+      {uploadError && <p className="text-danger text-[10px] mt-1">{uploadError}</p>}
+      <input ref={fileRef} type="file" accept="image/*" onChange={handleFile} className="hidden" />
+    </div>
+  );
+}
+
+type Nip05Status = "idle" | "checking" | "valid" | "mismatch" | "notfound";
+
+function Nip05Field({ value, onChange, pubkey }: { value: string; onChange: (v: string) => void; pubkey: string }) {
+  const [status, setStatus] = useState<Nip05Status>("idle");
+
+  useEffect(() => {
+    if (!value.includes("@")) { setStatus("idle"); return; }
+    setStatus("checking");
+    const t = setTimeout(async () => {
+      const [name, domain] = value.trim().split("@");
+      if (!name || !domain) { setStatus("notfound"); return; }
+      try {
+        const resp = await fetch(`https://${domain}/.well-known/nostr.json?name=${encodeURIComponent(name)}`);
+        const data = await resp.json();
+        const resolved = data.names?.[name];
+        if (!resolved) setStatus("notfound");
+        else if (resolved === pubkey) setStatus("valid");
+        else setStatus("mismatch");
+      } catch {
+        setStatus("notfound");
+      }
+    }, 900);
+    return () => clearTimeout(t);
+  }, [value, pubkey]);
+
+  const badge = {
+    idle: null,
+    checking: <span className="text-text-dim text-[10px]">checking…</span>,
+    valid: <span className="text-success text-[10px]">✓ verified</span>,
+    mismatch: <span className="text-danger text-[10px]">✗ pubkey mismatch</span>,
+    notfound: <span className="text-danger text-[10px]">✗ not found</span>,
+  }[status];
+
+  return (
+    <div>
+      <div className="flex items-baseline gap-2 mb-1">
+        <label className="text-text-dim text-[10px]">NIP-05 verified name</label>
+        {badge}
+      </div>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="you@domain.com"
+        className="w-full bg-bg border border-border px-3 py-1.5 text-text text-[12px] focus:outline-none focus:border-accent/50"
+        style={{ WebkitUserSelect: "text", userSelect: "text" } as React.CSSProperties}
+      />
+      <p className="text-text-dim text-[10px] mt-1">
+        Proves your identity via a domain you control.{" "}
+        <a
+          href="https://nostr.how/en/guides/get-verified"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-accent hover:text-accent-hover transition-colors"
+        >
+          How to get verified ↗
+        </a>
+      </p>
+    </div>
+  );
+}
 
 function EditProfileForm({ pubkey, onSaved }: { pubkey: string; onSaved: () => void }) {
   const { profile, fetchOwnProfile } = useUserStore();
@@ -66,10 +178,10 @@ function EditProfileForm({ pubkey, onSaved }: { pubkey: string; onSaved: () => v
       <div className="grid grid-cols-2 gap-3 mb-3">
         {field("Display name", displayName, setDisplayName, "Square that Circle")}
         {field("Username", name, setName, "squarethecircle")}
-        {field("NIP-05 (verified name)", nip05, setNip05, "you@domain.com")}
+        <Nip05Field value={nip05} onChange={setNip05} pubkey={pubkey} />
         {field("Lightning address (lud16)", lud16, setLud16, "you@walletofsatoshi.com")}
         {field("Website", website, setWebsite, "https://…")}
-        {field("Profile picture URL", picture, setPicture, "https://…")}
+        <ImageField label="Profile picture" value={picture} onChange={setPicture} />
       </div>
       <div className="mb-3">
         <label className="text-text-dim text-[10px] block mb-1">Bio</label>
@@ -83,7 +195,7 @@ function EditProfileForm({ pubkey, onSaved }: { pubkey: string; onSaved: () => v
         />
       </div>
       <div className="mb-3">
-        {field("Banner image URL", banner, setBanner, "https://…")}
+        <ImageField label="Banner image" value={banner} onChange={setBanner} />
       </div>
       {error && <p className="text-danger text-[11px] mb-2">{error}</p>}
       <div className="flex items-center gap-2">
