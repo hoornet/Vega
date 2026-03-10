@@ -4,14 +4,8 @@ import App from "./App";
 import "./index.css";
 import { useUserStore } from "./stores/user";
 
-// Restore session from localStorage
-const savedPubkey = localStorage.getItem("wrystr_pubkey");
-const savedLoginType = localStorage.getItem("wrystr_login_type");
-if (savedPubkey && savedLoginType === "pubkey") {
-  useUserStore.getState().loginWithPubkey(savedPubkey);
-}
-// Note: nsec is never stored, so nsec sessions can't be auto-restored.
-// Future: restore via OS keychain.
+// Restore session — pubkey (read-only) or nsec via OS keychain
+useUserStore.getState().restoreSession();
 
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>

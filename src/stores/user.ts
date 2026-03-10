@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { NDKPrivateKeySigner } from "@nostr-dev-kit/ndk";
 import { getNDK, publishContactList } from "../lib/nostr";
 import { nip19 } from "@nostr-dev-kit/ndk";
+import { invoke } from "@tauri-apps/api/core";
 
 interface UserState {
   pubkey: string | null;
@@ -14,6 +15,7 @@ interface UserState {
   loginWithNsec: (nsec: string) => Promise<void>;
   loginWithPubkey: (pubkey: string) => Promise<void>;
   logout: () => void;
+  restoreSession: () => Promise<void>;
   fetchOwnProfile: () => Promise<void>;
   fetchFollows: () => Promise<void>;
   follow: (pubkey: string) => Promise<void>;
@@ -55,9 +57,12 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       set({ pubkey, npub, loggedIn: true, loginError: null });
 
-      // Store login (pubkey only, never the nsec)
+      // Persist pubkey for session restoration
       localStorage.setItem("wrystr_pubkey", pubkey);
       localStorage.setItem("wrystr_login_type", "nsec");
+
+      // Store nsec in OS keychain (best-effort — gracefully ignored if unavailable)
+      invoke<void>("store_nsec", { pubkey, nsec: nsecInput }).catch(() => {});
 
       // Fetch profile and follows
       get().fetchOwnProfile();
@@ -99,9 +104,37 @@ export const useUserStore = create<UserState>((set, get) => ({
   logout: () => {
     const ndk = getNDK();
     ndk.signer = undefined;
+    const { pubkey } = get();
+    if (pubkey) {
+      invoke<void>("delete_nsec", { pubkey }).catch(() => {});
+    }
     localStorage.removeItem("wrystr_pubkey");
     localStorage.removeItem("wrystr_login_type");
     set({ pubkey: null, npub: null, profile: null, follows: [], loggedIn: false, loginError: null });
+  },
+
+  restoreSession: async () => {
+    const savedPubkey = localStorage.getItem("wrystr_pubkey");
+    const savedLoginType = localStorage.getItem("wrystr_login_type");
+    if (!savedPubkey) return;
+
+    if (savedLoginType === "pubkey") {
+      await get().loginWithPubkey(savedPubkey);
+      return;
+    }
+
+    if (savedLoginType === "nsec") {
+      try {
+        const nsec = await invoke<string | null>("load_nsec", { pubkey: savedPubkey });
+        if (nsec) {
+          await get().loginWithNsec(nsec);
+        }
+        // If no keychain entry (first run after feature lands, or keychain unavailable),
+        // the user will be prompted to log in again — same as before.
+      } catch {
+        // Keychain unavailable (e.g. no secret service on this Linux session) — stay logged out.
+      }
+    }
   },
 
   fetchOwnProfile: async () => {
