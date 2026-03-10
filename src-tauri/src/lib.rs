@@ -1,20 +1,22 @@
 use keyring::Entry;
 use rusqlite::{params, Connection};
 use std::sync::Mutex;
-use tauri::Manager;
+use tauri::{
+    menu::{Menu, MenuItem},
+    tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent},
+    Manager, WindowEvent,
+};
 
 // ── OS keychain ─────────────────────────────────────────────────────────────
 
 const KEYRING_SERVICE: &str = "wrystr";
 
-/// Store an nsec in the OS keychain, keyed by pubkey (hex).
 #[tauri::command]
 fn store_nsec(pubkey: String, nsec: String) -> Result<(), String> {
     let entry = Entry::new(KEYRING_SERVICE, &pubkey).map_err(|e| e.to_string())?;
     entry.set_password(&nsec).map_err(|e| e.to_string())
 }
 
-/// Load a stored nsec from the OS keychain. Returns None if no entry exists.
 #[tauri::command]
 fn load_nsec(pubkey: String) -> Result<Option<String>, String> {
     let entry = Entry::new(KEYRING_SERVICE, &pubkey).map_err(|e| e.to_string())?;
@@ -25,13 +27,12 @@ fn load_nsec(pubkey: String) -> Result<Option<String>, String> {
     }
 }
 
-/// Delete a stored nsec from the OS keychain.
 #[tauri::command]
 fn delete_nsec(pubkey: String) -> Result<(), String> {
     let entry = Entry::new(KEYRING_SERVICE, &pubkey).map_err(|e| e.to_string())?;
     match entry.delete_credential() {
         Ok(()) => Ok(()),
-        Err(keyring::Error::NoEntry) => Ok(()), // already gone — that's fine
+        Err(keyring::Error::NoEntry) => Ok(()),
         Err(e) => Err(e.to_string()),
     }
 }
@@ -63,8 +64,6 @@ fn open_db(data_dir: std::path::PathBuf) -> rusqlite::Result<Connection> {
     Ok(conn)
 }
 
-/// Upsert a batch of raw Nostr event JSON strings into the notes cache.
-/// Prunes the kind-1 table to the most recent 500 entries after insert.
 #[tauri::command]
 fn db_save_notes(state: tauri::State<DbState>, notes: Vec<String>) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
@@ -80,7 +79,6 @@ fn db_save_notes(state: tauri::State<DbState>, notes: Vec<String>) -> Result<(),
         )
         .map_err(|e| e.to_string())?;
     }
-    // Keep only the most recent 500 kind-1 notes
     conn.execute(
         "DELETE FROM notes WHERE kind=1 AND id NOT IN \
          (SELECT id FROM notes WHERE kind=1 ORDER BY created_at DESC LIMIT 500)",
@@ -90,7 +88,6 @@ fn db_save_notes(state: tauri::State<DbState>, notes: Vec<String>) -> Result<(),
     Ok(())
 }
 
-/// Return up to `limit` recent kind-1 note JSONs, newest first.
 #[tauri::command]
 fn db_load_feed(state: tauri::State<DbState>, limit: u32) -> Result<Vec<String>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
@@ -107,7 +104,6 @@ fn db_load_feed(state: tauri::State<DbState>, limit: u32) -> Result<Vec<String>,
     Ok(result)
 }
 
-/// Cache a profile's JSON content (the NDKUserProfile object) keyed by pubkey.
 #[tauri::command]
 fn db_save_profile(state: tauri::State<DbState>, pubkey: String, content: String) -> Result<(), String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
@@ -123,7 +119,6 @@ fn db_save_profile(state: tauri::State<DbState>, pubkey: String, content: String
     Ok(())
 }
 
-/// Load a cached profile JSON for `pubkey`. Returns None if not cached.
 #[tauri::command]
 fn db_load_profile(state: tauri::State<DbState>, pubkey: String) -> Result<Option<String>, String> {
     let conn = state.0.lock().map_err(|e| e.to_string())?;
@@ -145,11 +140,60 @@ pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
+            // ── SQLite ───────────────────────────────────────────────────────
             let data_dir = app.path().app_data_dir()?;
-            // Fall back to in-memory DB if the on-disk open fails (e.g. permissions).
             let conn = open_db(data_dir)
                 .unwrap_or_else(|_| Connection::open_in_memory().expect("in-memory SQLite"));
             app.manage(DbState(Mutex::new(conn)));
+
+            // ── System tray ──────────────────────────────────────────────────
+            let show_item = MenuItem::with_id(app, "show", "Open Wrystr", true, None::<&str>)?;
+            let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
+            let menu = Menu::with_items(app, &[&show_item, &quit_item])?;
+
+            let icon = app.default_window_icon().unwrap().clone();
+            TrayIconBuilder::new()
+                .icon(icon)
+                .menu(&menu)
+                .show_menu_on_left_click(false) // left click → show window, right click → menu
+                .on_menu_event(|app, event| match event.id.as_ref() {
+                    "quit" => app.exit(0),
+                    "show" => {
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.show();
+                            let _ = w.set_focus();
+                        }
+                    }
+                    _ => {}
+                })
+                .on_tray_icon_event(|tray, event| {
+                    if let TrayIconEvent::Click {
+                        button: MouseButton::Left,
+                        button_state: MouseButtonState::Up,
+                        ..
+                    } = event
+                    {
+                        let app = tray.app_handle();
+                        if let Some(w) = app.get_webview_window("main") {
+                            let _ = w.show();
+                            let _ = w.set_focus();
+                        }
+                    }
+                })
+                .build(app)?;
+
+            // ── Close → hide to tray ─────────────────────────────────────────
+            // Closing the window hides it instead of exiting. Use "Quit" in the
+            // tray menu (or ⌘Q / Alt-F4) to fully exit.
+            let window = app.get_webview_window("main").unwrap();
+            let window_clone = window.clone();
+            window.on_window_event(move |event| {
+                if let WindowEvent::CloseRequested { api, .. } = event {
+                    api.prevent_close();
+                    let _ = window_clone.hide();
+                }
+            });
+
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
