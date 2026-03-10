@@ -305,6 +305,24 @@ export async function publishContactList(pubkeys: string[]): Promise<void> {
   await event.publish();
 }
 
+export async function fetchZapsReceived(pubkey: string, limit = 50): Promise<NDKEvent[]> {
+  const instance = getNDK();
+  const filter: NDKFilter = { kinds: [NDKKind.Zap], "#p": [pubkey], limit };
+  const events = await instance.fetchEvents(filter, {
+    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
+  });
+  return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
+}
+
+export async function fetchZapsSent(pubkey: string, limit = 50): Promise<NDKEvent[]> {
+  const instance = getNDK();
+  const filter: NDKFilter = { kinds: [NDKKind.ZapRequest], authors: [pubkey], limit };
+  const events = await instance.fetchEvents(filter, {
+    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
+  });
+  return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
+}
+
 export async function fetchMuteList(pubkey: string): Promise<string[]> {
   const instance = getNDK();
   const filter: NDKFilter = { kinds: [10000 as NDKKind], authors: [pubkey], limit: 1 };

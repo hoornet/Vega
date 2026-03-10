@@ -9,6 +9,7 @@ import { ThreadView } from "./components/thread/ThreadView";
 import { ArticleEditor } from "./components/article/ArticleEditor";
 import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
 import { AboutView } from "./components/shared/AboutView";
+import { ZapHistoryView } from "./components/zap/ZapHistoryView";
 import { useUIStore } from "./stores/ui";
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
         {currentView === "thread" && <ThreadView />}
         {currentView === "article-editor" && <ArticleEditor />}
         {currentView === "about" && <AboutView />}
+        {currentView === "zaps" && <ZapHistoryView />}
       </main>
     </div>
   );
