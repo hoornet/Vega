@@ -3,6 +3,7 @@ import { NDKPrivateKeySigner } from "@nostr-dev-kit/ndk";
 import { getNDK, publishContactList } from "../lib/nostr";
 import { nip19 } from "@nostr-dev-kit/ndk";
 import { invoke } from "@tauri-apps/api/core";
+import { useMuteStore } from "./mute";
 
 export interface SavedAccount {
   pubkey: string;
@@ -97,9 +98,10 @@ export const useUserStore = create<UserState>((set, get) => ({
       // Store nsec in OS keychain (best-effort — gracefully ignored if unavailable)
       invoke<void>("store_nsec", { pubkey, nsec: nsecInput }).catch(() => {});
 
-      // Fetch profile and follows
+      // Fetch profile, follows, and mute list
       get().fetchOwnProfile();
       get().fetchFollows();
+      useMuteStore.getState().fetchMuteList(pubkey);
     } catch (err) {
       set({ loginError: `Login failed: ${err}` });
     }
@@ -134,6 +136,7 @@ export const useUserStore = create<UserState>((set, get) => ({
 
       get().fetchOwnProfile();
       get().fetchFollows();
+      useMuteStore.getState().fetchMuteList(pubkey);
     } catch (err) {
       set({ loginError: `Login failed: ${err}` });
     }

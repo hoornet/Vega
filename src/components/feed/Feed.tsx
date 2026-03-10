@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useFeedStore } from "../../stores/feed";
 import { useUserStore } from "../../stores/user";
+import { useMuteStore } from "../../stores/mute";
 import { fetchFollowFeed, getNDK } from "../../lib/nostr";
 import { NoteCard } from "./NoteCard";
 import { ComposeBox } from "./ComposeBox";
@@ -11,6 +12,7 @@ type FeedTab = "global" | "following";
 export function Feed() {
   const { notes, loading, connected, error, connect, loadCachedFeed, loadFeed } = useFeedStore();
   const { loggedIn, follows } = useUserStore();
+  const { mutedPubkeys } = useMuteStore();
 
   const [tab, setTab] = useState<FeedTab>("global");
   const [followNotes, setFollowNotes] = useState<NDKEvent[]>([]);
@@ -43,6 +45,7 @@ export function Feed() {
   const isLoading = isFollowing ? followLoading : loading;
 
   const filteredNotes = activeNotes.filter((event) => {
+    if (mutedPubkeys.includes(event.pubkey)) return false;
     const c = event.content.trim();
     if (!c || c.startsWith("{") || c.startsWith("[")) return false;
     // Filter out notes that look like base64 blobs or relay protocol messages

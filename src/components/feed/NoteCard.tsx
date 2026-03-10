@@ -3,6 +3,7 @@ import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { useProfile } from "../../hooks/useProfile";
 import { useReactionCount } from "../../hooks/useReactionCount";
 import { useUserStore } from "../../stores/user";
+import { useMuteStore } from "../../stores/mute";
 import { useUIStore } from "../../stores/ui";
 import { timeAgo, shortenPubkey } from "../../lib/utils";
 import { publishReaction, publishReply, getNDK } from "../../lib/nostr";
@@ -20,7 +21,9 @@ export function NoteCard({ event }: NoteCardProps) {
   const nip05 = profile?.nip05;
   const time = event.created_at ? timeAgo(event.created_at) : "";
 
-  const { loggedIn } = useUserStore();
+  const { loggedIn, pubkey: ownPubkey } = useUserStore();
+  const { mutedPubkeys, mute, unmute } = useMuteStore();
+  const isMuted = mutedPubkeys.includes(event.pubkey);
   const { openProfile, openThread, currentView } = useUIStore();
   const likedKey = "wrystr_liked";
   const getLiked = () => {
@@ -37,6 +40,7 @@ export function NoteCard({ event }: NoteCardProps) {
   const [replySent, setReplySent] = useState(false);
   const replyRef = useRef<HTMLTextAreaElement>(null);
   const [showZap, setShowZap] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLike = async () => {
     if (!loggedIn || liked || liking) return;
@@ -80,7 +84,7 @@ export function NoteCard({ event }: NoteCardProps) {
   };
 
   return (
-    <article className="border-b border-border px-4 py-3 hover:bg-bg-hover transition-colors duration-100">
+    <article className="border-b border-border px-4 py-3 hover:bg-bg-hover transition-colors duration-100 group/card">
       <div className="flex gap-3">
         {/* Avatar */}
         <div className="shrink-0 cursor-pointer" onClick={() => openProfile(event.pubkey)}>
@@ -112,6 +116,30 @@ export function NoteCard({ event }: NoteCardProps) {
               <span className="text-text-dim text-[10px] truncate max-w-40">{nip05}</span>
             )}
             <span className="text-text-dim text-[11px] shrink-0">{time}</span>
+            {/* Context menu — hidden until card hover, not shown for own notes */}
+            {loggedIn && event.pubkey !== ownPubkey && (
+              <div className="relative ml-auto">
+                <button
+                  onClick={() => setMenuOpen((v) => !v)}
+                  className="text-text-dim hover:text-text text-[14px] px-1 leading-none opacity-0 group-hover/card:opacity-100 transition-opacity"
+                >
+                  ⋯
+                </button>
+                {menuOpen && (
+                  <>
+                    <div className="fixed inset-0 z-[9]" onClick={() => setMenuOpen(false)} />
+                    <div className="absolute right-0 top-5 bg-bg-raised border border-border shadow-lg z-10 w-32">
+                      <button
+                        onClick={() => { setMenuOpen(false); isMuted ? unmute(event.pubkey) : mute(event.pubkey); }}
+                        className="w-full text-left px-3 py-2 text-[11px] text-text-muted hover:text-danger hover:bg-bg-hover transition-colors"
+                      >
+                        {isMuted ? `unmute` : `mute`}
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           <div

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { useUIStore } from "../../stores/ui";
 import { useUserStore } from "../../stores/user";
+import { useMuteStore } from "../../stores/mute";
 import { useProfile, invalidateProfileCache } from "../../hooks/useProfile";
 import { fetchUserNotes, publishProfile } from "../../lib/nostr";
 import { shortenPubkey } from "../../lib/utils";
@@ -116,6 +117,8 @@ export function ProfileView() {
   const [showZap, setShowZap] = useState(false);
 
   const isFollowing = follows.includes(pubkey);
+  const { mutedPubkeys, mute, unmute } = useMuteStore();
+  const isMuted = mutedPubkeys.includes(pubkey);
 
   const handleFollowToggle = async () => {
     setFollowPending(true);
@@ -184,6 +187,16 @@ export function ProfileView() {
               }`}
             >
               {followPending ? "…" : isFollowing ? "unfollow" : "follow"}
+            </button>
+            <button
+              onClick={() => isMuted ? unmute(pubkey) : mute(pubkey)}
+              className={`text-[11px] px-3 py-1 border transition-colors ${
+                isMuted
+                  ? "border-danger/40 text-danger hover:bg-danger/5"
+                  : "border-border text-text-dim hover:text-danger hover:border-danger/40"
+              }`}
+            >
+              {isMuted ? "unmute" : "mute"}
             </button>
           </div>
         )}

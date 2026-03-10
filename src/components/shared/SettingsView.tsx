@@ -1,8 +1,46 @@
 import { useState } from "react";
 import { useUserStore } from "../../stores/user";
 import { useLightningStore } from "../../stores/lightning";
+import { useMuteStore } from "../../stores/mute";
 import { isValidNwcUri } from "../../lib/lightning/nwc";
 import { getNDK, getStoredRelayUrls, addRelay, removeRelay } from "../../lib/nostr";
+import { useProfile } from "../../hooks/useProfile";
+
+function MutedRow({ pubkey, onUnmute }: { pubkey: string; onUnmute: () => void }) {
+  const profile = useProfile(pubkey);
+  const name = profile?.displayName || profile?.name || pubkey.slice(0, 12) + "…";
+  return (
+    <div className="flex items-center gap-3 px-3 py-2 border border-border text-[12px] group">
+      {profile?.picture && (
+        <img src={profile.picture} alt="" className="w-5 h-5 rounded-sm object-cover shrink-0" />
+      )}
+      <span className="text-text truncate flex-1">{name}</span>
+      <button
+        onClick={onUnmute}
+        className="text-text-dim hover:text-accent text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+      >
+        unmute
+      </button>
+    </div>
+  );
+}
+
+function MuteSection() {
+  const { mutedPubkeys, unmute } = useMuteStore();
+  if (mutedPubkeys.length === 0) return null;
+  return (
+    <section>
+      <h2 className="text-text text-[11px] font-medium uppercase tracking-widest mb-2 text-text-dim">
+        Muted accounts ({mutedPubkeys.length})
+      </h2>
+      <div className="space-y-1">
+        {mutedPubkeys.map((pk) => (
+          <MutedRow key={pk} pubkey={pk} onUnmute={() => unmute(pk)} />
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function RelayRow({ url, onRemove }: { url: string; onRemove: () => void }) {
   const ndk = getNDK();
@@ -203,6 +241,7 @@ export function SettingsView() {
         <WalletSection />
         <RelaySection />
         <IdentitySection />
+        <MuteSection />
       </div>
     </div>
   );
