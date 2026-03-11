@@ -110,4 +110,4 @@ Wrystr is free and open-source. If it's useful to you:
 
 ## License
 
-MIT — [hoornet](https://github.com/hoornet)
+MIT License — Copyright (c) 2026 Jure Sršen — [hoornet](https://github.com/hoornet)

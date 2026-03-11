@@ -130,7 +130,7 @@ export function AboutView() {
         {/* Version / About */}
         <section className="border-t border-border pt-6">
           <div className="text-text-dim text-[11px] space-y-1">
-            <div>Wrystr v{pkg.version} — MIT license</div>
+            <div>Wrystr v{pkg.version} — MIT License — Copyright (c) 2026 Jure Sršen</div>
             <div>
               Built with{" "}
               <a href="https://tauri.app" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent-hover transition-colors">Tauri</a>
