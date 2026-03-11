@@ -116,6 +116,9 @@ Bugs found during testing are fixed before Phase N+1 starts. A release is cut be
 
 ## What's already shipped
 
+### v0.1.10
+- **Fix: Bitcoin QR to right edge** — Support page QR section uses `justify-between` so Lightning sits left, Bitcoin sits right
+
 ### v0.1.9
 - **Fix: account switch read-only bug (root cause)** — signers are now cached in-memory after login; `switchAccount` reuses the cached signer directly instead of re-fetching from the OS keychain on every switch. Keychain is only consulted at startup. Verified with 9-switch stress test across 3 accounts: 9/9 `ok`, signer present every time.
 - **Dev tooling** — Tauri invoke mock + 3 test accounts for Playwright-based debugging

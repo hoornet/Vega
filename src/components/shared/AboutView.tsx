@@ -75,7 +75,7 @@ export function AboutView() {
         {/* QR codes */}
         <section className="mb-8">
           <h2 className="text-text-dim text-[10px] uppercase tracking-widest mb-4">Scan to send</h2>
-          <div className="flex flex-wrap gap-16">
+          <div className="flex justify-between gap-8">
             <div>
               <div className="text-text-muted text-[11px] mb-2">Lightning</div>
               <QRBlock value={`lightning:${LIGHTNING_ADDRESS}`} label={LIGHTNING_ADDRESS} />
