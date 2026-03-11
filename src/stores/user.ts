@@ -6,6 +6,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useMuteStore } from "./mute";
 import { useLightningStore } from "./lightning";
 import { useUIStore } from "./ui";
+import { useNotificationsStore } from "./notifications";
 
 export interface SavedAccount {
   pubkey: string;
@@ -112,10 +113,11 @@ export const useUserStore = create<UserState>((set, get) => ({
       // Load per-account NWC wallet
       useLightningStore.getState().loadNwcForAccount(pubkey);
 
-      // Fetch profile, follows, and mute list
+      // Fetch profile, follows, mute list, and notifications
       get().fetchOwnProfile();
       get().fetchFollows();
       useMuteStore.getState().fetchMuteList(pubkey);
+      useNotificationsStore.getState().fetchNotifications(pubkey);
     } catch (err) {
       set({ loginError: `Login failed: ${err}` });
     }
@@ -154,6 +156,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       get().fetchOwnProfile();
       get().fetchFollows();
       useMuteStore.getState().fetchMuteList(pubkey);
+      useNotificationsStore.getState().fetchNotifications(pubkey);
     } catch (err) {
       set({ loginError: `Login failed: ${err}` });
     }

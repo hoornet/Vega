@@ -10,7 +10,7 @@ import { NDKEvent } from "@nostr-dev-kit/ndk";
 type FeedTab = "global" | "following";
 
 export function Feed() {
-  const { notes, loading, connected, error, connect, loadCachedFeed, loadFeed } = useFeedStore();
+  const { notes, loading, connected, error, connect, loadCachedFeed, loadFeed, focusedNoteIndex } = useFeedStore();
   const { loggedIn, follows } = useUserStore();
   const { mutedPubkeys } = useMuteStore();
 
@@ -124,8 +124,8 @@ export function Feed() {
           </div>
         )}
 
-        {filteredNotes.map((event) => (
-          <NoteCard key={event.id} event={event} />
+        {filteredNotes.map((event, index) => (
+          <NoteCard key={event.id} event={event} focused={focusedNoteIndex === index} />
         ))}
       </div>
     </div>

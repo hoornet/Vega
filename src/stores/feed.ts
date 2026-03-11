@@ -8,9 +8,11 @@ interface FeedState {
   loading: boolean;
   connected: boolean;
   error: string | null;
+  focusedNoteIndex: number;
   connect: () => Promise<void>;
   loadCachedFeed: () => Promise<void>;
   loadFeed: () => Promise<void>;
+  setFocusedNoteIndex: (n: number) => void;
 }
 
 export const useFeedStore = create<FeedState>((set, get) => ({
@@ -18,6 +20,8 @@ export const useFeedStore = create<FeedState>((set, get) => ({
   loading: false,
   connected: false,
   error: null,
+  focusedNoteIndex: -1,
+  setFocusedNoteIndex: (n: number) => set({ focusedNoteIndex: n }),
 
   connect: async () => {
     try {
@@ -55,7 +59,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
         .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))
         .slice(0, 200);
 
-      set({ notes: merged, loading: false });
+      set({ notes: merged, loading: false, focusedNoteIndex: -1 });
 
       // Persist fresh notes to SQLite (fire-and-forget)
       dbSaveNotes(fresh.map((e) => JSON.stringify(e.rawEvent())));

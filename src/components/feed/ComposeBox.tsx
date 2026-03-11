@@ -93,6 +93,7 @@ export function ComposeBox({ onPublished }: { onPublished?: () => void }) {
         <div className="flex-1 min-w-0">
           <textarea
             ref={textareaRef}
+            data-compose
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}

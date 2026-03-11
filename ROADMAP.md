@@ -31,31 +31,15 @@ Bugs found during testing are fixed before Phase N+1 starts. A release is cut be
 
 ---
 
-## Phase 2 — Engagement & reach
-*Test v0.1.7 on Windows first. Fix any issues before starting.*
+## Phase 2 — Engagement & reach ✓ COMPLETE
 
-### 5. Notifications
-- No way to see mentions, replies to own notes, or incoming DMs without manually checking
-- Badge on the messages nav item for unread DMs
-- Notifications view: mentions of your pubkey, replies to your notes, new DMs
-- System notification (OS native) for DMs and mentions — Tauri has a notification plugin
+*Shipped in v0.1.11.*
 
-### 6. NIP-65 outbox model (relay lists, kind 10002)
-- Without NIP-65, we miss notes from people who publish to their own relay set
-- On profile open: fetch their kind 10002 relay list, query those relays for their notes
-- On publish: write to own relay list (configurable in settings)
-- Dramatically improves note discovery and reach
-
-### 7. Feed reply context
-- In the feed, replies look identical to top-level posts — no visual distinction
-- Show "↩ replying to @name" above the note content for kind-1 events with `e` tags
-- Clicking the context navigates to the parent note thread
-
-### 8. Keyboard shortcuts
-- A writing-focused desktop app should be keyboard-navigable
-- N — compose new note, R — reply to focused note, / — focus search
-- J/K — navigate feed up/down, Escape — close modal/back
-- Show shortcuts in a `?` help overlay
+- ✓ **Feed reply context** — "↩ replying to @name" shown above reply notes; click to open parent thread
+- ✓ **NIP-65 outbox model** — fetch user relay lists (kind 10002) for better note discovery; "Publish relay list" button in Settings; profile notes fetched via write relays
+- ✓ **Notifications** — mentions view with unread badge; 🔔 nav item in sidebar; badge clears on view
+- ✓ **DM unread badge** — messages nav item shows badge count; clears when conversation opened
+- ✓ **Keyboard shortcuts** — n (compose), / (search), j/k (feed nav), Esc (back), ? (help modal)
 
 ---
 
@@ -115,6 +99,13 @@ Bugs found during testing are fixed before Phase N+1 starts. A release is cut be
 ---
 
 ## What's already shipped
+
+### v0.2.0 — Phase 2: Engagement & Reach
+- **Feed reply context** — replies show "↩ replying to @name" above the note; click to open the parent thread
+- **NIP-65 outbox model** — reads kind 10002 relay lists so you see notes from people who publish to their own relays; profile notes fetched via their write relays; "Publish relay list to Nostr" button in Settings
+- **Notifications view** — 🔔 sidebar nav item; lists recent mentions with unread badge; badge clears on open
+- **DM unread badge** — messages nav item shows count of conversations with new messages; clears when conversation is opened
+- **Keyboard shortcuts** — `n` focus compose, `/` focus search, `j`/`k` navigate feed with ring highlight, `Esc` go back, `?` help overlay
 
 ### v0.1.10
 - **Fix: Bitcoin QR to right edge** — Support page QR section uses `justify-between` so Lightning sits left, Bitcoin sits right

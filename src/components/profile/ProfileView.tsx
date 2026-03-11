@@ -4,7 +4,7 @@ import { useUIStore } from "../../stores/ui";
 import { useUserStore } from "../../stores/user";
 import { useMuteStore } from "../../stores/mute";
 import { useProfile, invalidateProfileCache } from "../../hooks/useProfile";
-import { fetchUserNotes, publishProfile, getNDK } from "../../lib/nostr";
+import { fetchUserNotesNIP65, publishProfile, getNDK } from "../../lib/nostr";
 import { shortenPubkey } from "../../lib/utils";
 import { uploadImage } from "../../lib/upload";
 import { NoteCard } from "../feed/NoteCard";
@@ -254,7 +254,7 @@ export function ProfileView() {
 
   useEffect(() => {
     setLoading(true);
-    fetchUserNotes(pubkey).then((events) => {
+    fetchUserNotesNIP65(pubkey).then((events) => {
       setNotes(events);
       setLoading(false);
     }).catch(() => setLoading(false));

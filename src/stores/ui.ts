@@ -2,7 +2,7 @@ import { create } from "zustand";
 
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 
-type View = "feed" | "search" | "relays" | "settings" | "profile" | "thread" | "article-editor" | "article" | "about" | "zaps" | "dm";
+type View = "feed" | "search" | "relays" | "settings" | "profile" | "thread" | "article-editor" | "article" | "about" | "zaps" | "dm" | "notifications";
 
 interface UIState {
   currentView: View;
@@ -13,6 +13,7 @@ interface UIState {
   pendingSearch: string | null;
   pendingDMPubkey: string | null;
   pendingArticleNaddr: string | null;
+  showHelp: boolean;
   setView: (view: View) => void;
   openProfile: (pubkey: string) => void;
   openThread: (note: NDKEvent, from: View) => void;
@@ -21,6 +22,7 @@ interface UIState {
   openArticle: (naddr: string) => void;
   goBack: () => void;
   toggleSidebar: () => void;
+  toggleHelp: () => void;
 }
 
 const SIDEBAR_KEY = "wrystr_sidebar_collapsed";
@@ -34,6 +36,7 @@ export const useUIStore = create<UIState>((set, _get) => ({
   pendingSearch: null,
   pendingDMPubkey: null,
   pendingArticleNaddr: null,
+  showHelp: false,
   setView: (currentView) => set({ currentView }),
   openProfile: (pubkey) => set((s) => ({ currentView: "profile", selectedPubkey: pubkey, previousView: s.currentView as View })),
   openThread: (note, from) => set({ currentView: "thread", selectedNote: note, previousView: from }),
@@ -41,6 +44,7 @@ export const useUIStore = create<UIState>((set, _get) => ({
   openDM: (pubkey) => set({ currentView: "dm", pendingDMPubkey: pubkey }),
   openArticle: (naddr) => set((s) => ({ currentView: "article", pendingArticleNaddr: naddr, previousView: s.currentView as View })),
   goBack: () => set((s) => ({
+    showHelp: false,
     currentView: s.previousView !== s.currentView ? s.previousView : "feed",
     selectedNote: null,
   })),
@@ -49,4 +53,5 @@ export const useUIStore = create<UIState>((set, _get) => ({
     localStorage.setItem(SIDEBAR_KEY, String(next));
     return { sidebarCollapsed: next };
   }),
+  toggleHelp: () => set((s) => ({ showHelp: !s.showHelp })),
 }));

@@ -153,6 +153,7 @@ export function SearchView() {
         <div className="flex gap-2">
           <input
             ref={inputRef}
+            data-search-input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}

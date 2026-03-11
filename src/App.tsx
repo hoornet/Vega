@@ -12,8 +12,11 @@ import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
 import { AboutView } from "./components/shared/AboutView";
 import { ZapHistoryView } from "./components/zap/ZapHistoryView";
 import { DMView } from "./components/dm/DMView";
+import { NotificationsView } from "./components/notifications/NotificationsView";
+import { HelpModal } from "./components/shared/HelpModal";
 import { useUIStore } from "./stores/ui";
 import { useUpdater } from "./hooks/useUpdater";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
 
 function UpdateBanner() {
   const { available, version, installing, error, install, dismiss } = useUpdater();
@@ -40,9 +43,13 @@ function UpdateBanner() {
 
 function App() {
   const currentView = useUIStore((s) => s.currentView);
+  const showHelp = useUIStore((s) => s.showHelp);
+  const toggleHelp = useUIStore((s) => s.toggleHelp);
   const [onboardingDone, setOnboardingDone] = useState(
     () => !!localStorage.getItem("wrystr_pubkey")
   );
+
+  useKeyboardShortcuts();
 
   if (!onboardingDone) {
     return <OnboardingFlow onComplete={() => setOnboardingDone(true)} />;
@@ -65,8 +72,10 @@ function App() {
         {currentView === "about" && <AboutView />}
         {currentView === "zaps" && <ZapHistoryView />}
         {currentView === "dm" && <DMView />}
+        {currentView === "notifications" && <NotificationsView />}
       </main>
       </div>
+      {showHelp && <HelpModal onClose={toggleHelp} />}
     </div>
   );
 }

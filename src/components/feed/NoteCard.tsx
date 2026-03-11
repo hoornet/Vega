@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { useProfile } from "../../hooks/useProfile";
 import { useReactionCount } from "../../hooks/useReactionCount";
@@ -7,16 +7,31 @@ import { useUserStore } from "../../stores/user";
 import { useMuteStore } from "../../stores/mute";
 import { useUIStore } from "../../stores/ui";
 import { timeAgo, shortenPubkey } from "../../lib/utils";
-import { publishReaction, publishReply, publishRepost, getNDK } from "../../lib/nostr";
+import { publishReaction, publishReply, publishRepost, getNDK, fetchNoteById } from "../../lib/nostr";
 import { NoteContent } from "./NoteContent";
 import { ZapModal } from "../zap/ZapModal";
 import { QuoteModal } from "./QuoteModal";
 
 interface NoteCardProps {
   event: NDKEvent;
+  focused?: boolean;
 }
 
-export function NoteCard({ event }: NoteCardProps) {
+function getParentEventId(event: NDKEvent): string | null {
+  const eTags = event.tags.filter((t) => t[0] === "e");
+  if (eTags.length === 0) return null;
+  return eTags.find((t) => t[3] === "reply")?.[1]
+    ?? eTags.find((t) => t[3] === "root")?.[1]
+    ?? eTags[eTags.length - 1][1];
+}
+
+function ParentAuthorName({ pubkey }: { pubkey: string }) {
+  const profile = useProfile(pubkey);
+  const name = profile?.displayName || profile?.name || pubkey.slice(0, 8) + "…";
+  return <span className="text-accent">@{name}</span>;
+}
+
+export function NoteCard({ event, focused }: NoteCardProps) {
   const profile = useProfile(event.pubkey);
   const name = profile?.displayName || profile?.name || shortenPubkey(event.pubkey);
   const avatar = profile?.picture;
@@ -27,6 +42,14 @@ export function NoteCard({ event }: NoteCardProps) {
   const { mutedPubkeys, mute, unmute } = useMuteStore();
   const isMuted = mutedPubkeys.includes(event.pubkey);
   const { openProfile, openThread, currentView } = useUIStore();
+
+  const parentEventId = getParentEventId(event);
+  const parentAuthorPubkey = event.tags.find((t) => t[0] === "p")?.[1] ?? null;
+
+  const cardRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (focused) cardRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [focused]);
   const likedKey = "wrystr_liked";
   const getLiked = () => {
     try { return new Set<string>(JSON.parse(localStorage.getItem(likedKey) || "[]")); }
@@ -101,7 +124,10 @@ export function NoteCard({ event }: NoteCardProps) {
   };
 
   return (
-    <article className="border-b border-border px-4 py-3 hover:bg-bg-hover transition-colors duration-100 group/card">
+    <article
+      ref={cardRef}
+      className={`border-b border-border px-4 py-3 hover:bg-bg-hover transition-colors duration-100 group/card${focused ? " ring-1 ring-inset ring-accent/30" : ""}`}
+    >
       <div className="flex gap-3">
         {/* Avatar */}
         <div className="shrink-0 cursor-pointer" onClick={() => openProfile(event.pubkey)}>
@@ -158,6 +184,20 @@ export function NoteCard({ event }: NoteCardProps) {
               </div>
             )}
           </div>
+
+          {parentEventId && parentAuthorPubkey && (
+            <button
+              onClick={async (e) => {
+                e.stopPropagation();
+                const parent = await fetchNoteById(parentEventId);
+                if (parent) openThread(parent, "feed");
+              }}
+              className="text-text-dim text-[11px] mb-1.5 flex items-center gap-1 hover:text-accent transition-colors"
+            >
+              <span>↩ replying to </span>
+              <ParentAuthorName pubkey={parentAuthorPubkey} />
+            </button>
+          )}
 
           <div
             className="cursor-pointer"

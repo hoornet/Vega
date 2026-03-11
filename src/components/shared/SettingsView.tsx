@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useUserStore } from "../../stores/user";
 import { useMuteStore } from "../../stores/mute";
-import { getNDK, getStoredRelayUrls, addRelay, removeRelay } from "../../lib/nostr";
+import { getNDK, getStoredRelayUrls, addRelay, removeRelay, publishRelayList } from "../../lib/nostr";
 import { useProfile } from "../../hooks/useProfile";
 import { NWCWizard } from "./NWCWizard";
 
@@ -61,9 +61,12 @@ function RelayRow({ url, onRemove }: { url: string; onRemove: () => void }) {
 }
 
 function RelaySection() {
+  const { loggedIn } = useUserStore();
   const [relays, setRelays] = useState<string[]>(() => getStoredRelayUrls());
   const [input, setInput] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [publishing, setPublishing] = useState(false);
+  const [publishedAt, setPublishedAt] = useState<number | null>(null);
 
   const handleAdd = () => {
     const url = input.trim();
@@ -90,6 +93,18 @@ function RelaySection() {
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") handleAdd();
     if (e.key === "Escape") setInput("");
+  };
+
+  const handlePublishRelayList = async () => {
+    setPublishing(true);
+    try {
+      await publishRelayList(getStoredRelayUrls());
+      setPublishedAt(Date.now());
+    } catch {
+      // ignore — publishing failure is non-critical
+    } finally {
+      setPublishing(false);
+    }
   };
 
   return (
@@ -119,6 +134,20 @@ function RelaySection() {
         </button>
       </div>
       {error && <p className="text-danger text-[11px] mt-1">{error}</p>}
+      {loggedIn && !!getNDK().signer && (
+        <div className="mt-3">
+          <button
+            onClick={handlePublishRelayList}
+            disabled={publishing}
+            className="text-[11px] px-3 py-1.5 border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {publishing ? "publishing…" : publishedAt ? "published ✓" : "publish relay list to Nostr"}
+          </button>
+          <p className="text-text-dim text-[10px] mt-1">
+            Saves your relay list as a kind 10002 event (NIP-65) so other clients can find your notes.
+          </p>
+        </div>
+      )}
     </section>
   );
 }

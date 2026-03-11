@@ -1,4 +1,4 @@
-import NDK, { NDKEvent, NDKFilter, NDKKind, NDKRelay, NDKSubscriptionCacheUsage, nip19 } from "@nostr-dev-kit/ndk";
+import NDK, { NDKEvent, NDKFilter, NDKKind, NDKRelay, NDKRelaySet, NDKSubscriptionCacheUsage, nip19 } from "@nostr-dev-kit/ndk";
 
 const RELAY_STORAGE_KEY = "wrystr_relays";
 
@@ -468,4 +468,60 @@ export async function fetchProfile(pubkey: string) {
   const user = instance.getUser({ pubkey });
   await user.fetchProfile();
   return user.profile;
+}
+
+// ── NIP-65 Relay Lists ────────────────────────────────────────────────────────
+
+export interface UserRelayList { read: string[]; write: string[]; }
+
+export async function fetchUserRelayList(pubkey: string): Promise<UserRelayList> {
+  const instance = getNDK();
+  const filter: NDKFilter = { kinds: [10002 as NDKKind], authors: [pubkey], limit: 1 };
+  const events = await instance.fetchEvents(filter, { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY });
+  if (events.size === 0) return { read: [], write: [] };
+  const event = Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))[0];
+  const read: string[] = [], write: string[] = [];
+  for (const tag of event.tags) {
+    if (tag[0] !== "r" || !tag[1]) continue;
+    const marker = tag[2];
+    if (!marker || marker === "read") read.push(tag[1]);
+    if (!marker || marker === "write") write.push(tag[1]);
+  }
+  return { read, write };
+}
+
+export async function publishRelayList(relayUrls: string[]): Promise<void> {
+  const instance = getNDK();
+  if (!instance.signer) throw new Error("Not logged in");
+  const event = new NDKEvent(instance);
+  event.kind = 10002 as NDKKind;
+  event.content = "";
+  event.tags = relayUrls.map((url) => ["r", url]);
+  await event.publish();
+}
+
+export async function fetchUserNotesNIP65(pubkey: string, limit = 30): Promise<NDKEvent[]> {
+  const instance = getNDK();
+  const filter: NDKFilter = { kinds: [NDKKind.Text], authors: [pubkey], limit };
+  try {
+    const relayList = await fetchUserRelayList(pubkey);
+    if (relayList.write.length > 0) {
+      const merged = Array.from(new Set([...relayList.write, ...getStoredRelayUrls()]));
+      const relaySet = NDKRelaySet.fromRelayUrls(merged, instance);
+      const events = await instance.fetchEvents(filter, { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }, relaySet);
+      return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
+    }
+  } catch { /* fallthrough */ }
+  return fetchUserNotes(pubkey, limit);
+}
+
+// ── Notifications (mentions) ──────────────────────────────────────────────────
+
+export async function fetchMentions(pubkey: string, since: number, limit = 50): Promise<NDKEvent[]> {
+  const instance = getNDK();
+  const events = await instance.fetchEvents(
+    { kinds: [NDKKind.Text], "#p": [pubkey], since, limit },
+    { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }
+  );
+  return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }

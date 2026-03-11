@@ -31,6 +31,7 @@ Grab the latest release from the [Releases page](https://github.com/hoornet/wrys
 - Global and following feeds with live relay connection
 - Compose notes, inline replies, full thread view
 - **Image paste in compose** — paste an image from clipboard → auto-uploads and inserts the URL
+- **Feed reply context** — replies show "↩ replying to @name"; click to jump to the parent thread
 - Reactions (NIP-25) with live network counts
 - Follow / unfollow (NIP-02) with contact list publishing
 - **Quote & Repost** (NIP-18) — one-click repost or quote with compose modal
@@ -38,7 +39,12 @@ Grab the latest release from the [Releases page](https://github.com/hoornet/wrys
 - Long-form article editor + reader (NIP-23) — write with title, tags, cover image, auto-save; click any `nostr:naddr1…` link to open in the in-app reader
 - **Quoted note inline preview** — `nostr:note1…` / `nostr:nevent1…` renders as an inline card
 - Note rendering: images, video, mentions, hashtags, njump.me link interception
-- **Direct Messages** (NIP-04) — conversation list, thread view, per-message decryption
+- **Direct Messages** (NIP-04) — conversation list, thread view, per-message decryption; unread badge in sidebar
+- **Notifications** — mentions view (🔔 in sidebar) with unread badge; clears on open
+
+**Relay & network**
+- Relay management: add/remove relays with live connection status
+- **NIP-65 outbox model** — reads user relay lists (kind 10002) so you see notes from people who publish to their own relays; publish your own relay list to Nostr from Settings
 
 **Lightning & zaps**
 - **Per-account NWC wallet** — each account remembers its own Lightning wallet; switching accounts loads the correct one automatically
@@ -53,8 +59,8 @@ Grab the latest release from the [Releases page](https://github.com/hoornet/wrys
 - **SQLite note cache** — feed loads instantly from local cache on startup; profiles cached for immediate avatar display
 - **System tray** — close button hides to tray; "Quit" in tray menu to fully exit
 - Collapsible sidebar (icon-only mode)
+- **Keyboard shortcuts** — `n` compose, `/` search, `j`/`k` navigate feed, `Esc` back, `?` help overlay
 - Search: NIP-50 full-text, `#hashtag`, people search with inline follow
-- Relay management: add/remove relays with live connection status
 
 ## Stack
 
@@ -82,11 +88,12 @@ npm run tauri build     # production binary
 
 See [ROADMAP.md](./ROADMAP.md) for the full prioritised next steps.
 
-Up next (Phase 2):
-- Notifications — mentions, replies, DM badge, OS native alerts
-- NIP-65 outbox model — fetch notes from the right relay set per author
-- Feed reply context — show "↩ replying to @name" for replies in the feed
-- Keyboard shortcuts — N, R, /, J/K, Escape, ? help overlay
+Up next (Phase 3):
+- NIP-17 DMs (gift wrap) — proper sender/recipient privacy, replacing NIP-04
+- Image lightbox — click to expand images full-size
+- Bookmark list (NIP-51 kind 10003)
+- Follow suggestions / discovery
+- UI polish pass
 
 ## Support
 

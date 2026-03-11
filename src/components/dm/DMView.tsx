@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { NDKEvent, nip19 } from "@nostr-dev-kit/ndk";
 import { useUserStore } from "../../stores/user";
 import { useUIStore } from "../../stores/ui";
+import { useNotificationsStore } from "../../stores/notifications";
 import { fetchDMConversations, fetchDMThread, sendDM, decryptDM, getNDK } from "../../lib/nostr";
 import { useProfile } from "../../hooks/useProfile";
 import { timeAgo, shortenPubkey } from "../../lib/utils";
@@ -306,6 +307,12 @@ export function DMView() {
         if (!selectedPubkey && !pendingDMPubkey && grouped.size > 0) {
           setSelectedPubkey(Array.from(grouped.keys())[0]);
         }
+        // Compute DM unread counts
+        const convList = Array.from(grouped.entries()).map(([partnerPubkey, msgs]) => ({
+          partnerPubkey,
+          lastAt: msgs[0]?.created_at ?? 0,
+        }));
+        useNotificationsStore.getState().computeDMUnread(convList);
       })
       .finally(() => setLoading(false));
   }, [pubkey, hasSigner]);
@@ -354,7 +361,10 @@ export function DMView() {
               partnerPubkey={partner}
               lastEvent={events[0]}
               selected={selectedPubkey === partner}
-              onSelect={() => setSelectedPubkey(partner)}
+              onSelect={() => {
+                setSelectedPubkey(partner);
+                useNotificationsStore.getState().markDMRead(partner);
+              }}
             />
           ))}
         </div>

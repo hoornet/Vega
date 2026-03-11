@@ -1,6 +1,7 @@
 import { useUIStore } from "../../stores/ui";
 import { useFeedStore } from "../../stores/feed";
 import { useUserStore } from "../../stores/user";
+import { useNotificationsStore } from "../../stores/notifications";
 import { getNDK } from "../../lib/nostr";
 import { AccountSwitcher } from "./AccountSwitcher";
 import pkg from "../../../package.json";
@@ -9,6 +10,7 @@ const NAV_ITEMS = [
   { id: "feed" as const, label: "feed", icon: "◈" },
   { id: "search" as const, label: "search", icon: "⌕" },
   { id: "dm" as const, label: "messages", icon: "✉" },
+  { id: "notifications" as const, label: "notifications", icon: "🔔" },
   { id: "zaps" as const, label: "zaps", icon: "⚡" },
   { id: "relays" as const, label: "relays", icon: "⟐" },
   { id: "settings" as const, label: "settings", icon: "⚙" },
@@ -19,6 +21,7 @@ export function Sidebar() {
   const { currentView, setView, sidebarCollapsed, toggleSidebar } = useUIStore();
   const { connected } = useFeedStore();
   const { loggedIn } = useUserStore();
+  const { unreadCount: notifUnread, dmUnreadCount } = useNotificationsStore();
 
   const c = sidebarCollapsed;
 
@@ -75,21 +78,32 @@ export function Sidebar() {
           </button>
         )}
 
-        {NAV_ITEMS.map((item) => (
-          <button
-            key={item.id}
-            onClick={() => setView(item.id)}
-            title={c ? item.label : undefined}
-            className={`w-full text-left px-3 py-1.5 flex items-center gap-2 text-[12px] transition-colors ${
-              currentView === item.id
-                ? "text-accent bg-accent/8"
-                : "text-text-muted hover:text-text hover:bg-bg-hover"
-            }`}
-          >
-            <span className="w-4 text-center text-[14px]">{item.icon}</span>
-            {!c && <span>{item.label}</span>}
-          </button>
-        ))}
+        {NAV_ITEMS.map((item) => {
+          const badge = item.id === "dm" ? dmUnreadCount : item.id === "notifications" ? notifUnread : 0;
+          return (
+            <button
+              key={item.id}
+              onClick={() => setView(item.id)}
+              title={c ? item.label : undefined}
+              className={`w-full text-left px-3 py-1.5 flex items-center gap-2 text-[12px] transition-colors ${
+                currentView === item.id
+                  ? "text-accent bg-accent/8"
+                  : "text-text-muted hover:text-text hover:bg-bg-hover"
+              }`}
+            >
+              <span className="relative w-4 text-center text-[14px]">
+                {item.icon}
+                {badge > 0 && c && (
+                  <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-accent" />
+                )}
+              </span>
+              {!c && <span>{item.label}</span>}
+              {!c && badge > 0 && (
+                <span className="ml-auto text-[10px] bg-accent/20 text-accent px-1 rounded-sm">{badge}</span>
+              )}
+            </button>
+          );
+        })}
       </nav>
 
       {/* Account switcher (full) — expanded only */}
