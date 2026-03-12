@@ -108,8 +108,10 @@ export const useUserStore = create<UserState>((set, get) => ({
       localStorage.setItem("wrystr_pubkey", pubkey);
       localStorage.setItem("wrystr_login_type", "nsec");
 
-      // Store nsec in OS keychain (best-effort — gracefully ignored if unavailable)
-      invoke<void>("store_nsec", { pubkey, nsec: nsecInput }).catch(() => {});
+      // Store nsec in OS keychain
+      invoke<void>("store_nsec", { pubkey, nsec: nsecInput }).catch((err) => {
+        console.warn("Failed to store nsec in OS keychain:", err);
+      });
 
       // Load per-account NWC wallet
       useLightningStore.getState().loadNwcForAccount(pubkey);
@@ -173,6 +175,29 @@ export const useUserStore = create<UserState>((set, get) => ({
   },
 
   restoreSession: async () => {
+    // Pre-populate signer cache for ALL nsec accounts so switchAccount
+    // always hits the fast path (no keychain round-trip on every switch).
+    const accounts = get().accounts;
+    for (const acct of accounts) {
+      if (acct.loginType !== "nsec" || _signerCache.has(acct.pubkey)) continue;
+      try {
+        const nsec = await invoke<string | null>("load_nsec", { pubkey: acct.pubkey });
+        if (nsec) {
+          let privkey: string;
+          if (nsec.startsWith("nsec1")) {
+            const decoded = nip19.decode(nsec);
+            privkey = decoded.data as string;
+          } else {
+            privkey = nsec;
+          }
+          _signerCache.set(acct.pubkey, new NDKPrivateKeySigner(privkey));
+        }
+      } catch (err) {
+        console.warn(`Failed to load nsec for ${acct.npub} from keychain:`, err);
+      }
+    }
+
+    // Now restore the active account
     const savedPubkey = localStorage.getItem("wrystr_pubkey");
     const savedLoginType = localStorage.getItem("wrystr_login_type");
     if (!savedPubkey) return;
@@ -183,15 +208,20 @@ export const useUserStore = create<UserState>((set, get) => ({
     }
 
     if (savedLoginType === "nsec") {
-      try {
-        const nsec = await invoke<string | null>("load_nsec", { pubkey: savedPubkey });
-        if (nsec) {
-          await get().loginWithNsec(nsec);
-        }
-        // No keychain entry yet → stay logged out, user re-enters nsec once.
-      } catch {
-        // Keychain unavailable (e.g. no secret service on this Linux session) — stay logged out.
+      const cachedSigner = _signerCache.get(savedPubkey);
+      if (cachedSigner) {
+        getNDK().signer = cachedSigner;
+        const npub = nip19.npubEncode(savedPubkey);
+        set({ pubkey: savedPubkey, npub, loggedIn: true, loginError: null });
+        localStorage.setItem("wrystr_pubkey", savedPubkey);
+        localStorage.setItem("wrystr_login_type", "nsec");
+        useLightningStore.getState().loadNwcForAccount(savedPubkey);
+        get().fetchOwnProfile();
+        get().fetchFollows();
+        useMuteStore.getState().fetchMuteList(savedPubkey);
+        useNotificationsStore.getState().fetchNotifications(savedPubkey);
       }
+      // No keychain entry → stay logged out, user re-enters nsec once.
     }
   },
 
@@ -218,7 +248,7 @@ export const useUserStore = create<UserState>((set, get) => ({
       return;
     }
 
-    // Slow path: cache miss (first session after restart) — try OS keychain
+    // Slow path: cache miss — try OS keychain
     let succeeded = false;
     try {
       const nsec = await invoke<string | null>("load_nsec", { pubkey });
@@ -226,17 +256,23 @@ export const useUserStore = create<UserState>((set, get) => ({
         await get().loginWithNsec(nsec);
         succeeded = !!getNDK().signer;
       }
-    } catch {
-      // Keychain unavailable
+    } catch (err) {
+      console.warn("Keychain load failed during account switch:", err);
     }
     if (!succeeded) {
       const account = get().accounts.find((a) => a.pubkey === pubkey);
       if (account?.loginType === "pubkey") {
         // Deliberately read-only (npub) account — correct behavior
         await get().loginWithPubkey(pubkey);
+      } else {
+        // nsec account whose keychain entry was lost — update state to reflect
+        // the target account (logged out) so the UI shows the correct account
+        // with a login prompt, rather than staying stuck on the previous account.
+        const npub = account?.npub ?? nip19.npubEncode(pubkey);
+        set({ pubkey, npub, loggedIn: false, loginError: null, profile: null, follows: [] });
+        localStorage.setItem("wrystr_pubkey", pubkey);
+        localStorage.setItem("wrystr_login_type", "nsec");
       }
-      // else: nsec account whose keychain entry was lost.
-      // Stay logged out; user sees AccountSwitcher "login" button to re-enter nsec.
     }
     // Always land on feed to avoid stale UI from previous account's view
     useUIStore.getState().setView("feed");

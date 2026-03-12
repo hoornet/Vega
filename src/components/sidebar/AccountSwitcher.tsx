@@ -26,7 +26,7 @@ function Avatar({ account, size = "w-6 h-6", textSize = "text-[10px]" }: { accou
 }
 
 export function AccountSwitcher() {
-  const { accounts, pubkey, switchAccount, removeAccount, logout } = useUserStore();
+  const { accounts, pubkey, loggedIn, switchAccount, removeAccount, logout } = useUserStore();
   const { openProfile } = useUIStore();
   const [open, setOpen] = useState(false);
   const [showAddLogin, setShowAddLogin] = useState(false);
@@ -137,13 +137,21 @@ export function AccountSwitcher() {
 
         {/* Active account row */}
         <div className="px-3 py-2">
+          {!loggedIn && (
+            <button
+              onClick={() => setShowAddLogin(true)}
+              className="w-full mb-1.5 px-2 py-1 text-[10px] border border-accent/40 text-accent hover:bg-accent/10 transition-colors"
+            >
+              re-login to sign
+            </button>
+          )}
           <div className="flex items-center gap-2">
             <div
               className="flex items-center gap-2 flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
               onClick={() => openProfile(pubkey)}
             >
               <Avatar account={current} size="w-8 h-8" textSize="text-[12px]" />
-              <span className="text-text text-[12px] font-medium truncate flex-1">{displayName(current)}</span>
+              <span className={`text-[12px] font-medium truncate flex-1 ${loggedIn ? "text-text" : "text-text-muted"}`}>{displayName(current)}</span>
             </div>
             <button
               onClick={() => setOpen((v) => !v)}
