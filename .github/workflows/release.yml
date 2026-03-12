@@ -19,8 +19,6 @@ jobs:
             args: ''
           - platform: macos-latest
             args: '--target aarch64-apple-darwin'
-          - platform: macos-13
-            args: '--target x86_64-apple-darwin'
 
     runs-on: ${{ matrix.platform }}
 
@@ -126,7 +124,6 @@ jobs:
 
             **Windows:** Download the `.exe` installer and run it.
             **macOS (Apple Silicon):** Download the `aarch64.dmg` and open it.
-            **macOS (Intel):** Download the `x86_64.dmg` and open it.
 
             ---
             ⚡ Find Wrystr useful? [Zap the developer](https://github.com/hoornet/wrystr#support) or star the repo.

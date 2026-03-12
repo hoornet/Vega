@@ -16,7 +16,6 @@ Grab the latest release from the [Releases page](https://github.com/hoornet/wrys
 | Arch / Manjaro | build from source | see [`PKGBUILD`](./PKGBUILD) |
 | Windows | `.exe` installer | run the installer |
 | macOS (Apple Silicon) | `aarch64.dmg` | open and drag to Applications |
-| macOS (Intel) | `x86_64.dmg` | open and drag to Applications |
 
 **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
