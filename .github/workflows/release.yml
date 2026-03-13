@@ -66,6 +66,12 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
+            ### New in v0.2.9
+            - **Image paste fix** — uploads now use Tauri HTTP plugin, fixing "Failed to fetch" on Windows
+            - **Sent zaps visible** — zap history now correctly shows sent zaps (queries kind 9735 receipts instead of ephemeral kind 9734)
+            - **Reply-to @name clickable** — clicking the @name in "↩ replying to @name" now opens that person's profile
+            - **Feed refresh on login** — switching or adding an account immediately loads the new account's feed
+
             ### New in v0.2.8
             - **Fix: OS keychain was a no-op** — `keyring` crate had no platform backends enabled; nsec keys now actually persist to Windows Credential Manager, macOS Keychain, and Linux keyutils
             - **Fix: multi-account persistence** — all nsec accounts restored from keychain on startup; account switching no longer gets stuck after restart
