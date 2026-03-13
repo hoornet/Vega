@@ -1,6 +1,8 @@
+import { fetch } from "@tauri-apps/plugin-http";
+
 /**
  * Upload an image file to nostr.build and return the hosted URL.
- * nostr.build offers free public image hosting for the Nostr ecosystem.
+ * Uses Tauri's HTTP plugin to bypass WebView CORS/fetch restrictions.
  */
 export async function uploadImage(file: File): Promise<string> {
   const form = new FormData();
