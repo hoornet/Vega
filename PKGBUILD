@@ -1,4 +1,4 @@
-# Maintainer: hoornet <harpos@getalby.com>
+# Maintainer: hoornet <hoornet@users.noreply.github.com>
 pkgname=wrystr
 pkgver=0.2.8
 pkgrel=1
