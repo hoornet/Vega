@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { NDKEvent, nip19 } from "@nostr-dev-kit/ndk";
+import { NDKEvent, NDKKind, nip19 } from "@nostr-dev-kit/ndk";
 import { useUserStore } from "../../stores/user";
 import { useUIStore } from "../../stores/ui";
 import { useNotificationsStore } from "../../stores/notifications";
@@ -68,7 +68,9 @@ function ConvRow({
           <span className="text-text text-[12px] font-medium truncate">{name}</span>
           <span className="text-text-dim text-[10px] shrink-0">{time}</span>
         </div>
-        <div className="text-text-dim text-[11px] truncate">🔒 encrypted</div>
+        <div className="text-text-dim text-[11px] truncate">
+          {lastEvent.kind === NDKKind.PrivateDirectMessage ? "🔒 NIP-17" : "🔒 NIP-04"}
+        </div>
       </div>
     </button>
   );
@@ -139,6 +141,7 @@ function ThreadPanel({
     setMessages([]);
     fetchDMThread(myPubkey, partnerPubkey)
       .then(setMessages)
+      .catch((err) => console.error("Failed to fetch DM thread:", err))
       .finally(() => setLoading(false));
   }, [partnerPubkey, myPubkey]);
 
@@ -222,7 +225,7 @@ function ThreadPanel({
             {sending ? "…" : "send"}
           </button>
         </div>
-        <p className="text-text-dim text-[10px] mt-1">Ctrl+Enter to send · NIP-04 encrypted</p>
+        <p className="text-text-dim text-[10px] mt-1">Ctrl+Enter to send · gift-wrapped (NIP-17)</p>
       </div>
     </div>
   );
@@ -314,6 +317,7 @@ export function DMView() {
         }));
         useNotificationsStore.getState().computeDMUnread(convList);
       })
+      .catch((err) => console.error("Failed to fetch DM conversations:", err))
       .finally(() => setLoading(false));
   }, [pubkey, hasSigner]);
 
@@ -355,18 +359,34 @@ export function DMView() {
               No messages yet.
             </div>
           )}
-          {sortedPartners.map(([partner, events]) => (
-            <ConvRow
-              key={partner}
-              partnerPubkey={partner}
-              lastEvent={events[0]}
-              selected={selectedPubkey === partner}
-              onSelect={() => {
-                setSelectedPubkey(partner);
-                useNotificationsStore.getState().markDMRead(partner);
-              }}
-            />
-          ))}
+          {sortedPartners.map(([partner, events]) =>
+            events[0] ? (
+              <ConvRow
+                key={partner}
+                partnerPubkey={partner}
+                lastEvent={events[0]}
+                selected={selectedPubkey === partner}
+                onSelect={() => {
+                  setSelectedPubkey(partner);
+                  useNotificationsStore.getState().markDMRead(partner);
+                }}
+              />
+            ) : (
+              <button
+                key={partner}
+                onClick={() => setSelectedPubkey(partner)}
+                className={`w-full flex items-center gap-2.5 px-3 py-2.5 text-left transition-colors ${
+                  selectedPubkey === partner ? "bg-accent/10 border-l-2 border-accent" : "hover:bg-bg-hover border-l-2 border-transparent"
+                }`}
+              >
+                <div className="w-8 h-8 rounded-sm bg-bg-raised border border-border flex items-center justify-center text-text-dim text-xs shrink-0">?</div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-text text-[12px] font-medium truncate block">{shortenPubkey(partner)}</span>
+                  <span className="text-text-dim text-[11px]">New conversation</span>
+                </div>
+              </button>
+            )
+          )}
         </div>
 
         <NewConvInput

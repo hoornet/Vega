@@ -39,7 +39,7 @@ export function NoteCard({ event, focused }: NoteCardProps) {
   const nip05 = profile?.nip05;
   const time = event.created_at ? timeAgo(event.created_at) : "";
 
-  const { loggedIn, pubkey: ownPubkey } = useUserStore();
+  const { loggedIn, pubkey: ownPubkey, follows, follow, unfollow } = useUserStore();
   const { mutedPubkeys, mute, unmute } = useMuteStore();
   const isMuted = mutedPubkeys.includes(event.pubkey);
   const { bookmarkedIds, addBookmark, removeBookmark } = useBookmarkStore();
@@ -175,6 +175,12 @@ export function NoteCard({ event, focused }: NoteCardProps) {
                   <>
                     <div className="fixed inset-0 z-[9]" onClick={() => setMenuOpen(false)} />
                     <div className="absolute right-0 top-5 bg-bg-raised border border-border shadow-lg z-10 w-32">
+                      <button
+                        onClick={() => { setMenuOpen(false); follows.includes(event.pubkey) ? unfollow(event.pubkey) : follow(event.pubkey); }}
+                        className="w-full text-left px-3 py-2 text-[11px] text-text-muted hover:text-accent hover:bg-bg-hover transition-colors"
+                      >
+                        {follows.includes(event.pubkey) ? `unfollow` : `follow`}
+                      </button>
                       <button
                         onClick={() => { setMenuOpen(false); isMuted ? unmute(event.pubkey) : mute(event.pubkey); }}
                         className="w-full text-left px-3 py-2 text-[11px] text-text-muted hover:text-danger hover:bg-bg-hover transition-colors"
