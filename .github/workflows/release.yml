@@ -66,6 +66,14 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
+            ### New in v0.4.1 — Media & Feed Fixes
+            - **Video player** — direct video URLs (.mp4, .webm, .mov, etc.) now render as inline players with native controls
+            - **Audio player** — direct audio URLs (.mp3, .wav, .flac, etc.) render as inline audio players with filename display
+            - **YouTube/Vimeo rich cards** — YouTube links show thumbnail previews, Vimeo/Spotify/Tidal show branded cards; all open in external browser
+            - **Media detection** — parser now recognizes YouTube, Vimeo, Spotify, and Tidal URLs as distinct media types
+            - **Fix: video clicks opening thread** — media elements rendered outside the clickable area so interactions don't navigate away
+            - **Fix: post not visible on Following tab** — publishing a note while on Following now correctly shows it in the feed
+
             ### New in v0.4.0 — Phase 3: Discovery & Polish
             - **Image lightbox** — click any image to view full-screen; Escape to close, arrow keys to navigate multi-image posts
             - **Bookmarks (NIP-51)** — save/unsave notes with one click; dedicated Bookmarks view in sidebar; synced to relays (kind 10003)

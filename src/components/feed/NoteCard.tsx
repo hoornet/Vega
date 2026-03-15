@@ -216,8 +216,9 @@ export function NoteCard({ event, focused }: NoteCardProps) {
             className="cursor-pointer"
             onClick={() => openThread(event, currentView as "feed" | "profile")}
           >
-            <NoteContent content={event.content} />
+            <NoteContent content={event.content} inline />
           </div>
+          <NoteContent content={event.content} mediaOnly />
 
           {/* Actions */}
           {loggedIn && !!getNDK().signer && (

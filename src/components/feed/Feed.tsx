@@ -133,7 +133,9 @@ export function Feed() {
       </header>
 
       {/* Compose */}
-      {loggedIn && !!getNDK().signer && <ComposeBox onPublished={loadFeed} />}
+      {loggedIn && !!getNDK().signer && (
+        <ComposeBox onPublished={isFollowing ? undefined : loadFeed} onNoteInjected={isFollowing ? (event) => setFollowNotes((prev) => [event, ...prev]) : undefined} />
+      )}
 
       {/* Feed */}
       <div className="flex-1 overflow-y-auto">

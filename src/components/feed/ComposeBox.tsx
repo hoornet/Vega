@@ -5,7 +5,7 @@ import { useUserStore } from "../../stores/user";
 import { useFeedStore } from "../../stores/feed";
 import { shortenPubkey } from "../../lib/utils";
 
-export function ComposeBox({ onPublished }: { onPublished?: () => void }) {
+export function ComposeBox({ onPublished, onNoteInjected }: { onPublished?: () => void; onNoteInjected?: (event: import("@nostr-dev-kit/ndk").NDKEvent) => void }) {
   const [text, setText] = useState("");
   const [publishing, setPublishing] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -62,10 +62,14 @@ export function ComposeBox({ onPublished }: { onPublished?: () => void }) {
     try {
       const event = await publishNote(text.trim());
       // Inject into feed immediately so the user sees their post
-      const { notes } = useFeedStore.getState();
-      useFeedStore.setState({
-        notes: [event, ...notes],
-      });
+      if (onNoteInjected) {
+        onNoteInjected(event);
+      } else {
+        const { notes } = useFeedStore.getState();
+        useFeedStore.setState({
+          notes: [event, ...notes],
+        });
+      }
       setText("");
       textareaRef.current?.focus();
       onPublished?.();
