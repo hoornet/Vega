@@ -188,7 +188,10 @@ jobs:
             sudo rpm -i wrystr-*.rpm          # Fedora
             sudo zypper install wrystr-*.rpm  # openSUSE
             ```
-            **Linux (Arch / Manjaro):** See [`PKGBUILD`](https://github.com/hoornet/wrystr/blob/main/PKGBUILD) in the repo, or build from source with `npm run tauri build`.
+            **Linux (Arch / Manjaro):** Install from the AUR:
+            ```
+            yay -S wrystr-git
+            ```
 
             **Windows:** Download the `.exe` installer and run it.
             **macOS (Apple Silicon):** Download the `aarch64.dmg` and open it.
