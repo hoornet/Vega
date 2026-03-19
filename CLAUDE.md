@@ -45,19 +45,21 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 **Frontend** (`src/`): React 19 + TypeScript + Vite + Tailwind CSS 4
 
 - `src/App.tsx` — root component; shows `OnboardingFlow` for new users, then view routing via UI store
-- `src/stores/` — Zustand stores per domain: `feed.ts`, `user.ts`, `ui.ts`, `lightning.ts`, `drafts.ts`
+- `src/stores/` — Zustand stores per domain: `feed.ts`, `user.ts`, `ui.ts`, `lightning.ts`, `drafts.ts`, `relayHealth.ts`
 - `src/lib/nostr/` — NDK wrapper (`client.ts` + `index.ts`); all Nostr calls go through here
 - `src/lib/lightning/` — NWC client (`nwc.ts`); Lightning payment logic
 - `src/hooks/` — `useProfile.ts`, `useReactionCount.ts`
 - `src/components/feed/` — Feed, NoteCard, NoteContent, ComposeBox
 - `src/components/profile/` — ProfileView (own + others, edit form)
 - `src/components/thread/` — ThreadView
-- `src/components/search/` — SearchView (NIP-50, hashtag, people, articles)
+- `src/components/search/` — SearchView (advanced search with modifiers, NIP-50, hashtag, people, articles)
+- `src/lib/search.ts` — Advanced search query parser (by:, has:, is:, kind:, since:, until:, OR)
+- `src/lib/nostr/relayHealth.ts` — Relay health checker (NIP-11, latency probing, status classification)
 - `src/components/article/` — ArticleEditor, ArticleView, ArticleFeed, ArticleCard, MarkdownToolbar (NIP-23)
 - `src/components/bookmark/` — BookmarkView
 - `src/components/zap/` — ZapModal
 - `src/components/onboarding/` — OnboardingFlow (welcome, create key, backup, login)
-- `src/components/shared/` — RelaysView, SettingsView (relay mgmt + NWC + identity)
+- `src/components/shared/` — RelaysView (relay health dashboard + management), SettingsView (NWC + identity)
 - `src/components/sidebar/` — Sidebar navigation
 
 **Backend** (`src-tauri/`): Rust + Tauri 2.0
@@ -83,7 +85,7 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 
 - **P1 (core):** NIP-01, 02, 03, 10, 11, 19, 21, 25, 27, 50
 - **P2 (monetization):** NIP-47 (NWC/Lightning), NIP-57 (zaps), NIP-65 (relay lists)
-- **P3 (advanced):** NIP-04/44 (DMs), NIP-23 (articles), NIP-96 (file storage), NIP-98 (HTTP Auth — implemented for uploads)
+- **P3 (advanced):** NIP-04/44 (DMs), NIP-11 (relay info — used by health checker), NIP-23 (articles), NIP-96 (file storage), NIP-98 (HTTP Auth — implemented for uploads)
 
 ## Current State
 
@@ -100,9 +102,10 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 - **Article cards** — reusable component with title, summary, author, cover thumbnail, reading time, tags
 - **NIP-98 HTTP Auth** for image uploads with fallback services (nostr.build, void.cat, nostrimg.com)
 - Zaps: NWC wallet connect (NIP-47) + NIP-57 via NDKZapper
+- **Advanced search** — query parser with modifiers: `by:author`, `mentions:npub`, `kind:N`, `is:article`, `has:image`, `since:date`, `until:date`, `#hashtag`, `"phrase"`, boolean `OR`; NIP-05 resolution; client-side content filters; search help panel
 - Search: NIP-50 full-text, hashtag (#t filter), people, articles
 - Settings: relay add/remove (persisted to localStorage), NWC URI, npub copy
-- Relay connection status view
+- **Relay health checker** — NIP-11 info fetch, WebSocket latency probing, online/slow/offline status; expandable cards with supported NIPs, software info; "Remove dead" + "Republish list" workflow
 - OS keychain integration — nsec persists across restarts via `keyring` crate
 - SQLite note + profile cache
 - Direct messages (NIP-04 + NIP-17 gift wrap)

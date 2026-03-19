@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
-import { searchNotes, searchUsers, searchArticles, getStoredRelayUrls, fetchFollowSuggestions, fetchProfile } from "../../lib/nostr";
+import { getStoredRelayUrls, fetchFollowSuggestions, fetchProfile, advancedSearch } from "../../lib/nostr";
+import { parseSearchQuery, describeSearch } from "../../lib/search";
 import { getNip50Relays } from "../../lib/nostr/relayInfo";
 import { useUserStore } from "../../stores/user";
 import { useUIStore } from "../../stores/ui";
@@ -135,7 +136,8 @@ export function SearchView() {
   const [suggestionsLoading, setSuggestionsLoading] = useState(false);
   const [suggestionsLoaded, setSuggestionsLoaded] = useState(false);
 
-  const isHashtag = query.trim().startsWith("#");
+  const [searchHint, setSearchHint] = useState<string | null>(null);
+  const isHashtag = query.trim().startsWith("#") && !query.includes(":");
 
   // Check relay NIP-50 support once on mount (background, non-blocking)
   useEffect(() => {
@@ -191,17 +193,23 @@ export function SearchView() {
     if (overrideQuery) setQuery(overrideQuery);
     setLoading(true);
     setSearched(false);
+    setSearchHint(null);
     try {
-      const isTag = q.startsWith("#");
-      const [notes, userEvents, articleEvents] = await Promise.all([
-        searchNotes(q),
-        isTag ? Promise.resolve([]) : searchUsers(q),
-        searchArticles(q),
-      ]);
-      setNoteResults(notes);
-      setUserResults(userEvents.map(parseUserEvent));
-      setArticleResults(articleEvents);
-      setActiveTab(notes.length > 0 ? "notes" : articleEvents.length > 0 ? "articles" : "people");
+      const parsed = parseSearchQuery(q);
+      const isAdvanced = parsed.authors.length > 0 || parsed.unresolvedNip05.length > 0 ||
+        parsed.kinds.length > 0 || parsed.hasFilters.length > 0 ||
+        parsed.since !== null || parsed.until !== null || parsed.mentions.length > 0 ||
+        parsed.orQueries !== null;
+
+      if (isAdvanced) {
+        setSearchHint(describeSearch(parsed));
+      }
+
+      const results = await advancedSearch(parsed);
+      setNoteResults(results.notes);
+      setUserResults(results.users.map(parseUserEvent));
+      setArticleResults(results.articles);
+      setActiveTab(results.notes.length > 0 ? "notes" : results.articles.length > 0 ? "articles" : "people");
     } finally {
       setLoading(false);
       setSearched(true);
@@ -236,7 +244,7 @@ export function SearchView() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="search notes, #hashtags, or people…"
+            placeholder="search… try by:name, #tag, has:image, is:article, since:2026-01-01"
             autoFocus
             className="flex-1 bg-transparent text-text text-[13px] placeholder:text-text-dim focus:outline-none"
           />
@@ -272,22 +280,59 @@ export function SearchView() {
         </div>
       )}
 
+      {/* Search hint bar */}
+      {searchHint && searched && (
+        <div className="border-b border-border px-4 py-1.5 bg-bg-raised shrink-0">
+          <span className="text-text-dim text-[10px]">{searchHint}</span>
+        </div>
+      )}
+
       {/* Results area */}
       <div className="flex-1 overflow-y-auto">
 
         {/* Idle / pre-search hint */}
         {!searched && !loading && (
-          <div className="px-4 py-8 text-center space-y-2">
-            <p className="text-text-dim text-[12px]">
-              Use <span className="text-accent">#hashtag</span> to browse topics, or type a keyword for full-text search.
-            </p>
-            {nip50Relays !== null && (
-              <p className="text-text-dim text-[11px] opacity-70">
-                {nip50Count === 0
-                  ? "None of your relays support full-text search — #hashtag search always works."
-                  : `${nip50Count} of ${allRelays.length} relay${allRelays.length !== 1 ? "s" : ""} support full-text search.`}
+          <div className="px-4 py-6 space-y-4">
+            <div className="text-center space-y-2">
+              <p className="text-text-dim text-[12px]">
+                Type a keyword, <span className="text-accent">#hashtag</span>, or use search modifiers.
               </p>
-            )}
+              {nip50Relays !== null && (
+                <p className="text-text-dim text-[11px] opacity-70">
+                  {nip50Count === 0
+                    ? "None of your relays support full-text search — #hashtag search always works."
+                    : `${nip50Count} of ${allRelays.length} relay${allRelays.length !== 1 ? "s" : ""} support full-text search.`}
+                </p>
+              )}
+            </div>
+
+            {/* Search syntax help */}
+            <div className="max-w-md mx-auto">
+              <h3 className="text-text-dim text-[10px] uppercase tracking-widest mb-2">Search modifiers</h3>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-[11px]">
+                <span className="text-accent font-mono">by:name</span>
+                <span className="text-text-dim">notes from author</span>
+                <span className="text-accent font-mono">by:user@domain</span>
+                <span className="text-text-dim">NIP-05 author lookup</span>
+                <span className="text-accent font-mono">#bitcoin</span>
+                <span className="text-text-dim">hashtag search</span>
+                <span className="text-accent font-mono">has:image</span>
+                <span className="text-text-dim">with images</span>
+                <span className="text-accent font-mono">has:video</span>
+                <span className="text-text-dim">with video</span>
+                <span className="text-accent font-mono">is:article</span>
+                <span className="text-text-dim">long-form only</span>
+                <span className="text-accent font-mono">since:2026-01-01</span>
+                <span className="text-text-dim">after date</span>
+                <span className="text-accent font-mono">until:2026-03-01</span>
+                <span className="text-text-dim">before date</span>
+                <span className="text-accent font-mono">A OR B</span>
+                <span className="text-text-dim">match either term</span>
+              </div>
+              <p className="text-text-dim text-[10px] mt-2 opacity-60">
+                Combine freely: <span className="font-mono text-text-muted">bitcoin by:dergigi has:image since:2026-01-01</span>
+              </p>
+            </div>
           </div>
         )}
 

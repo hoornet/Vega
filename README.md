@@ -59,6 +59,7 @@ sudo dnf install gstreamer1-plugins-base gstreamer1-plugins-good gstreamer1-liba
 - **Notifications** — mentions view (🔔 in sidebar) with unread badge; clears on open
 
 **Relay & network**
+- **Relay health checker** — NIP-11 info fetch, WebSocket latency probing, online/slow/offline classification; expandable cards show supported NIPs, software, description; "Remove dead" strips offline relays, "Republish list" publishes cleaned NIP-65 relay list; auto-checks on mount
 - Relay management: add/remove relays with live connection status
 - **NIP-65 outbox model** — reads user relay lists (kind 10002) so you see notes from people who publish to their own relays; publish your own relay list to Nostr from Settings
 
@@ -72,6 +73,7 @@ sudo dnf install gstreamer1-plugins-base gstreamer1-plugins-good gstreamer1-liba
 
 **Discovery**
 - **Discover people** — "follows of follows" suggestions on the Search page with mutual follow counts and one-click follow
+- **Advanced search** — `by:author`, `mentions:npub`, `kind:number`, `is:article`, `has:image`, `since:2026-01-01`, `until:2026-12-31`, `#hashtag`, `"exact phrase"`, boolean `OR`; NIP-05 resolution for author lookups; client-side content filters for media types; search help panel with modifier reference
 - Search: NIP-50 full-text, `#hashtag`, people search with inline follow, **article search** (kind 30023)
 
 **Performance & UX**
@@ -109,7 +111,6 @@ npm run tauri build     # production binary
 See [ROADMAP.md](./ROADMAP.md) for the full prioritised next steps.
 
 Up next:
-- Relay health checker
 - Web of Trust scoring
 - NIP-46 remote signer support
 - Custom feeds / lists

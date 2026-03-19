@@ -61,6 +61,19 @@ Bugs found during testing are fixed before Phase N+1 starts. A release is cut be
 
 ## Brainstorm backlog (not yet scheduled)
 
+### Relay health checker — ✓ SHIPPED (v0.7.1)
+- ✓ NIP-11 info fetch + WebSocket latency probing
+- ✓ Online/slow/offline classification with summary counts
+- ✓ "Remove dead" + "Republish list" workflow
+- ✓ NIP badge display, expandable relay cards
+
+### Advanced search — ✓ SHIPPED (v0.7.1)
+- ✓ Query parser with modifiers (by:, has:, is:, kind:, since:, until:, #hashtag, "phrase", OR)
+- ✓ NIP-05 resolution for author lookups
+- ✓ Client-side content filters (image, video, audio, code, link, youtube)
+- ✓ Search help panel with modifier reference
+- Remaining: search relay discovery (kind 10007), WoT-powered search ranking
+
 ### Web of Trust (WOT)
 - Social graph distance for trust scoring
 - Could power: feed ranking, spam filtering, people search, follow suggestions
@@ -91,6 +104,12 @@ Bugs found during testing are fixed before Phase N+1 starts. A release is cut be
 ---
 
 ## What's already shipped
+
+### v0.7.1 — Relay Health Checker & Advanced Search
+- **Relay health checker** — NIP-11 info fetch + WebSocket latency probing; relays classified as online/slow/offline; expandable cards show software, description, supported NIPs (badges for 1, 4, 11, 17, 23, 25, 50, 57, 65, 96, 98); header summary counts; "Remove dead" strips offline relays; "Republish list" publishes cleaned NIP-65 relay list; auto-checks on mount
+- **Advanced search** — full query parser inspired by ants (dergigi/ants); modifiers: `by:author`, `mentions:npub`, `kind:N`, `is:article`, `has:image`, `since:2026-01-01`, `until:2026-12-31`, `#hashtag`, `"exact phrase"`, boolean `OR`; NIP-05 resolution for author lookups; client-side content filters for media types; search help panel with modifier reference
+- New files: `src/lib/nostr/relayHealth.ts`, `src/stores/relayHealth.ts`, `src/lib/search.ts`
+- `RelaysView.tsx` rewritten from simple list to full health dashboard
 
 ### v0.7.0 — Writer Tools & Upload Fix
 - **NIP-98 HTTP Auth uploads** — image uploads now authenticate via signed kind 27235 events; fallback to void.cat and nostrimg.com if nostr.build fails

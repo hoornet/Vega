@@ -69,15 +69,16 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
-            ### New in v0.7.0 — Writer Tools & Upload Fix
-            - **NIP-98 HTTP Auth uploads** — image uploads now authenticate via signed kind 27235 events; fallback to void.cat and nostrimg.com if nostr.build fails
-            - **Markdown toolbar** — bold, italic, heading, link, image, quote, code, list buttons above the article editor; keyboard shortcuts Ctrl+B/I/K
-            - **Multi-draft management** — create multiple article drafts; draft list with word count, timestamps, delete; auto-migrates old single-draft
-            - **Cover image file picker** — upload button next to URL input in article meta panel
-            - **Article bookmarks** — NIP-51 `a` tag support; Notes/Articles tab toggle in bookmark view
-            - **Upload moved to TypeScript** — removed Rust upload command; dropped `reqwest`/`mime_guess` deps; lighter binary
-            - **Upload spinner** — animated spinner during image uploads in compose and editor
-            - **Draft count badge** — sidebar shows how many drafts you have
+            ### New in v0.7.1 — Relay Health Checker & Advanced Search
+            - **Relay health checker** — NIP-11 info fetch + WebSocket latency probing; relays classified as online/slow/offline; expandable cards show software, description, supported NIPs; "Remove dead" strips offline relays; "Republish list" publishes cleaned NIP-65 relay list
+            - **Advanced search** — ants-inspired query parser with modifiers: `by:author`, `mentions:npub`, `kind:N`, `is:article`, `has:image`, `since:2026-01-01`, `until:2026-12-31`, `#hashtag`, `"exact phrase"`, boolean `OR`; NIP-05 resolution for author lookups; search help panel
+
+            ### Previous: v0.7.0 — Writer Tools & Upload Fix
+            - NIP-98 HTTP Auth uploads with fallback services
+            - Markdown toolbar with keyboard shortcuts (Ctrl+B/I/K)
+            - Multi-draft management with draft list
+            - Cover image file picker, article bookmarks (NIP-51 `a` tags)
+            - Upload moved to TypeScript, draft count badge
 
             ### Previous: v0.6.1 — Media Upload & Feed Polish
             - Native file picker, file path paste upload, mention name resolution, connection stability
