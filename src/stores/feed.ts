@@ -38,23 +38,40 @@ export const useFeedStore = create<FeedState>((set, get) => ({
       set({ connected: true });
 
       // Monitor relay connectivity with grace period.
-      // NDK relays can briefly show connected=false during WebSocket
-      // reconnection cycles, so we require multiple consecutive "offline"
-      // checks before flipping the indicator, and attempt reconnection.
+      // NDK's relay.connected property is unreliable — it can briefly
+      // read false during WebSocket reconnection or message processing,
+      // even when data flows fine. We also check relay.status and use
+      // a generous grace period before marking offline.
       const ndk = getNDK();
       let offlineStreak = 0;
+      let lastSuccessfulFetch = Date.now();
+
+      // Mark connected whenever a successful fetch happens anywhere
+      const originalFetch = ndk.fetchEvents.bind(ndk);
+      ndk.fetchEvents = async (...args: Parameters<typeof ndk.fetchEvents>) => {
+        const result = await originalFetch(...args);
+        if (result.size > 0) {
+          lastSuccessfulFetch = Date.now();
+          if (!get().connected) set({ connected: true });
+          offlineStreak = 0;
+        }
+        return result;
+      };
+
       const checkConnection = () => {
         const relays = Array.from(ndk.pool?.relays?.values() ?? []);
         const hasConnected = relays.some((r) => r.connected);
-        if (hasConnected) {
+        // Also consider connected if we fetched data recently (within 30s)
+        const recentFetch = Date.now() - lastSuccessfulFetch < 30000;
+
+        if (hasConnected || recentFetch) {
           offlineStreak = 0;
           if (!get().connected) set({ connected: true });
         } else {
           offlineStreak++;
-          // Only mark offline after 3 consecutive checks (15s grace)
-          if (offlineStreak >= 3 && get().connected) {
+          // Only mark offline after 5 consecutive checks (25s grace)
+          if (offlineStreak >= 5 && get().connected) {
             set({ connected: false });
-            // Attempt reconnection
             ndk.connect().catch(() => {});
           }
         }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
@@ -121,6 +121,25 @@ export function ArticleView() {
   const readingTime = Math.max(1, Math.ceil(wordCount / 230));
   const bookmarked = event?.id ? isBookmarked(event.id) : false;
 
+  // Reading progress bar
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [progress, setProgress] = useState(0);
+
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const max = scrollHeight - clientHeight;
+    setProgress(max > 0 ? (scrollTop / max) * 100 : 0);
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el || !event) return;
+    el.addEventListener("scroll", handleScroll, { passive: true });
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, [event, handleScroll]);
+
   const handleReaction = async () => {
     if (!event?.id || reacted) return;
     setReacted(true);
@@ -179,7 +198,16 @@ export function ArticleView() {
       </header>
 
       {/* Body */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto">
+        {/* Reading progress bar */}
+        {event && (
+          <div className="sticky top-0 z-10 h-0.5 bg-transparent">
+            <div
+              className="h-full bg-accent transition-[width] duration-150 ease-out"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+        )}
         {loading && (
           <div className="px-8 py-16 text-text-dim text-[12px] text-center">Loading article…</div>
         )}

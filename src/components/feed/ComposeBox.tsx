@@ -36,8 +36,9 @@ export function ComposeBox({ onPublished, onNoteInjected }: { onPublished?: () =
   }, [text]);
 
   const charCount = text.length;
-  const overLimit = charCount > 280;
-  const canPost = text.trim().length > 0 && !overLimit && !publishing && !uploading;
+  const warnLimit = charCount > 3500;
+  const overLimit = charCount > 4000;
+  const canPost = text.trim().length > 0 && !publishing && !uploading;
 
   // Insert a URL at the current cursor position in the textarea
   const insertUrl = (url: string) => {
@@ -225,13 +226,13 @@ export function ComposeBox({ onPublished, onNoteInjected }: { onPublished?: () =
           )}
 
           <div className="flex items-center justify-between mt-1">
-            <span className={`text-[10px] ${overLimit ? "text-danger" : "text-text-dim"}`}>
+            <span className={`text-[10px] ${overLimit ? "text-danger" : warnLimit ? "text-warning" : "text-text-dim"}`}>
               {uploading ? (
                 <span className="inline-flex items-center gap-1">
                   <span className="w-3 h-3 border border-accent border-t-transparent rounded-full animate-spin" />
                   uploading…
                 </span>
-              ) : charCount > 0 ? `${charCount}/280` : ""}
+              ) : charCount > 3000 ? `${charCount}` : ""}
               {!uploading && charCount > 0 && localStorage.getItem(COMPOSE_DRAFT_KEY) && (
                 <span className="ml-1 text-text-dim">(draft)</span>
               )}
