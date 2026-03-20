@@ -60,7 +60,7 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 - `src/components/media/` — MediaFeed (media discovery with tab filtering)
 - `src/components/zap/` — ZapModal
 - `src/components/onboarding/` — OnboardingFlow (welcome, create key, backup, login)
-- `src/components/shared/` — RelaysView (relay health dashboard + recommendations), SettingsView (NWC + identity + data export)
+- `src/components/shared/` — RelaysView (relay health dashboard + recommendations), SettingsView (NWC + identity + data export), EmojiPicker (categorized emoji insertion)
 - `src/components/sidebar/` — Sidebar navigation
 
 **Backend** (`src-tauri/`): Rust + Tauri 2.0
@@ -135,6 +135,8 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 - **NIP-46 remote signer** — bunker:// URI login, session persistence via toPayload/fromPayload, account switching
 - **Media feed** — dedicated "Media" view with All/Videos/Images/Audio tabs; filters notes by embedded media type
 - **Profile media gallery** — "Media" tab on profiles with grid layout; images open lightbox, videos/audio navigate to thread
+- **Emoji picker** — shared categorized emoji picker (Frequent/Faces/Gestures/Objects/Symbols) in compose box, inline reply, thread reply; emoji reaction picker on note cards via visible + button
+- **External link opener** — global click handler intercepts http(s) links and opens in system browser via `@tauri-apps/plugin-opener`
 
 **Not yet implemented:**
 - Web of Trust scoring
