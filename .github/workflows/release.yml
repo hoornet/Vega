@@ -69,12 +69,15 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
-            ### New in v0.8.0 — Polish, Portability & Discovery
-            - **Profile banner polish** — hero-height banner, click to open in lightbox, avatar overlaps banner edge Telegram-style, loading shimmer
-            - **Export Data** — export your bookmarks, follows, and relay list as JSON via native save dialog; your keys, your data
-            - **Relay recommendations** — "Discover relays" analyzes your follows' NIP-65 relay lists and suggests popular relays you're missing, with one-click add
-            - **Reading list tracking** — bookmarked articles show read/unread status with dot indicators; auto-marks read when opened; unread count badge in sidebar; hover to toggle read/unread
-            - **Trending hashtags** — search idle screen shows popular hashtags from the last 24 hours as clickable pills; click to search
+            ### New in v0.8.2 — Writing & Reading Polish
+            - **No more 280-char limit** — Nostr has no protocol limit; compose freely up to 4000 chars with soft warnings, never blocked
+            - **Serif reading font** — article reader uses Georgia/serif at 17px for comfortable long-form reading; code blocks stay monospace
+            - **Reading progress bar** — thin accent-colored bar at the top of articles tracks your scroll position
+            - **Article table of contents** — floating TOC in the right margin on wide screens; parses h2/h3 headings, highlights active section, click to scroll; hidden on narrow screens
+            - **Connection indicator fix** — data-aware connectivity checking with 25s grace period; no more false "offline" on startup
+
+            ### Previous: v0.8.0 — Polish, Portability & Discovery
+            - Profile banner polish, data export, relay recommendations, reading list tracking, trending hashtags
 
             ### Previous: v0.7.1 — Relay Health Checker & Advanced Search
             - **Relay health checker** — NIP-11 info fetch + WebSocket latency probing; relays classified as online/slow/offline; expandable cards show software, description, supported NIPs; "Remove dead" strips offline relays; "Republish list" publishes cleaned NIP-65 relay list

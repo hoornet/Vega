@@ -9,6 +9,14 @@ import { fetchArticle, publishReaction } from "../../lib/nostr";
 import { useProfile } from "../../hooks/useProfile";
 import { ZapModal } from "../zap/ZapModal";
 
+// ── Types ────────────────────────────────────────────────────────────────────
+
+interface TocHeading {
+  id: string;
+  text: string;
+  level: number;
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function getTag(event: NDKEvent, name: string): string {
@@ -21,7 +29,7 @@ function getTags(event: NDKEvent, name: string): string[] {
 
 function renderMarkdown(md: string): string {
   const html = marked(md, { breaks: true }) as string;
-  return DOMPurify.sanitize(html);
+  return DOMPurify.sanitize(html, { ADD_ATTR: ["id"] });
 }
 
 // ── Author row ────────────────────────────────────────────────────────────────
@@ -121,9 +129,27 @@ export function ArticleView() {
   const readingTime = Math.max(1, Math.ceil(wordCount / 230));
   const bookmarked = event?.id ? isBookmarked(event.id) : false;
 
-  // Reading progress bar
+  // Reading progress bar + TOC
   const scrollRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const [progress, setProgress] = useState(0);
+  const [headings, setHeadings] = useState<TocHeading[]>([]);
+  const [activeId, setActiveId] = useState("");
+
+  // Extract headings from rendered content and assign IDs
+  useEffect(() => {
+    const el = contentRef.current;
+    if (!el) { setHeadings([]); return; }
+    const nodes = el.querySelectorAll("h2, h3");
+    const items: TocHeading[] = [];
+    nodes.forEach((node, i) => {
+      const id = `toc-${i}`;
+      node.id = id;
+      items.push({ id, text: node.textContent || "", level: parseInt(node.tagName[1]) });
+    });
+    setHeadings(items);
+    if (items.length > 0) setActiveId(items[0].id);
+  }, [bodyHtml]);
 
   const handleScroll = useCallback(() => {
     const el = scrollRef.current;
@@ -131,7 +157,18 @@ export function ArticleView() {
     const { scrollTop, scrollHeight, clientHeight } = el;
     const max = scrollHeight - clientHeight;
     setProgress(max > 0 ? (scrollTop / max) * 100 : 0);
-  }, []);
+
+    // Track active heading — find the last heading above the top ~80px of scroll area
+    const scrollRect = el.getBoundingClientRect();
+    let active = "";
+    for (const { id } of headings) {
+      const heading = document.getElementById(id);
+      if (!heading) continue;
+      const top = heading.getBoundingClientRect().top - scrollRect.top;
+      if (top <= 80) active = id;
+    }
+    if (active) setActiveId(active);
+  }, [headings]);
 
   useEffect(() => {
     const el = scrollRef.current;
@@ -139,6 +176,16 @@ export function ArticleView() {
     el.addEventListener("scroll", handleScroll, { passive: true });
     return () => el.removeEventListener("scroll", handleScroll);
   }, [event, handleScroll]);
+
+  const scrollToHeading = useCallback((id: string) => {
+    const el = document.getElementById(id);
+    const scrollEl = scrollRef.current;
+    if (!el || !scrollEl) return;
+    const scrollRect = scrollEl.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+    const offset = elRect.top - scrollRect.top + scrollEl.scrollTop - 16;
+    scrollEl.scrollTo({ top: offset, behavior: "smooth" });
+  }, []);
 
   const handleReaction = async () => {
     if (!event?.id || reacted) return;
@@ -227,93 +274,121 @@ export function ArticleView() {
         )}
 
         {event && (
-          <article className="max-w-2xl mx-auto px-6 py-8">
-            {/* Cover image */}
-            {image && (
-              <div className="mb-6 -mx-2">
-                <img
-                  src={image}
-                  alt=""
-                  className="w-full max-h-72 object-cover rounded-sm"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
-                />
+          <div className="flex">
+            <article className="flex-1 max-w-2xl mx-auto px-6 py-8">
+              {/* Cover image */}
+              {image && (
+                <div className="mb-6 -mx-2">
+                  <img
+                    src={image}
+                    alt=""
+                    className="w-full max-h-72 object-cover rounded-sm"
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                </div>
+              )}
+
+              {/* Title */}
+              <h1 className="text-text text-2xl font-bold leading-tight mb-3 tracking-tight">
+                {title || "Untitled"}
+              </h1>
+
+              {/* Summary */}
+              {summary && (
+                <p className="text-text-muted text-[14px] leading-relaxed mb-4 italic border-l-2 border-border pl-3">
+                  {summary}
+                </p>
+              )}
+
+              {/* Author + date + reading time */}
+              <AuthorRow pubkey={authorPubkey} publishedAt={publishedAt} readingTime={readingTime} />
+
+              {/* Tags */}
+              {articleTags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-6">
+                  {articleTags.map((tag) => (
+                    <span key={tag} className="px-2 py-0.5 text-[10px] border border-border text-text-dim">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Content */}
+              <div
+                ref={contentRef}
+                className="prose-article"
+                dangerouslySetInnerHTML={{ __html: bodyHtml }}
+              />
+
+              {/* Footer */}
+              <div className="mt-10 pt-6 border-t border-border flex items-center justify-between">
+                <button onClick={goBack} className="text-text-dim hover:text-text text-[11px] transition-colors">
+                  ← back
+                </button>
+                <div className="flex items-center gap-2">
+                  {loggedIn && (
+                    <button
+                      onClick={handleReaction}
+                      disabled={reacted}
+                      className={`text-[11px] px-3 py-1.5 border transition-colors disabled:cursor-not-allowed ${
+                        reacted
+                          ? "border-accent/40 text-accent"
+                          : "border-border text-text-muted hover:text-accent hover:border-accent/40"
+                      }`}
+                    >
+                      {reacted ? "♥ liked" : "♡ like"}
+                    </button>
+                  )}
+                  {loggedIn && (
+                    <button
+                      onClick={handleBookmark}
+                      className={`text-[11px] px-3 py-1.5 border transition-colors ${
+                        bookmarked
+                          ? "border-accent/40 text-accent"
+                          : "border-border text-text-muted hover:text-accent hover:border-accent/40"
+                      }`}
+                    >
+                      {bookmarked ? "▪ saved" : "▫ save"}
+                    </button>
+                  )}
+                  {loggedIn && (
+                    <button
+                      onClick={() => setShowZap(true)}
+                      className="text-[11px] px-4 py-1.5 bg-zap hover:bg-zap/90 text-white transition-colors"
+                    >
+                      ⚡ Zap {authorName}
+                    </button>
+                  )}
+                </div>
               </div>
+            </article>
+
+            {/* Table of Contents — right margin on wide screens */}
+            {headings.length >= 2 && (
+              <nav className="hidden xl:block w-44 shrink-0 py-8 pr-4">
+                <div className="sticky top-4 max-h-[calc(100vh-8rem)] overflow-y-auto">
+                  <p className="text-text-dim text-[10px] uppercase tracking-wider mb-3">Contents</p>
+                  {headings.map(({ id, text, level }) => (
+                    <button
+                      key={id}
+                      onClick={() => scrollToHeading(id)}
+                      className={`block text-left w-full py-1 text-[11px] leading-snug transition-colors truncate ${
+                        level === 3 ? "pl-3" : ""
+                      } ${
+                        activeId === id
+                          ? "text-accent"
+                          : "text-text-dim hover:text-text-muted"
+                      }`}
+                      title={text}
+                    >
+                      {text}
+                    </button>
+                  ))}
+                </div>
+              </nav>
             )}
-
-            {/* Title */}
-            <h1 className="text-text text-2xl font-bold leading-tight mb-3 tracking-tight">
-              {title || "Untitled"}
-            </h1>
-
-            {/* Summary */}
-            {summary && (
-              <p className="text-text-muted text-[14px] leading-relaxed mb-4 italic border-l-2 border-border pl-3">
-                {summary}
-              </p>
-            )}
-
-            {/* Author + date + reading time */}
-            <AuthorRow pubkey={authorPubkey} publishedAt={publishedAt} readingTime={readingTime} />
-
-            {/* Tags */}
-            {articleTags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-6">
-                {articleTags.map((tag) => (
-                  <span key={tag} className="px-2 py-0.5 text-[10px] border border-border text-text-dim">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Content */}
-            <div
-              className="prose-article"
-              dangerouslySetInnerHTML={{ __html: bodyHtml }}
-            />
-
-            {/* Footer */}
-            <div className="mt-10 pt-6 border-t border-border flex items-center justify-between">
-              <button onClick={goBack} className="text-text-dim hover:text-text text-[11px] transition-colors">
-                ← back
-              </button>
-              <div className="flex items-center gap-2">
-                {loggedIn && (
-                  <button
-                    onClick={handleReaction}
-                    disabled={reacted}
-                    className={`text-[11px] px-3 py-1.5 border transition-colors disabled:cursor-not-allowed ${
-                      reacted
-                        ? "border-accent/40 text-accent"
-                        : "border-border text-text-muted hover:text-accent hover:border-accent/40"
-                    }`}
-                  >
-                    {reacted ? "♥ liked" : "♡ like"}
-                  </button>
-                )}
-                {loggedIn && (
-                  <button
-                    onClick={handleBookmark}
-                    className={`text-[11px] px-3 py-1.5 border transition-colors ${
-                      bookmarked
-                        ? "border-accent/40 text-accent"
-                        : "border-border text-text-muted hover:text-accent hover:border-accent/40"
-                    }`}
-                  >
-                    {bookmarked ? "▪ saved" : "▫ save"}
-                  </button>
-                )}
-                {loggedIn && (
-                  <button
-                    onClick={() => setShowZap(true)}
-                    className="text-[11px] px-4 py-1.5 bg-zap hover:bg-zap/90 text-white transition-colors"
-                  >
-                    ⚡ Zap {authorName}
-                  </button>
-                )}
-              </div>
-            </div>
-          </article>
+          </div>
         )}
       </div>
 
