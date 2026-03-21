@@ -44,10 +44,10 @@ sudo dnf install gstreamer1-plugins-base gstreamer1-plugins-good gstreamer1-liba
 **Feed & content**
 - Global and following feeds with live relay connection
 - **Language/script feed filter** — filter by writing system (Latin, CJK, Cyrillic, Arabic, Korean, etc.) via dropdown in feed header; uses Unicode detection + NIP-32 language tags
-- Compose notes, inline replies, full thread view
+- Compose notes, inline replies, **nested thread trees** with reply-to-any-note and multi-level back navigation
 - **Image upload with NIP-98 auth** — paste from clipboard, drag-drop, or use the file picker; uploads authenticated via NIP-98 HTTP Auth with fallback services
 - **Image lightbox** — click any image to view full-screen; Escape to close, arrow keys to navigate multi-image posts
-- **Feed reply context** — replies show "↩ replying to @name"; click to jump to the parent thread
+- **Feed reply context** — replies show "↩ replying to @name"; click to jump to the parent thread or scroll to it in the current thread
 - Reactions (NIP-25) with live network counts
 - Follow / unfollow (NIP-02) with contact list publishing
 - **Quote & Repost** (NIP-18) — one-click repost or quote with compose modal
@@ -107,7 +107,7 @@ sudo dnf install gstreamer1-plugins-base gstreamer1-plugins-good gstreamer1-liba
 | [NIP-02](https://github.com/nostr-protocol/nips/blob/master/02.md) | Follow list | Full |
 | [NIP-04](https://github.com/nostr-protocol/nips/blob/master/04.md) | Encrypted direct messages (legacy) | Full |
 | [NIP-05](https://github.com/nostr-protocol/nips/blob/master/05.md) | DNS-based verification | Full (display + live verify in editor) |
-| [NIP-10](https://github.com/nostr-protocol/nips/blob/master/10.md) | Reply threading | Full |
+| [NIP-10](https://github.com/nostr-protocol/nips/blob/master/10.md) | Reply threading | Full (nested trees, root+reply markers) |
 | [NIP-11](https://github.com/nostr-protocol/nips/blob/master/11.md) | Relay information | Full (health checker) |
 | [NIP-17](https://github.com/nostr-protocol/nips/blob/master/17.md) | Private direct messages (gift wrap) | Full |
 | [NIP-18](https://github.com/nostr-protocol/nips/blob/master/18.md) | Reposts | Full |
@@ -151,7 +151,8 @@ npm run tauri build     # production binary
 See [ROADMAP.md](./ROADMAP.md) for the full prioritised next steps.
 
 Up next:
-- Podcast playback with background audio and V4V streaming sats
+- UI polish and visual makeover
+- Nostr NIP research sprint — expanding protocol support
 - Web of Trust scoring
 - Custom feeds / lists
 

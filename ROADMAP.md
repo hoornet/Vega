@@ -59,12 +59,12 @@ Bugs found during testing are fixed before Phase N+1 starts. A release is cut be
 
 ---
 
-## Up next — Podcast playback
+## Up next — Polish & Expansion
 
-- Persistent `<PodcastPlayer />` with background audio
-- Fountain.fm integration for podcast discovery
-- V4V streaming sats via NWC (value-for-value)
-- Episode progress tracking
+- **UI makeover** — visual polish pass on buttons, spacing, hover states, transitions; more native feel
+- **Nostr NIP research sprint** — comprehensive review of all NIPs for new features to implement
+- **Remaining Phase 4** — custom feeds, note stats, zap splits, communities/lists
+- Web of Trust scoring
 
 ---
 
@@ -82,6 +82,16 @@ Bugs found during testing are fixed before Phase N+1 starts. A release is cut be
 - ✓ Client-side content filters (image, video, audio, code, link, youtube)
 - ✓ Search help panel with modifier reference
 - Remaining: search relay discovery (kind 10007), WoT-powered search ranking
+
+### Thread & conversation overhaul — ✓ SHIPPED (v0.9.0)
+- ✓ Nested visual thread trees with indentation and connecting lines
+- ✓ Reply to any note in the thread with inline reply boxes
+- ✓ Recursive reply fetching (2-round-trip strategy)
+- ✓ Ancestor chain for context when opening deep replies
+- ✓ Multi-level back navigation (20-entry stack)
+- ✓ Thread collapse (>3 children) with "show N more"
+- ✓ Mute filtering in trees
+- Remaining: "Threads I'm in" view, live reply subscriptions, thread caching in SQLite
 
 ### Web of Trust (WOT)
 - Social graph distance for trust scoring
@@ -115,6 +125,18 @@ Bugs found during testing are fixed before Phase N+1 starts. A release is cut be
 ---
 
 ## What's already shipped
+
+### v0.9.0 — Thread Conversation Overhaul
+- **Nested thread trees** — replies displayed as visual trees with indentation and connecting border lines; see who replied to whom at a glance
+- **Reply to any note** — inline reply boxes open directly below the note you're replying to; proper NIP-10 root + reply marker tagging
+- **Recursive reply fetching** — 2-round-trip strategy discovers deep replies (replies to replies) that were previously invisible
+- **Ancestor chain** — compact parent notes shown above the root when opening a deep reply from the feed
+- **Multi-level back navigation** — 20-entry navigation stack retraces your exact path through threads
+- **Smart "replying to" links** — scrolls to parent note if visible, otherwise opens parent thread
+- **Thread collapse** — threads with >3 replies show first 2 + "show N more" button
+- **Mute filtering in trees** — muted subtrees pruned with "N replies hidden" indicator
+- **Loading shimmer** — animated skeleton blocks while thread data loads
+- **Podcast subscriptions** — My Podcasts tab, episode playback with V4V streaming sats
 
 ### v0.8.4 — Codebase Refactor & Docs
 - **Codebase refactor** — split 5 overgrown files into focused modules: `client.ts` (1036 lines) into 11 domain files under `lib/nostr/`; `ProfileView`, `NoteContent`, and `NoteCard` split into sub-components. All component files now ≤270 lines, all lib files ≤300

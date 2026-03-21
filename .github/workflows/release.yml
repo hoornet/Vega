@@ -69,19 +69,24 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
-            ### New in v0.8.4 — Codebase Refactor & Bug Fixes
-            This is the stabilization release before the upcoming podcast playback feature.
-            - **Codebase refactor** — split 5 overgrown files into focused modules for easier navigation and extension: `client.ts` (1036 lines) into 11 domain files; `ProfileView`, `NoteContent`, `NoteCard` into sub-components
-            - **Documentation** — added Supported NIPs table to README; updated all feature lists, roadmap, and architecture docs
-            - **Bug fixes from v0.8.3 testing:**
-              - Mute filtering now works in Media Feed
-              - Notification toggle labels no longer overlap on narrow windows
-              - External links open in system browser via Tauri opener plugin
-              - Emoji picker works correctly in compose box, inline reply, and reaction picker
-              - Trending feed shows visual feedback on force refresh
+            ### New in v0.9.0 — Thread Conversation Overhaul
+            Major upgrade to how conversations work in Wrystr.
+            - **Nested thread trees** — replies displayed as visual trees with indentation and connecting lines, not a flat list
+            - **Reply to any note in thread** — click reply on any note and the reply box opens right below it with proper NIP-10 root + reply marker tagging
+            - **Recursive reply fetching** — deep replies discovered with a 2-round-trip fetch strategy; previously invisible conversations now surfaced
+            - **Ancestor chain** — opening a deep reply from the feed shows compact parent notes above the root for full context
+            - **Multi-level back navigation** — navigation stack (up to 20 levels) retraces your exact path through threads
+            - **Smart "replying to" links** — scrolls to the parent note if already visible instead of re-opening the same view
+            - **Thread collapse** — threads with many replies collapse after 3 with "show N more" button
+            - **Mute filtering in trees** — muted subtrees pruned with "N replies hidden" indicator
+            - **Loading shimmer** — animated skeleton while thread data loads
+            - **Podcast subscriptions** — My Podcasts tab, episode playback with V4V streaming sats
+
+            ### Previous: v0.8.4 — Codebase Refactor & Bug Fixes
+            - Codebase refactor (split 5 files into focused modules), Supported NIPs table in README, bug fixes
 
             ### Previous: v0.8.3 — Trending, Remote Signer, Media
-            - Trending feed (24h engagement decay), NIP-46 remote signer (bunker://), media feed (All/Videos/Images/Audio tabs), profile media gallery, syntax highlighting, OS push notifications, zen writing mode, NIP-05 badges, hashtag pages, keyword muting, emoji picker
+            - Trending feed (24h engagement decay), NIP-46 remote signer (bunker://), media feed, profile media gallery, OS push notifications, NIP-05 badges, hashtag pages, keyword muting, emoji picker
 
             ### Previous: v0.8.0 — Polish, Portability & Discovery
             - Profile banner polish, data export, relay recommendations, reading list tracking, trending hashtags
