@@ -20,38 +20,53 @@ export function VideoBlock({ sources }: { sources: string[] }) {
   );
 }
 
+function cleanAudioName(url: string): string {
+  const raw = url.split("/").pop()?.split("?")[0] ?? url;
+  // Remove file extension
+  const name = raw.replace(/\.(mp3|m4a|ogg|opus|wav|flac|aac)$/i, "");
+  // Decode URI components and replace common separators with spaces
+  try {
+    return decodeURIComponent(name).replace(/[-_]+/g, " ");
+  } catch {
+    return name.replace(/[-_]+/g, " ");
+  }
+}
+
 export function AudioBlock({ sources }: { sources: string[] }) {
   const play = usePodcastStore((s) => s.play);
   if (sources.length === 0) return null;
   return (
     <div className="mt-2 flex flex-col gap-2">
       {sources.map((src, i) => {
-        const filename = src.split("/").pop()?.split("?")[0] ?? src;
+        const name = cleanAudioName(src);
         return (
-          <div key={i} className="rounded-sm bg-bg-raised border border-border p-2">
-            <div className="flex items-center justify-between mb-1">
-              <div className="text-[11px] text-text-muted truncate">{filename}</div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  play({
-                    guid: `audio:${src}`,
-                    title: filename,
-                    enclosureUrl: src,
-                    pubDate: 0,
-                    duration: 0,
-                    description: "",
-                    showTitle: "From note",
-                    showArtworkUrl: "",
-                  });
-                }}
-                className="text-[10px] text-accent hover:text-accent-hover transition-colors shrink-0 ml-2"
-              >
-                play in wrystr
-              </button>
+          <button
+            key={i}
+            onClick={(e) => {
+              e.stopPropagation();
+              play({
+                guid: `audio:${src}`,
+                title: name,
+                enclosureUrl: src,
+                pubDate: 0,
+                duration: 0,
+                description: "",
+                showTitle: "",
+                showArtworkUrl: "",
+              });
+            }}
+            className="rounded-sm bg-bg-raised border border-border p-3 flex items-center gap-3 hover:bg-bg-hover transition-colors text-left w-full"
+          >
+            <div className="w-8 h-8 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
+              <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor" className="text-accent ml-0.5">
+                <polygon points="0,0 10,6 0,12" />
+              </svg>
             </div>
-            <audio controls preload="metadata" className="w-full h-8" src={src} />
-          </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[12px] text-text truncate">{name}</div>
+              <div className="text-[10px] text-text-dim">audio · play in wrystr</div>
+            </div>
+          </button>
         );
       })}
     </div>

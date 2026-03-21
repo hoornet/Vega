@@ -4,7 +4,8 @@ import { renderMarkdown } from "../../lib/markdown";
 import { useUIStore } from "../../stores/ui";
 import { useUserStore } from "../../stores/user";
 import { useBookmarkStore } from "../../stores/bookmark";
-import { fetchArticle, publishReaction } from "../../lib/nostr";
+import { fetchArticle, publishReaction, publishRepost, publishNote } from "../../lib/nostr";
+import { nip19 } from "@nostr-dev-kit/ndk";
 import { useProfile } from "../../hooks/useProfile";
 import { ZapModal } from "../zap/ZapModal";
 
@@ -73,6 +74,9 @@ export function ArticleView() {
   const [error, setError] = useState<string | null>(null);
   const [showZap, setShowZap] = useState(false);
   const [reacted, setReacted] = useState(false);
+  const [reposted, setReposted] = useState(false);
+  const [showComment, setShowComment] = useState(false);
+  const [commentText, setCommentText] = useState("");
   const { isBookmarked, addBookmark, removeBookmark } = useBookmarkStore();
 
   const naddr = pendingArticleNaddr ?? "";
@@ -197,6 +201,28 @@ export function ArticleView() {
     else addBookmark(event.id);
   };
 
+  const handleRepost = async () => {
+    if (!event || reposted) return;
+    setReposted(true);
+    try {
+      await publishRepost(event);
+    } catch {
+      setReposted(false);
+    }
+  };
+
+  const handleComment = async () => {
+    if (!event || !commentText.trim()) return;
+    const dTag = event.tags.find((t) => t[0] === "d")?.[1] ?? "";
+    const naddrStr = nip19.naddrEncode({ identifier: dTag, pubkey: event.pubkey, kind: 30023 });
+    const text = `${commentText.trim()}\n\nnostr:${naddrStr}`;
+    try {
+      await publishNote(text);
+      setCommentText("");
+      setShowComment(false);
+    } catch { /* ignore */ }
+  };
+
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
@@ -226,6 +252,31 @@ export function ArticleView() {
               ⚡ zap {authorName}
             </button>
           )}
+          {event && loggedIn && (
+            <button
+              onClick={handleRepost}
+              disabled={reposted}
+              className={`text-[11px] px-3 py-1 border transition-colors ${
+                reposted
+                  ? "border-accent/40 text-accent"
+                  : "border-border text-text-muted hover:text-accent hover:border-accent/40"
+              }`}
+            >
+              {reposted ? "reposted" : "repost"}
+            </button>
+          )}
+          {event && loggedIn && (
+            <button
+              onClick={() => setShowComment(!showComment)}
+              className={`text-[11px] px-3 py-1 border transition-colors ${
+                showComment
+                  ? "border-accent/40 text-accent"
+                  : "border-border text-text-muted hover:text-accent hover:border-accent/40"
+              }`}
+            >
+              comment
+            </button>
+          )}
           {naddr && (
             <button
               onClick={() => navigator.clipboard.writeText(`nostr:${naddr}`)}
@@ -237,6 +288,28 @@ export function ArticleView() {
           )}
         </div>
       </header>
+
+      {/* Comment box */}
+      {showComment && event && (
+        <div className="border-b border-border px-4 py-3 flex gap-2 shrink-0">
+          <input
+            type="text"
+            value={commentText}
+            onChange={(e) => setCommentText(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleComment()}
+            placeholder="Write a comment about this article..."
+            className="flex-1 bg-bg-raised border border-border rounded-sm px-3 py-1.5 text-[12px] text-text placeholder:text-text-dim focus:outline-none focus:border-accent"
+            autoFocus
+          />
+          <button
+            onClick={handleComment}
+            disabled={!commentText.trim()}
+            className="px-3 py-1.5 bg-accent/10 text-accent text-[12px] rounded-sm hover:bg-accent/20 transition-colors disabled:opacity-40"
+          >
+            post
+          </button>
+        </div>
+      )}
 
       {/* Body */}
       <div ref={scrollRef} className="flex-1 overflow-y-auto">
@@ -344,6 +417,27 @@ export function ArticleView() {
                       }`}
                     >
                       {bookmarked ? "▪ saved" : "▫ save"}
+                    </button>
+                  )}
+                  {loggedIn && (
+                    <button
+                      onClick={handleRepost}
+                      disabled={reposted}
+                      className={`text-[11px] px-3 py-1.5 border transition-colors ${
+                        reposted
+                          ? "border-accent/40 text-accent"
+                          : "border-border text-text-muted hover:text-accent hover:border-accent/40"
+                      }`}
+                    >
+                      {reposted ? "reposted" : "repost"}
+                    </button>
+                  )}
+                  {loggedIn && (
+                    <button
+                      onClick={() => { setShowComment(true); scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" }); }}
+                      className="text-[11px] px-3 py-1.5 border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors"
+                    >
+                      comment
                     </button>
                   )}
                   {loggedIn && (
