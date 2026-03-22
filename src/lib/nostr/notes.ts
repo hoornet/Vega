@@ -4,7 +4,9 @@ import { fetchUserRelayList } from "./relays";
 
 export async function fetchGlobalFeed(limit: number = 50): Promise<NDKEvent[]> {
   const instance = getNDK();
-  const filter: NDKFilter = { kinds: [NDKKind.Text], limit };
+  // Ask for notes from the last 2 hours to ensure freshness
+  const since = Math.floor(Date.now() / 1000) - 2 * 3600;
+  const filter: NDKFilter = { kinds: [NDKKind.Text], limit, since };
   const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
@@ -12,7 +14,8 @@ export async function fetchGlobalFeed(limit: number = 50): Promise<NDKEvent[]> {
 export async function fetchFollowFeed(pubkeys: string[], limit = 80): Promise<NDKEvent[]> {
   if (pubkeys.length === 0) return [];
   const instance = getNDK();
-  const filter: NDKFilter = { kinds: [NDKKind.Text], authors: pubkeys, limit };
+  const since = Math.floor(Date.now() / 1000) - 24 * 3600; // last 24h for follows
+  const filter: NDKFilter = { kinds: [NDKKind.Text], authors: pubkeys, limit, since };
   const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }

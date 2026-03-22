@@ -1,12 +1,12 @@
-import { NDKEvent, NDKFilter, NDKKind, NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-import { getNDK } from "./core";
+import { NDKEvent, NDKFilter, NDKKind } from "@nostr-dev-kit/ndk";
+import { getNDK, fetchWithTimeout, SINGLE_TIMEOUT } from "./core";
 
 export interface UserRelayList { read: string[]; write: string[]; }
 
 export async function fetchUserRelayList(pubkey: string): Promise<UserRelayList> {
   const instance = getNDK();
   const filter: NDKFilter = { kinds: [10002 as NDKKind], authors: [pubkey], limit: 1 };
-  const events = await instance.fetchEvents(filter, { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY });
+  const events = await fetchWithTimeout(instance, filter, SINGLE_TIMEOUT);
   if (events.size === 0) return { read: [], write: [] };
   const event = Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))[0];
   const read: string[] = [], write: string[] = [];

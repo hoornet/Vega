@@ -14,14 +14,20 @@ export function ArticleFeed() {
   const [articles, setArticles] = useState<NDKEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Track follows length to avoid re-fetching latest when follows change
+  const followsKey = tab === "following" ? follows.join(",") : "latest";
+
   useEffect(() => {
+    if (tab === "following" && follows.length === 0) return;
+    let cancelled = false;
     setLoading(true);
     const authors = tab === "following" ? follows : undefined;
     fetchArticleFeed(40, authors)
-      .then(setArticles)
-      .catch(() => setArticles([]))
-      .finally(() => setLoading(false));
-  }, [tab, follows]);
+      .then((result) => { if (!cancelled) setArticles(result); })
+      .catch(() => { if (!cancelled) setArticles([]); })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [followsKey]);
 
   return (
     <div className="h-full flex flex-col">

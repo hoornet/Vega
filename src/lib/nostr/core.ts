@@ -26,9 +26,13 @@ export async function fetchWithTimeout(
   timeoutMs: number,
   relaySet?: NDKRelaySet,
 ): Promise<Set<NDKEvent>> {
+  const opts = {
+    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
+    groupable: false,  // Prevent NDK from batching/reusing subscriptions
+  };
   const promise = relaySet
-    ? instance.fetchEvents(filter, { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }, relaySet)
-    : instance.fetchEvents(filter, { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY });
+    ? instance.fetchEvents(filter, opts, relaySet)
+    : instance.fetchEvents(filter, opts);
   return withTimeout(promise, timeoutMs, EMPTY_SET);
 }
 

@@ -1,12 +1,10 @@
-import { NDKEvent, NDKFilter, NDKKind, NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-import { getNDK } from "./core";
+import { NDKEvent, NDKFilter, NDKKind } from "@nostr-dev-kit/ndk";
+import { getNDK, fetchWithTimeout, SINGLE_TIMEOUT } from "./core";
 
 export async function fetchBookmarkList(pubkey: string): Promise<string[]> {
   const instance = getNDK();
   const filter: NDKFilter = { kinds: [10003 as NDKKind], authors: [pubkey], limit: 1 };
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, SINGLE_TIMEOUT);
   if (events.size === 0) return [];
   const event = Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))[0];
   return event.tags.filter((t) => t[0] === "e" && t[1]).map((t) => t[1]);
@@ -25,9 +23,7 @@ export async function publishBookmarkList(eventIds: string[]): Promise<void> {
 export async function fetchBookmarkListFull(pubkey: string): Promise<{ eventIds: string[]; articleAddrs: string[] }> {
   const instance = getNDK();
   const filter: NDKFilter = { kinds: [10003 as NDKKind], authors: [pubkey], limit: 1 };
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, SINGLE_TIMEOUT);
   if (events.size === 0) return { eventIds: [], articleAddrs: [] };
   const event = Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))[0];
   const eventIds = event.tags.filter((t) => t[0] === "e" && t[1]).map((t) => t[1]);

@@ -1,5 +1,5 @@
-import { NDKEvent, NDKFilter, NDKKind, NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-import { getNDK } from "./core";
+import { NDKEvent, NDKFilter, NDKKind } from "@nostr-dev-kit/ndk";
+import { getNDK, fetchWithTimeout, FEED_TIMEOUT } from "./core";
 
 export async function publishProfile(fields: {
   name?: string;
@@ -47,9 +47,7 @@ export async function fetchFollowSuggestions(myFollows: string[]): Promise<{ pub
   for (let i = 0; i < myFollows.length; i += batchSize) {
     const batch = myFollows.slice(i, i + batchSize);
     const filter: NDKFilter = { kinds: [3 as NDKKind], authors: batch, limit: batch.length };
-    const events = await instance.fetchEvents(filter, {
-      cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-    });
+    const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
     allContactEvents.push(...Array.from(events));
   }
 
@@ -76,9 +74,10 @@ export async function fetchFollowSuggestions(myFollows: string[]): Promise<{ pub
 
 export async function fetchMentions(pubkey: string, since: number, limit = 50): Promise<NDKEvent[]> {
   const instance = getNDK();
-  const events = await instance.fetchEvents(
+  const events = await fetchWithTimeout(
+    instance,
     { kinds: [NDKKind.Text], "#p": [pubkey], since, limit },
-    { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }
+    FEED_TIMEOUT,
   );
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
@@ -91,8 +90,6 @@ export async function fetchNewFollowers(pubkey: string, since: number, limit = 2
     since,
     limit,
   };
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }

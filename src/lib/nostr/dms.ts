@@ -1,5 +1,5 @@
-import { NDKEvent, NDKKind, NDKSubscriptionCacheUsage, giftWrap, giftUnwrap } from "@nostr-dev-kit/ndk";
-import { getNDK } from "./core";
+import { NDKEvent, NDKKind, giftWrap, giftUnwrap } from "@nostr-dev-kit/ndk";
+import { getNDK, fetchWithTimeout, withTimeout, FEED_TIMEOUT } from "./core";
 
 async function unwrapGiftWraps(events: NDKEvent[]): Promise<NDKEvent[]> {
   const instance = getNDK();
@@ -21,21 +21,16 @@ async function unwrapGiftWraps(events: NDKEvent[]): Promise<NDKEvent[]> {
 
 export async function fetchDMConversations(myPubkey: string): Promise<NDKEvent[]> {
   const instance = getNDK();
-  // Fetch NIP-04 (legacy) and NIP-17 (gift-wrap) in parallel
-  const [nip04Received, nip04Sent, giftWraps] = await Promise.all([
-    instance.fetchEvents(
-      { kinds: [NDKKind.EncryptedDirectMessage], "#p": [myPubkey], limit: 500 },
-      { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }
-    ),
-    instance.fetchEvents(
-      { kinds: [NDKKind.EncryptedDirectMessage], authors: [myPubkey], limit: 500 },
-      { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }
-    ),
-    instance.fetchEvents(
-      { kinds: [NDKKind.GiftWrap], "#p": [myPubkey], limit: 500 },
-      { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }
-    ),
-  ]);
+  // Fetch NIP-04 (legacy) and NIP-17 (gift-wrap) in parallel with timeouts
+  const [nip04Received, nip04Sent, giftWraps] = await withTimeout(
+    Promise.all([
+      fetchWithTimeout(instance, { kinds: [NDKKind.EncryptedDirectMessage], "#p": [myPubkey], limit: 500 }, FEED_TIMEOUT),
+      fetchWithTimeout(instance, { kinds: [NDKKind.EncryptedDirectMessage], authors: [myPubkey], limit: 500 }, FEED_TIMEOUT),
+      fetchWithTimeout(instance, { kinds: [NDKKind.GiftWrap], "#p": [myPubkey], limit: 500 }, FEED_TIMEOUT),
+    ]),
+    FEED_TIMEOUT + 2000,
+    [new Set<NDKEvent>(), new Set<NDKEvent>(), new Set<NDKEvent>()],
+  );
 
   const nip17Rumors = await unwrapGiftWraps(Array.from(giftWraps));
 
@@ -47,21 +42,16 @@ export async function fetchDMConversations(myPubkey: string): Promise<NDKEvent[]
 
 export async function fetchDMThread(myPubkey: string, theirPubkey: string): Promise<NDKEvent[]> {
   const instance = getNDK();
-  // Fetch NIP-04 and NIP-17 in parallel
-  const [fromThem, fromMe, giftWraps] = await Promise.all([
-    instance.fetchEvents(
-      { kinds: [NDKKind.EncryptedDirectMessage], "#p": [myPubkey], authors: [theirPubkey], limit: 200 },
-      { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }
-    ),
-    instance.fetchEvents(
-      { kinds: [NDKKind.EncryptedDirectMessage], "#p": [theirPubkey], authors: [myPubkey], limit: 200 },
-      { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }
-    ),
-    instance.fetchEvents(
-      { kinds: [NDKKind.GiftWrap], "#p": [myPubkey], limit: 200 },
-      { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY }
-    ),
-  ]);
+  // Fetch NIP-04 and NIP-17 in parallel with timeouts
+  const [fromThem, fromMe, giftWraps] = await withTimeout(
+    Promise.all([
+      fetchWithTimeout(instance, { kinds: [NDKKind.EncryptedDirectMessage], "#p": [myPubkey], authors: [theirPubkey], limit: 200 }, FEED_TIMEOUT),
+      fetchWithTimeout(instance, { kinds: [NDKKind.EncryptedDirectMessage], "#p": [theirPubkey], authors: [myPubkey], limit: 200 }, FEED_TIMEOUT),
+      fetchWithTimeout(instance, { kinds: [NDKKind.GiftWrap], "#p": [myPubkey], limit: 200 }, FEED_TIMEOUT),
+    ]),
+    FEED_TIMEOUT + 2000,
+    [new Set<NDKEvent>(), new Set<NDKEvent>(), new Set<NDKEvent>()],
+  );
 
   // Unwrap NIP-17 and filter to only messages from/to this partner
   const allRumors = await unwrapGiftWraps(Array.from(giftWraps));

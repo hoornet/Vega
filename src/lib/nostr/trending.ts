@@ -1,5 +1,5 @@
-import { NDKEvent, NDKFilter, NDKKind, NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
-import { getNDK } from "./core";
+import { NDKEvent, NDKFilter, NDKKind } from "@nostr-dev-kit/ndk";
+import { getNDK, fetchWithTimeout, FEED_TIMEOUT } from "./core";
 
 export async function fetchTrendingCandidates(limit = 200, sinceHours = 24): Promise<NDKEvent[]> {
   const instance = getNDK();
@@ -9,9 +9,7 @@ export async function fetchTrendingCandidates(limit = 200, sinceHours = 24): Pro
     since,
     limit,
   };
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
@@ -23,9 +21,7 @@ export async function fetchTrendingHashtags(limit = 15): Promise<{ tag: string; 
     since,
     limit: 500,
   };
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
 
   const counts = new Map<string, number>();
   for (const event of events) {

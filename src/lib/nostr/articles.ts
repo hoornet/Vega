@@ -1,5 +1,5 @@
-import { NDKEvent, NDKFilter, NDKKind, NDKSubscriptionCacheUsage, nip19 } from "@nostr-dev-kit/ndk";
-import { getNDK } from "./core";
+import { NDKEvent, NDKFilter, NDKKind, nip19 } from "@nostr-dev-kit/ndk";
+import { getNDK, fetchWithTimeout, FEED_TIMEOUT, SINGLE_TIMEOUT } from "./core";
 
 export async function publishArticle(opts: {
   title: string;
@@ -45,9 +45,7 @@ export async function fetchArticle(naddr: string): Promise<NDKEvent | null> {
       "#d": [identifier],
       limit: 1,
     };
-    const events = await instance.fetchEvents(filter, {
-      cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-    });
+    const events = await fetchWithTimeout(instance, filter, SINGLE_TIMEOUT);
     return Array.from(events)[0] ?? null;
   } catch {
     return null;
@@ -57,9 +55,7 @@ export async function fetchArticle(naddr: string): Promise<NDKEvent | null> {
 export async function fetchAuthorArticles(pubkey: string, limit = 20): Promise<NDKEvent[]> {
   const instance = getNDK();
   const filter: NDKFilter = { kinds: [NDKKind.Article], authors: [pubkey], limit };
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
@@ -67,9 +63,7 @@ export async function fetchArticleFeed(limit = 40, authors?: string[]): Promise<
   const instance = getNDK();
   const filter: NDKFilter = { kinds: [NDKKind.Article], limit };
   if (authors && authors.length > 0) filter.authors = authors;
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
@@ -79,9 +73,7 @@ export async function searchArticles(query: string, limit = 30): Promise<NDKEven
   const filter: NDKFilter & { search?: string } = isHashtag
     ? { kinds: [NDKKind.Article], "#t": [query.slice(1).toLowerCase()], limit }
     : { kinds: [NDKKind.Article], search: query, limit };
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
@@ -99,8 +91,6 @@ export async function fetchByAddr(addr: string): Promise<NDKEvent | null> {
     "#d": [dTag],
     limit: 1,
   };
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, SINGLE_TIMEOUT);
   return Array.from(events)[0] ?? null;
 }

@@ -6,7 +6,7 @@ import { useUserStore } from "../../stores/user";
 import { useMuteStore } from "../../stores/mute";
 import { useUIStore } from "../../stores/ui";
 import { timeAgo, shortenPubkey } from "../../lib/utils";
-import { getNDK, fetchNoteById } from "../../lib/nostr";
+import { getNDK, fetchNoteById, ensureConnected } from "../../lib/nostr";
 import { getParentEventId } from "../../lib/threadTree";
 import { NoteContent } from "./NoteContent";
 import { NoteActions, LoggedOutStats } from "./NoteActions";
@@ -132,6 +132,7 @@ export function NoteCard({ event, focused, onReplyInThread }: NoteCardProps) {
                       return;
                     }
                   }
+                  await ensureConnected();
                   const parent = await fetchNoteById(parentEventId);
                   if (parent) openThread(parent);
                 }}

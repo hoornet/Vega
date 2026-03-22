@@ -1,6 +1,6 @@
-import { NDKEvent, NDKFilter, NDKKind, NDKSubscriptionCacheUsage, NDKUser } from "@nostr-dev-kit/ndk";
+import { NDKEvent, NDKFilter, NDKKind, NDKUser } from "@nostr-dev-kit/ndk";
 import { type ParsedSearch, matchesHasFilter } from "../search";
-import { getNDK } from "./core";
+import { getNDK, fetchWithTimeout, FEED_TIMEOUT } from "./core";
 
 export async function searchNotes(query: string, limit = 50): Promise<NDKEvent[]> {
   const instance = getNDK();
@@ -8,9 +8,7 @@ export async function searchNotes(query: string, limit = 50): Promise<NDKEvent[]
   const filter: NDKFilter & { search?: string } = isHashtag
     ? { kinds: [NDKKind.Text], "#t": [query.slice(1).toLowerCase()], limit }
     : { kinds: [NDKKind.Text], search: query, limit };
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
   return Array.from(events).sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
 }
 
@@ -21,9 +19,7 @@ export async function searchUsers(query: string, limit = 20): Promise<NDKEvent[]
     search: query,
     limit,
   };
-  const events = await instance.fetchEvents(filter, {
-    cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY,
-  });
+  const events = await fetchWithTimeout(instance, filter, FEED_TIMEOUT);
   return Array.from(events);
 }
 
@@ -119,24 +115,14 @@ export async function advancedSearch(parsed: ParsedSearch, limit = 50): Promise<
     return filter;
   };
 
-  const opts = { cacheUsage: NDKSubscriptionCacheUsage.ONLY_RELAY };
-
-  // Wrap fetchEvents with a timeout — NDK can hang forever if no relay supports the filter
-  const fetchWithTimeout = (filter: NDKFilter & { search?: string }, timeoutMs = 8000): Promise<Set<NDKEvent>> => {
-    return Promise.race([
-      instance.fetchEvents(filter, opts),
-      new Promise<Set<NDKEvent>>((resolve) => setTimeout(() => resolve(new Set()), timeoutMs)),
-    ]);
-  };
-
   const noteFilter = noteKinds.length > 0 ? buildFilter(noteKinds) : null;
   const articleFilter = articleKinds.length > 0 ? buildFilter(articleKinds) : null;
   const shouldSearchUsers = (!hasKindFilter || parsed.kinds.includes(0)) && hasSearch && !hasHashtags;
 
   const [noteEvents, articleEvents, userEvents] = await Promise.all([
-    noteFilter ? fetchWithTimeout(noteFilter) : Promise.resolve(new Set<NDKEvent>()),
-    articleFilter ? fetchWithTimeout(articleFilter) : Promise.resolve(new Set<NDKEvent>()),
-    shouldSearchUsers ? fetchWithTimeout({ kinds: [NDKKind.Metadata], search: searchText, limit: 20 } as NDKFilter & { search: string }) : Promise.resolve(new Set<NDKEvent>()),
+    noteFilter ? fetchWithTimeout(instance, noteFilter, FEED_TIMEOUT) : Promise.resolve(new Set<NDKEvent>()),
+    articleFilter ? fetchWithTimeout(instance, articleFilter, FEED_TIMEOUT) : Promise.resolve(new Set<NDKEvent>()),
+    shouldSearchUsers ? fetchWithTimeout(instance, { kinds: [NDKKind.Metadata], search: searchText, limit: 20 } as NDKFilter & { search: string }, FEED_TIMEOUT) : Promise.resolve(new Set<NDKEvent>()),
   ]);
 
   let notes = Array.from(noteEvents);

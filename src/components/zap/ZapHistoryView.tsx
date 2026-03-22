@@ -107,11 +107,11 @@ export function ZapHistoryView() {
   const [tab, setTab] = useState<Tab>("received");
   const [received, setReceived] = useState<NDKEvent[]>([]);
   const [sent, setSent] = useState<NDKEvent[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!pubkey) return;
+    if (!pubkey) { setLoading(false); return; }
     setLoading(true);
     setError(null);
     Promise.all([
