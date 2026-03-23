@@ -171,6 +171,17 @@ Wrystr is free and open-source. If it's useful to you:
 | ♥ GitHub Sponsors | [github.com/sponsors/hoornet](https://github.com/sponsors/hoornet) |
 | ★ GitHub star | Helps with visibility and grant applications |
 
+## Acknowledgements
+
+Wrystr is built on the shoulders of excellent open-source projects:
+
+- [Tauri](https://tauri.app/) — the desktop shell that makes cross-platform Rust+Web apps possible
+- [NDK (Nostr Dev Kit)](https://github.com/nostr-dev-kit/ndk) by [Pablo Fernandez](https://github.com/pablof7z) — the Nostr protocol library that powers all relay communication
+- [Nostr protocol](https://github.com/nostr-protocol/nostr) by [fiatjaf](https://github.com/fiatjaf) — the protocol itself
+- [React](https://react.dev/), [Vite](https://vite.dev/), [Tailwind CSS](https://tailwindcss.com/), [Zustand](https://github.com/pmndrs/zustand) — the frontend stack
+- [ants](https://github.com/dergigi/ants) by [Gigi](https://github.com/dergigi) — inspiration and Nostr ecosystem advocacy
+- The Nostr community — for building an open, censorship-resistant communication layer
+
 ## License
 
 MIT License — Copyright (c) 2026 Jure Sršen — [hoornet](https://github.com/hoornet)

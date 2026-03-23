@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { NDKEvent, NDKFilter, NDKKind, NDKSubscription, NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
 import { connectToRelays, ensureConnected, resetNDK, fetchGlobalFeed, fetchBatchEngagement, fetchTrendingCandidates, getNDK } from "../lib/nostr";
+import { useToastStore } from "./toast";
 import { dbLoadFeed, dbSaveNotes } from "../lib/db";
 import { diagWrapFetch, logDiag, startRelaySnapshots, getRelayStates } from "../lib/feedDiagnostics";
 
@@ -18,6 +19,7 @@ interface FeedState {
   connected: boolean;
   error: string | null;
   focusedNoteIndex: number;
+  lastUpdated: Record<string, number>;
   trendingNotes: NDKEvent[];
   trendingLoading: boolean;
   connect: () => Promise<void>;
@@ -34,6 +36,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
   connected: false,
   error: null,
   focusedNoteIndex: -1,
+  lastUpdated: {},
   trendingNotes: [],
   trendingLoading: false,
   setFocusedNoteIndex: (n: number) => set({ focusedNoteIndex: n }),
@@ -64,6 +67,9 @@ export const useFeedStore = create<FeedState>((set, get) => ({
         const hasConnected = relays.some((r) => r.connected);
 
         if (hasConnected) {
+          if (offlineStreak > 0) {
+            useToastStore.getState().addToast("Back online", "success");
+          }
           offlineStreak = 0;
           if (!get().connected) set({ connected: true });
         } else {
@@ -72,14 +78,17 @@ export const useFeedStore = create<FeedState>((set, get) => ({
           if (offlineStreak >= 3 && get().connected) {
             set({ connected: false });
             logDiag({ ts: new Date().toISOString(), action: "connection_lost", details: `No relays connected after ${offlineStreak} checks` });
+            useToastStore.getState().addToast("Connection lost \u2014 reconnecting\u2026", "warning");
             // Nuclear reset after 6 consecutive failures (30s)
             if (offlineStreak >= 6) {
               offlineStreak = 0;
+              useToastStore.getState().addToast("Resetting relay connections\u2026", "info");
               resetNDK().then(() => {
                 if (getNDK().pool?.relays) {
                   const after = Array.from(getNDK().pool.relays.values());
                   if (after.some((r) => r.connected)) {
                     set({ connected: true });
+                    useToastStore.getState().addToast("Relays reconnected", "success");
                     // Restart live sub after NDK reset
                     get().startLiveFeed();
                   }
@@ -126,7 +135,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
         .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))
         .slice(0, MAX_FEED_SIZE);
 
-      set({ notes: merged, loading: false, focusedNoteIndex: -1 });
+      set({ notes: merged, loading: false, focusedNoteIndex: -1, lastUpdated: { ...get().lastUpdated, global: Date.now() } });
 
       // Persist fresh notes to SQLite (fire-and-forget)
       dbSaveNotes(fresh.map((e) => JSON.stringify(e.rawEvent())));
@@ -167,7 +176,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
       const updated = [event, ...current]
         .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))
         .slice(0, MAX_FEED_SIZE);
-      set({ notes: updated });
+      set({ notes: updated, lastUpdated: { ...get().lastUpdated, global: Date.now() } });
 
       // Debounced save to SQLite — batch saves every 5s
       if (!saveTimer) {
@@ -233,7 +242,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
         .slice(0, 50)
         .map((s) => s.note);
 
-      set({ trendingNotes: scored, trendingLoading: false });
+      set({ trendingNotes: scored, trendingLoading: false, lastUpdated: { ...get().lastUpdated, trending: Date.now() } });
 
       // Cache note IDs + timestamp
       localStorage.setItem(TRENDING_CACHE_KEY, JSON.stringify({

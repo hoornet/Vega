@@ -20,6 +20,7 @@ import { BookmarkView } from "./components/bookmark/BookmarkView";
 import { HashtagFeed } from "./components/feed/HashtagFeed";
 import { PodcastsView } from "./components/podcast/PodcastsView";
 import { PodcastPlayerBar } from "./components/podcast/PodcastPlayerBar";
+import { ToastContainer } from "./components/shared/ToastContainer";
 import { HelpModal } from "./components/shared/HelpModal";
 import { useUIStore } from "./stores/ui";
 import { useUpdater } from "./hooks/useUpdater";
@@ -108,6 +109,7 @@ function App() {
       </main>
       </div>
       <PodcastPlayerBar />
+      <ToastContainer />
       {showHelp && <HelpModal onClose={toggleHelp} />}
     </div>
   );

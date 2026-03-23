@@ -27,12 +27,11 @@ function formatLatency(ms: number | null): string {
 }
 
 function NipBadges({ nips }: { nips: number[] }) {
-  const notable = [1, 4, 11, 17, 23, 25, 50, 57, 65, 96, 98];
-  const supported = notable.filter((n) => nips.includes(n));
-  if (supported.length === 0) return null;
+  if (nips.length === 0) return null;
+  const sorted = [...nips].sort((a, b) => a - b);
   return (
     <div className="flex flex-wrap gap-1 mt-1">
-      {supported.map((n) => (
+      {sorted.map((n) => (
         <span key={n} className="px-1 py-0 text-[9px] border border-border text-text-dim rounded-sm">
           NIP-{String(n).padStart(2, "0")}
         </span>
@@ -41,17 +40,20 @@ function NipBadges({ nips }: { nips: number[] }) {
   );
 }
 
-function RelayHealthCard({ result, poolConnected }: { result: RelayHealthResult; poolConnected: boolean }) {
+function RelayHealthCard({ result, poolConnected, onRemove }: { result: RelayHealthResult; poolConnected: boolean; onRemove: () => void }) {
   const [expanded, setExpanded] = useState(false);
   const nip11 = result.nip11;
 
   return (
-    <div className="border border-border">
+    <div className="border border-border group/card">
       <div
         className="flex items-center gap-3 px-3 py-2 text-[12px] cursor-pointer hover:bg-bg-hover transition-colors"
         onClick={() => setExpanded((v) => !v)}
       >
-        <span className={`w-2 h-2 rounded-full shrink-0 ${statusColor(result.status)}`} />
+        <span
+          className={`w-2 h-2 rounded-full shrink-0 ${statusColor(result.status)}`}
+          title={result.status === "online" ? "Online" : result.status === "slow" ? `Slow (${formatLatency(result.latencyMs)})` : "Offline — connection failed"}
+        />
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
             <span className="text-text truncate font-mono">{result.url}</span>
@@ -72,6 +74,12 @@ function RelayHealthCard({ result, poolConnected }: { result: RelayHealthResult;
           {poolConnected && (
             <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" title="NDK connected" />
           )}
+          <button
+            onClick={(e) => { e.stopPropagation(); onRemove(); }}
+            className="text-text-dim hover:text-danger text-[10px] opacity-0 group-hover/card:opacity-100 transition-opacity"
+          >
+            remove
+          </button>
           <span className="text-text-dim text-[10px]">{expanded ? "▾" : "▸"}</span>
         </div>
       </div>
@@ -105,9 +113,6 @@ function RelayHealthCard({ result, poolConnected }: { result: RelayHealthResult;
               </div>
               {nip11.supported_nips && nip11.supported_nips.length > 0 && (
                 <div>
-                  <span className="text-text-dim text-[10px]">
-                    {nip11.supported_nips.length} NIPs supported
-                  </span>
                   <NipBadges nips={nip11.supported_nips} />
                 </div>
               )}
@@ -125,12 +130,21 @@ function RelayHealthCard({ result, poolConnected }: { result: RelayHealthResult;
 }
 
 /** Fallback row for relays not yet health-checked */
-function RelayPoolRow({ url, connected }: { url: string; connected: boolean }) {
+function RelayPoolRow({ url, connected, onRemove }: { url: string; connected: boolean; onRemove: () => void }) {
   return (
-    <div className="flex items-center gap-3 px-3 py-2 border border-border text-[12px]">
-      <span className={`w-2 h-2 rounded-full shrink-0 ${connected ? "bg-success" : "bg-text-dim"}`} />
+    <div className="flex items-center gap-3 px-3 py-2 border border-border text-[12px] group">
+      <span
+        className={`w-2 h-2 rounded-full shrink-0 ${connected ? "bg-success" : "bg-text-dim"}`}
+        title={connected ? "Connected" : "Not connected — awaiting health check"}
+      />
       <span className="text-text truncate flex-1 font-mono">{url}</span>
       <span className="text-text-dim text-[10px]">{connected ? "connected" : "—"}</span>
+      <button
+        onClick={onRemove}
+        className="text-text-dim hover:text-danger text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+      >
+        remove
+      </button>
     </div>
   );
 }
@@ -141,6 +155,11 @@ export function RelaysView() {
   const ndk = getNDK();
   const poolRelays = Array.from(ndk.pool?.relays?.values() ?? []);
   const poolConnectedUrls = new Set(poolRelays.filter((r) => r.connected).map((r) => r.url));
+
+  const [input, setInput] = useState("");
+  const [addError, setAddError] = useState<string | null>(null);
+  const [removing, setRemoving] = useState(false);
+  const [republishing, setRepublishing] = useState(false);
 
   // Auto-check on first mount if no results yet
   useEffect(() => {
@@ -154,15 +173,33 @@ export function RelaysView() {
   const offlineCount = results.filter((r) => r.status === "offline").length;
   const deadRelays = results.filter((r) => r.status === "offline");
 
-  const [removing, setRemoving] = useState(false);
-  const [republishing, setRepublishing] = useState(false);
+  const handleAddRelay = () => {
+    const url = input.trim();
+    if (!url) return;
+    if (!url.startsWith("ws://") && !url.startsWith("wss://")) {
+      setAddError("URL must start with ws:// or wss://");
+      return;
+    }
+    if (getStoredRelayUrls().includes(url)) {
+      setAddError("Already in list");
+      return;
+    }
+    addRelay(url);
+    setInput("");
+    setAddError(null);
+    checkAll();
+  };
+
+  const handleRemoveRelay = (url: string) => {
+    removeRelay(url);
+    checkAll();
+  };
 
   const handleRemoveDead = async () => {
     setRemoving(true);
     for (const r of deadRelays) {
       removeRelay(r.url);
     }
-    // Re-check remaining
     await checkAll();
     setRemoving(false);
   };
@@ -173,6 +210,11 @@ export function RelaysView() {
       await publishRelayList(getStoredRelayUrls());
     } catch { /* ignore */ }
     setRepublishing(false);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") handleAddRelay();
+    if (e.key === "Escape") setInput("");
   };
 
   // Merge: show health results first, then any pool relays not yet checked
@@ -221,30 +263,48 @@ export function RelaysView() {
         </div>
       </header>
 
+      {/* Add relay input */}
+      <div className="border-b border-border px-4 py-2 shrink-0">
+        <div className="flex gap-2">
+          <input
+            value={input}
+            onChange={(e) => { setInput(e.target.value); setAddError(null); }}
+            onKeyDown={handleKeyDown}
+            placeholder="wss://relay.example.com"
+            className="flex-1 bg-bg border border-border px-3 py-1.5 text-text text-[12px] font-mono focus:outline-none focus:border-accent/50 placeholder:text-text-dim"
+          />
+          <button
+            onClick={handleAddRelay}
+            className="px-3 py-1.5 text-[11px] border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors shrink-0"
+          >
+            add
+          </button>
+          {loggedIn && !!getNDK().signer && (
+            <button
+              onClick={handleRepublish}
+              disabled={republishing}
+              className="px-3 py-1.5 text-[11px] border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors disabled:opacity-40 shrink-0"
+            >
+              {republishing ? "publishing…" : "publish list"}
+            </button>
+          )}
+        </div>
+        {addError && <p className="text-danger text-[11px] mt-1">{addError}</p>}
+      </div>
+
       {/* Actions bar — show when there are dead relays */}
       {deadRelays.length > 0 && (
         <div className="border-b border-border px-4 py-2 bg-danger/5 flex items-center justify-between shrink-0">
           <span className="text-danger text-[11px]">
             {deadRelays.length} relay{deadRelays.length > 1 ? "s" : ""} offline
           </span>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={handleRemoveDead}
-              disabled={removing}
-              className="px-3 py-1 text-[11px] border border-danger/30 text-danger hover:bg-danger/10 transition-colors disabled:opacity-40"
-            >
-              {removing ? "removing…" : "remove dead"}
-            </button>
-            {loggedIn && !!getNDK().signer && (
-              <button
-                onClick={handleRepublish}
-                disabled={republishing}
-                className="px-3 py-1 text-[11px] border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors disabled:opacity-40"
-              >
-                {republishing ? "publishing…" : "republish list"}
-              </button>
-            )}
-          </div>
+          <button
+            onClick={handleRemoveDead}
+            disabled={removing}
+            className="px-3 py-1 text-[11px] border border-danger/30 text-danger hover:bg-danger/10 transition-colors disabled:opacity-40"
+          >
+            {removing ? "removing…" : "remove dead"}
+          </button>
         </div>
       )}
 
@@ -259,11 +319,17 @@ export function RelaysView() {
               key={result.url}
               result={result}
               poolConnected={poolConnectedUrls.has(result.url)}
+              onRemove={() => handleRemoveRelay(result.url)}
             />
           ))}
 
           {uncheckedPoolRelays.map((relay) => (
-            <RelayPoolRow key={relay.url} url={relay.url} connected={relay.connected} />
+            <RelayPoolRow
+              key={relay.url}
+              url={relay.url}
+              connected={relay.connected}
+              onRemove={() => handleRemoveRelay(relay.url)}
+            />
           ))}
         </div>
 

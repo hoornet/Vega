@@ -116,10 +116,14 @@ export function addRelay(url: string): void {
 
 export function removeRelay(url: string): void {
   const instance = getNDK();
-  const relay = instance.pool?.relays.get(url);
-  if (relay) {
-    relay.disconnect();
-    instance.pool?.relays.delete(url);
+  // NDK may store URLs with or without trailing slash — check both
+  const variants = [url, url.replace(/\/$/, ""), url.replace(/\/?$/, "/")];
+  for (const v of variants) {
+    const relay = instance.pool?.relays.get(v);
+    if (relay) {
+      relay.disconnect();
+      instance.pool?.relays.delete(v);
+    }
   }
   saveRelayUrls(getStoredRelayUrls().filter((u) => u !== url));
 }

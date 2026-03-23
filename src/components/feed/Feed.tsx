@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useFeedStore } from "../../stores/feed";
 import { useUserStore } from "../../stores/user";
 import { useMuteStore } from "../../stores/mute";
@@ -10,15 +10,33 @@ import { NoteCard } from "./NoteCard";
 import { ArticleCard } from "../article/ArticleCard";
 import { ComposeBox } from "./ComposeBox";
 import { SkeletonNoteList } from "../shared/Skeleton";
+import { RelayStatusBadge } from "./RelayStatusBadge";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 
+function timeAgo(ts: number): string {
+  const sec = Math.floor((Date.now() - ts) / 1000);
+  if (sec < 5) return "just now";
+  if (sec < 60) return `${sec}s ago`;
+  const min = Math.floor(sec / 60);
+  if (min < 60) return `${min}m ago`;
+  const hr = Math.floor(min / 60);
+  return `${hr}h ago`;
+}
+
 export function Feed() {
-  const { notes, loading, connected, error, connect, loadCachedFeed, loadFeed, trendingNotes, trendingLoading, loadTrendingFeed, focusedNoteIndex } = useFeedStore();
+  const { notes, loading, error, connect, loadCachedFeed, loadFeed, trendingNotes, trendingLoading, loadTrendingFeed, focusedNoteIndex, lastUpdated } = useFeedStore();
   const { loggedIn, follows } = useUserStore();
   const { mutedPubkeys, contentMatchesMutedKeyword } = useMuteStore();
   const { feedTab: tab, setFeedTab: setTab, feedLanguageFilter, setFeedLanguageFilter } = useUIStore();
   const [followNotes, setFollowNotes] = useState<NDKEvent[]>([]);
   const [followLoading, setFollowLoading] = useState(false);
+  const [, setTick] = useState(0);
+
+  // Tick every 10s to keep "last updated" relative time fresh
+  useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 10000);
+    return () => clearInterval(id);
+  }, []);
 
   useEffect(() => {
     // Show cached notes immediately, then fetch fresh ones once connected
@@ -36,16 +54,18 @@ export function Feed() {
     }
   }, [tab, follows]);
 
-  const loadFollowFeed = async () => {
+  const loadFollowFeed = useCallback(async () => {
     setFollowLoading(true);
     try {
       await ensureConnected();
       const events = await diagWrapFetch("follow_fetch", () => fetchFollowFeed(follows));
       setFollowNotes(events);
+      const prev = useFeedStore.getState().lastUpdated;
+      useFeedStore.setState({ lastUpdated: { ...prev, following: Date.now() } });
     } finally {
       setFollowLoading(false);
     }
-  };
+  }, [follows]);
 
   const isFollowing = tab === "following";
   const isTrending = tab === "trending";
@@ -135,11 +155,9 @@ export function Feed() {
               <option key={s} value={s}>{s.toLowerCase()}</option>
             ))}
           </select>
-          {connected && (
-            <span className="text-success text-[11px] flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-success inline-block" />
-              connected
-            </span>
+          <RelayStatusBadge />
+          {lastUpdated[tab] && (
+            <span className="text-text-dim text-[10px]">{timeAgo(lastUpdated[tab])}</span>
           )}
           <button
             onClick={() => {

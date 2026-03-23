@@ -16,9 +16,12 @@ export const useRelayHealthStore = create<RelayHealthState>((set, get) => ({
 
   checkAll: async () => {
     if (get().checking) return;
-    set({ checking: true });
+    // Immediately prune stale results for relays no longer stored
+    const currentUrls = new Set(getStoredRelayUrls());
+    const pruned = get().results.filter((r) => currentUrls.has(r.url));
+    set({ checking: true, results: pruned });
     try {
-      const urls = getStoredRelayUrls();
+      const urls = Array.from(currentUrls);
       const results = await checkAllRelays(urls);
       set({ results, lastChecked: Date.now(), checking: false });
     } catch {
