@@ -45,7 +45,7 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 **Frontend** (`src/`): React 19 + TypeScript + Vite + Tailwind CSS 4
 
 - `src/App.tsx` — root component; shows `OnboardingFlow` for new users, then view routing via UI store
-- `src/stores/` — Zustand stores per domain: `feed.ts`, `user.ts`, `ui.ts`, `lightning.ts`, `drafts.ts`, `relayHealth.ts`, `bookmark.ts`
+- `src/stores/` — Zustand stores per domain: `feed.ts`, `user.ts`, `ui.ts`, `lightning.ts`, `drafts.ts`, `relayHealth.ts`, `bookmark.ts`, `toast.ts`
 - `src/lib/nostr/` — NDK wrapper split into domain modules (`core.ts`, `notes.ts`, `social.ts`, `articles.ts`, `engagement.ts`, `dms.ts`, `bookmarks.ts`, `muting.ts`, `search.ts`, `relays.ts`, `trending.ts`); barrel `index.ts` re-exports all; all Nostr calls go through here
 - `src/lib/lightning/` — NWC client (`nwc.ts`); Lightning payment logic
 - `src/hooks/` — `useProfile.ts`, `useReactionCount.ts`
@@ -105,9 +105,13 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 - Zaps: NWC wallet connect (NIP-47) + NIP-57 via NDKZapper
 - **Advanced search** — query parser with modifiers: `by:author`, `mentions:npub`, `kind:N`, `is:article`, `has:image`, `since:date`, `until:date`, `#hashtag`, `"phrase"`, boolean `OR`; NIP-05 resolution; client-side content filters; search help panel
 - Search: NIP-50 full-text, hashtag (#t filter), people, articles
-- Settings: relay add/remove (persisted to localStorage), NWC URI, npub copy
-- **Relay health checker** — NIP-11 info fetch, WebSocket latency probing, online/slow/offline status; expandable cards with supported NIPs, software info; "Remove dead" + "Republish list" workflow
+- Settings: NWC wallet, notifications, data export, identity, mute lists
+- **Relay management** — consolidated Relays view with add/remove individual relays, health checker (NIP-11 info, WebSocket latency, online/slow/offline status), expandable cards with all supported NIPs, per-relay remove button, "Remove dead" workflow, publish relay list (NIP-65)
 - **Relay recommendations** — suggest relays based on follows' NIP-65 relay lists; "Discover relays" button with follow count, one-click "Add"
+- **Relay status badge** — compact "N/M relays" indicator in feed header with color coding; hover tooltip shows per-relay connection state
+- **Toast notifications** — transient status messages for relay connection events (lost, reconnecting, back online)
+- **Per-tab "last updated" timestamp** — relative time in feed header, tracked independently per tab (global/following/trending)
+- **Subscription debug panel** — Ctrl+Shift+D toggles hidden panel showing NDK uptime, live sub status, per-relay state, feed timestamps, recent diagnostics log
 - **Data export** — export bookmarks, follows, and relay list as JSON via native save dialog (Tauri plugin-dialog + plugin-fs)
 - **Profile banner polish** — hero-height banner (h-36), click-to-lightbox, avatar overlaps banner edge with ring, loading shimmer
 - **Reading list tracking** — read/unread state on bookmarked articles (localStorage-backed), unread dot indicators, sidebar badge, auto-mark-read on open

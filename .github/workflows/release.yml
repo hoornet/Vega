@@ -69,16 +69,21 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
-            ### New in v0.9.1 — Live Feed & Relay Reliability
-            Fundamental upgrade to how Wrystr connects to relays and delivers content.
-            - **Live streaming feed** — persistent relay subscriptions deliver new notes in real-time; no manual refresh needed
-            - **Timeouts on all relay fetches** — every relay query across the entire codebase now has a timeout (5–12s). No view can hang indefinitely — Articles, DMs, Notifications, Zaps, Trending all fixed
-            - **Fixed relay death spiral** — removed aggressive liveness probe that was disconnecting working relays; relay connections now stay stable
-            - **NDK subscription hygiene** — prevents stale subscription reuse; `since` filters ensure feed freshness
-            - **Feed diagnostics** — developer console helpers for tracking fetch timing, event freshness, and relay states
-            - **Background relay recovery** — automatic NDK instance reset after 30s of continuous failure; preserves login state
-            - **Fixed Articles Latest** — no longer wipes results on follow list changes
-            - **Fixed Zap History** — proper loading state; increased timeout for zap queries
+            ### New in v0.9.2 — Relay Status, Toasts & Debug Tools
+            Better visibility into what's happening under the hood.
+            - **Relay status badge** — compact "8/12 relays" indicator in feed header with color coding (green/yellow/red); hover for per-relay connection details
+            - **Toast notifications** — transient messages for connection events: "Connection lost", "Back online", "Resetting relay connections", "Relays reconnected"
+            - **Per-tab "last updated" timestamp** — shows how fresh each feed tab is; Global/Following/Trending tracked independently
+            - **Subscription debug panel** — Ctrl+Shift+D toggles a hidden panel showing NDK uptime, live subscription status, per-relay state, feed timestamps, and recent diagnostics log
+            - **Consolidated relay management** — all relay controls (add, remove, health check, publish list, recommendations) now in one Relays view; removed duplicate relay section from Settings
+            - **Per-relay remove button** — hover any relay card to remove it individually
+            - **Full NIP badge display** — relay cards now show all supported NIPs, not just a filtered subset
+            - **Status dot tooltips** — hover relay status dots for explanations (Online, Slow, Offline, Awaiting check)
+            - **Wider scrollbar** — 12px for easier mouse dragging on long threads
+            - **Acknowledgements section** — added to README
+
+            ### Previous: v0.9.1 — Live Feed & Relay Reliability
+            - Live streaming feed, timeouts on all relay fetches, fixed relay death spiral, NDK subscription hygiene, feed diagnostics, background relay recovery
 
             ### Previous: v0.9.0 — Thread Conversation Overhaul
             - Nested thread trees, reply-to-any-note, recursive reply fetching, ancestor chain, multi-level back navigation, thread collapse, mute filtering in trees, podcast subscriptions

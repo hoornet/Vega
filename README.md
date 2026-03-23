@@ -65,10 +65,12 @@ sudo dnf install gstreamer1-plugins-base gstreamer1-plugins-good gstreamer1-liba
 - **Notifications** — background poller (60s) for mentions, zaps, new followers; each type independently toggleable; OS push notifications; 🔔 in sidebar with unread badge
 
 **Relay & network**
-- **Relay health checker** — NIP-11 info fetch, WebSocket latency probing, online/slow/offline classification; expandable cards show supported NIPs, software, description; "Remove dead" strips offline relays, "Republish list" publishes cleaned NIP-65 relay list; auto-checks on mount
+- **Relay status badge** — compact "8/12 relays" indicator in feed header with color coding (green/yellow/red by connection ratio); hover shows per-relay connection status
+- **Toast notifications** — transient status messages for relay events: "Connection lost — reconnecting", "Back online", "Relays reconnected"
+- **Relay health checker** — NIP-11 info fetch, WebSocket latency probing, online/slow/offline classification; expandable cards show all supported NIPs, software, description; per-relay remove button; "Remove dead" strips offline relays; "Publish list" publishes NIP-65 relay list; auto-checks on mount
 - **Relay recommendations** — discover relays based on your follows' NIP-65 relay lists; shows follow count, one-click "Add"
-- Relay management: add/remove relays with live connection status
-- **NIP-65 outbox model** — reads user relay lists (kind 10002) so you see notes from people who publish to their own relays; publish your own relay list to Nostr from Settings
+- Relay management: add/remove relays, all in one consolidated Relays view
+- **NIP-65 outbox model** — reads user relay lists (kind 10002) so you see notes from people who publish to their own relays; publish your own relay list to Nostr
 
 **Lightning & zaps**
 - **Per-account NWC wallet** — each account remembers its own Lightning wallet; switching accounts loads the correct one automatically
@@ -89,7 +91,9 @@ sudo dnf install gstreamer1-plugins-base gstreamer1-plugins-good gstreamer1-liba
 - **NIP-05 verification badges** — cached verification with green checkmark on note cards
 
 **Performance & UX**
-- **Resilient relay connectivity** — all relay queries have timeouts (no more infinite loading); automatic reconnection with NDK instance reset as last resort; feed diagnostics for debugging
+- **Resilient relay connectivity** — all relay queries have timeouts (no more infinite loading); automatic reconnection with NDK instance reset as last resort; toast notifications for connection events; feed diagnostics for debugging
+- **Per-tab "last updated" timestamp** — relative time indicator in feed header shows how fresh each tab's data is
+- **Subscription debug panel** — `Ctrl+Shift+D` toggles a hidden panel showing NDK uptime, live subscription status, per-relay state, feed timestamps, and recent diagnostics
 - **Auto-updater** — "Update & restart" banner when a new version is available
 - **SQLite note cache** — feed loads instantly from local cache on startup; profiles cached for immediate avatar display
 - **Data export** — export bookmarks, follows, and relay list as JSON via native save dialog
@@ -153,6 +157,7 @@ npm run tauri build     # production binary
 See [ROADMAP.md](./ROADMAP.md) for the full prioritised next steps.
 
 Up next:
+- Color themes / light mode
 - UI polish and visual makeover
 - Nostr NIP research sprint — expanding protocol support
 - Web of Trust scoring
