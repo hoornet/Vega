@@ -21,6 +21,7 @@ import { HashtagFeed } from "./components/feed/HashtagFeed";
 import { PodcastsView } from "./components/podcast/PodcastsView";
 import { PodcastPlayerBar } from "./components/podcast/PodcastPlayerBar";
 import { ToastContainer } from "./components/shared/ToastContainer";
+import { DebugPanel } from "./components/shared/DebugPanel";
 import { HelpModal } from "./components/shared/HelpModal";
 import { useUIStore } from "./stores/ui";
 import { useUpdater } from "./hooks/useUpdater";
@@ -53,6 +54,8 @@ function App() {
   const currentView = useUIStore((s) => s.currentView);
   const showHelp = useUIStore((s) => s.showHelp);
   const toggleHelp = useUIStore((s) => s.toggleHelp);
+  const showDebugPanel = useUIStore((s) => s.showDebugPanel);
+  const toggleDebugPanel = useUIStore((s) => s.toggleDebugPanel);
   const [onboardingDone, setOnboardingDone] = useState(
     () => !!localStorage.getItem("wrystr_pubkey")
   );
@@ -110,6 +113,7 @@ function App() {
       </div>
       <PodcastPlayerBar />
       <ToastContainer />
+      {showDebugPanel && <DebugPanel onClose={toggleDebugPanel} />}
       {showHelp && <HelpModal onClose={toggleHelp} />}
     </div>
   );

@@ -27,6 +27,7 @@ interface UIState {
   pendingArticleEvent: NDKEvent | null;
   pendingHashtag: string | null;
   showHelp: boolean;
+  showDebugPanel: boolean;
   feedLanguageFilter: string | null;
   setView: (view: View) => void;
   setFeedTab: (tab: FeedTab) => void;
@@ -40,6 +41,7 @@ interface UIState {
   setFeedLanguageFilter: (filter: string | null) => void;
   toggleSidebar: () => void;
   toggleHelp: () => void;
+  toggleDebugPanel: () => void;
 }
 
 const SIDEBAR_KEY = "wrystr_sidebar_collapsed";
@@ -58,6 +60,7 @@ export const useUIStore = create<UIState>((set, _get) => ({
   pendingArticleEvent: null,
   pendingHashtag: null,
   showHelp: false,
+  showDebugPanel: false,
   feedLanguageFilter: null,
   setView: (currentView) => set({ currentView }),
   setFeedTab: (feedTab) => set({ feedTab }),
@@ -94,4 +97,5 @@ export const useUIStore = create<UIState>((set, _get) => ({
     return { sidebarCollapsed: next };
   }),
   toggleHelp: () => set((s) => ({ showHelp: !s.showHelp })),
+  toggleDebugPanel: () => set((s) => ({ showDebugPanel: !s.showDebugPanel })),
 }));

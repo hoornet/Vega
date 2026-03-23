@@ -57,14 +57,20 @@ export function saveRelayUrls(urls: string[]) {
 }
 
 let ndk: NDK | null = null;
+let ndkCreatedAt: number | null = null;
 
 export function getNDK(): NDK {
   if (!ndk) {
     ndk = new NDK({
       explicitRelayUrls: getStoredRelayUrls(),
     });
+    ndkCreatedAt = Date.now();
   }
   return ndk;
+}
+
+export function getNDKUptimeMs(): number | null {
+  return ndkCreatedAt ? Date.now() - ndkCreatedAt : null;
 }
 
 /**
@@ -87,6 +93,7 @@ export async function resetNDK(): Promise<void> {
   ndk = new NDK({
     explicitRelayUrls: getStoredRelayUrls(),
   });
+  ndkCreatedAt = Date.now();
 
   // Restore signer so user stays logged in
   if (oldSigner) {

@@ -32,6 +32,10 @@ function getLog(): DiagEntry[] {
   }
 }
 
+export function getRecentDiagEntries(count = 5): DiagEntry[] {
+  return getLog().slice(-count).reverse();
+}
+
 function saveLog(entries: DiagEntry[]) {
   localStorage.setItem(DIAG_KEY, JSON.stringify(entries.slice(-MAX_ENTRIES)));
 }

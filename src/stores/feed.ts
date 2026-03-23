@@ -11,6 +11,10 @@ const MAX_FEED_SIZE = 200;
 
 // Live subscription handle — persists across store calls
 let liveSub: NDKSubscription | null = null;
+
+export function isLiveSubActive(): boolean {
+  return liveSub !== null;
+}
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 interface FeedState {
