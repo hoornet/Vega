@@ -97,16 +97,16 @@ body {
   animation: fade-in 150ms ease-out;
 }
 
-/* Scrollbar — thin, minimal */
+/* Scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 12px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
   background: var(--color-border);
-  border-radius: 3px;
+  border-radius: 5px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-text-dim);
