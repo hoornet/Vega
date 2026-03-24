@@ -120,8 +120,12 @@ export function Sidebar() {
         })}
       </nav>
 
-      {/* Account switcher (full) — expanded only */}
-      {!c && <AccountSwitcher />}
+      {/* Account switcher (full) — expanded only, always visible at bottom */}
+      {!c && (
+        <div className="shrink-0">
+          <AccountSwitcher />
+        </div>
+      )}
 
     </aside>
   );

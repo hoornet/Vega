@@ -43,7 +43,7 @@ export async function notifyMention(authorName: string, preview: string): Promis
   if (!(await ensurePermission())) return;
   sendNotification({
     title: `${authorName} mentioned you`,
-    body: preview.slice(0, 120),
+    body: preview.slice(0, 120) || "New mention",
   });
 }
 

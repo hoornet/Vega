@@ -12,7 +12,10 @@ export function ImageLightbox({ images, index, onClose, onNavigate }: ImageLight
   const hasNext = index < images.length - 1;
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
-    if (e.key === "Escape") onClose();
+    if (e.key === "Escape") {
+      e.stopImmediatePropagation();
+      onClose();
+    }
     if (e.key === "ArrowLeft" && hasPrev) onNavigate(index - 1);
     if (e.key === "ArrowRight" && hasNext) onNavigate(index + 1);
   }, [onClose, onNavigate, index, hasPrev, hasNext]);
