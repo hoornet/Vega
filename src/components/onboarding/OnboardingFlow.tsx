@@ -115,6 +115,7 @@ function BackupStep({ signer, onComplete }: { signer: NDKPrivateKeySigner; onCom
   const { loginWithNsec, loginError } = useUserStore();
   const [confirmed, setConfirmed] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [revealed, setRevealed] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const handleCopy = () => {
@@ -146,7 +147,15 @@ function BackupStep({ signer, onComplete }: { signer: NDKPrivateKeySigner; onCom
           <span className="text-danger text-[10px] uppercase tracking-widest">Secret key (nsec) — keep private</span>
         </div>
         <div className="flex items-center gap-2 px-3 py-2">
-          <span className="text-text font-mono text-[11px] truncate flex-1 select-all">{signer.nsec}</span>
+          <span className={`font-mono text-[11px] truncate flex-1 ${revealed ? "text-text select-all" : "text-text-dim"}`}>
+            {revealed ? signer.nsec : "••••••••••••••••••••••••••••••••••••••••••••••••"}
+          </span>
+          <button
+            onClick={() => setRevealed(!revealed)}
+            className="text-[10px] text-text-dim hover:text-text transition-colors shrink-0"
+          >
+            {revealed ? "hide" : "reveal"}
+          </button>
           <button
             onClick={handleCopy}
             className="text-[10px] text-text-dim hover:text-danger transition-colors shrink-0"
