@@ -83,10 +83,10 @@ export function NoteCard({ event, focused, onReplyInThread }: NoteCardProps) {
         {/* Content */}
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-2 mb-0.5">
-            <span
-              className="text-text font-medium truncate text-[13px] cursor-pointer hover:text-accent transition-colors"
+            <button
+              className="text-text font-medium truncate text-[13px] cursor-pointer hover:text-accent transition-colors text-left"
               onClick={() => openProfile(event.pubkey)}
-            >{name}</span>
+            >{name}</button>
             {nip05 && (
               <span className={`text-[10px] truncate max-w-40 ${verified === "valid" ? "text-success" : "text-text-dim"}`}>
                 {verified === "valid" ? "✓ " : ""}{nip05}

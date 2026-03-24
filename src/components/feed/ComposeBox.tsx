@@ -244,7 +244,7 @@ export function ComposeBox({ onPublished, onNoteInjected }: { onPublished?: () =
                 <button
                   onClick={() => setShowEmoji((v) => !v)}
                   title="Insert emoji"
-                  className="text-text-dim hover:text-text text-[13px] transition-colors"
+                  className="text-text-dim hover:text-text text-[16px] transition-colors"
                 >
                   ☺
                 </button>
@@ -259,7 +259,7 @@ export function ComposeBox({ onPublished, onNoteInjected }: { onPublished?: () =
                 onClick={handleFilePicker}
                 disabled={uploading}
                 title="Attach image or video"
-                className="text-text-dim hover:text-text text-[13px] transition-colors disabled:opacity-30"
+                className="text-text-dim hover:text-text text-[16px] transition-colors disabled:opacity-30"
               >
                 +
               </button>

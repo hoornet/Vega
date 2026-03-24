@@ -6,7 +6,7 @@ import { MarkdownToolbar, handleEditorKeyDown } from "./MarkdownToolbar";
 import { useDraftStore, type ArticleDraft } from "../../stores/drafts";
 import { open } from "@tauri-apps/plugin-dialog";
 import { readFile } from "@tauri-apps/plugin-fs";
-import { uploadBytes } from "../../lib/upload";
+import { uploadBytes, uploadImage } from "../../lib/upload";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 
 export function ArticleEditor() {
@@ -159,6 +159,56 @@ export function ArticleEditor() {
       }
     } catch (err) {
       setError(`Cover upload failed: ${err}`);
+    }
+  };
+
+  const handleArticlePaste = async (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const fileFromFiles = Array.from(e.clipboardData.files).find((f) => f.type.startsWith("image/"));
+    if (fileFromFiles) {
+      e.preventDefault();
+      setUploading(true);
+      setError(null);
+      try {
+        const url = await uploadImage(fileFromFiles);
+        const ta = textareaRef.current;
+        if (ta) {
+          const start = ta.selectionStart ?? content.length;
+          const end = ta.selectionEnd ?? content.length;
+          const md = `![image](${url})`;
+          setContent(content.slice(0, start) + md + content.slice(end));
+          setTimeout(() => { ta.selectionStart = ta.selectionEnd = start + md.length; ta.focus(); }, 0);
+        }
+      } catch (err) {
+        setError(`Image upload failed: ${err}`);
+      } finally {
+        setUploading(false);
+      }
+      return;
+    }
+    const items = Array.from(e.clipboardData.items ?? []);
+    const imageItem = items.find((item) => item.type.startsWith("image/"));
+    if (imageItem) {
+      const file = imageItem.getAsFile();
+      if (file) {
+        e.preventDefault();
+        setUploading(true);
+        setError(null);
+        try {
+          const url = await uploadImage(file);
+          const ta = textareaRef.current;
+          if (ta) {
+            const start = ta.selectionStart ?? content.length;
+            const end = ta.selectionEnd ?? content.length;
+            const md = `![image](${url})`;
+            setContent(content.slice(0, start) + md + content.slice(end));
+            setTimeout(() => { ta.selectionStart = ta.selectionEnd = start + md.length; ta.focus(); }, 0);
+          }
+        } catch (err) {
+          setError(`Image upload failed: ${err}`);
+        } finally {
+          setUploading(false);
+        }
+      }
     }
   };
 
@@ -356,6 +406,7 @@ export function ArticleEditor() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               onKeyDown={(e) => handleEditorKeyDown(e, textareaRef, content, setContent)}
+              onPaste={handleArticlePaste}
               placeholder="Write your article in Markdown…"
               className="w-full h-full min-h-[400px] bg-transparent text-text text-[14px] leading-relaxed placeholder:text-text-dim resize-none focus:outline-none font-mono"
             />

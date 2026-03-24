@@ -141,27 +141,29 @@ export function MarkdownToolbar({ textareaRef, content, setContent, setUploading
   const handleImageUpload = async () => {
     try {
       const selected = await open({
-        multiple: false,
+        multiple: true,
         filters: [
           { name: "Images", extensions: ["jpg", "jpeg", "png", "gif", "webp", "svg"] },
         ],
       });
       if (!selected) return;
-      const filePath = typeof selected === "string" ? selected : selected;
+      const paths = Array.isArray(selected) ? selected : [selected];
       setUploading?.(true);
       setError?.(null);
       try {
-        const bytes = await readFile(filePath);
-        const fileName = filePath.split(/[\\/]/).pop() || "image.png";
-        const ext = fileName.split(".").pop()?.toLowerCase() || "png";
-        const mimeMap: Record<string, string> = {
-          jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", gif: "image/gif",
-          webp: "image/webp", svg: "image/svg+xml",
-        };
-        const url = await uploadBytes(new Uint8Array(bytes), fileName, mimeMap[ext] || "image/png");
-        const textarea = textareaRef.current;
-        if (textarea) {
-          applyMarkdown(textarea, "image", content, setContent, `![${fileName}](${url})`);
+        for (const filePath of paths) {
+          const bytes = await readFile(filePath);
+          const fileName = filePath.split(/[\\/]/).pop() || "image.png";
+          const ext = fileName.split(".").pop()?.toLowerCase() || "png";
+          const mimeMap: Record<string, string> = {
+            jpg: "image/jpeg", jpeg: "image/jpeg", png: "image/png", gif: "image/gif",
+            webp: "image/webp", svg: "image/svg+xml",
+          };
+          const url = await uploadBytes(new Uint8Array(bytes), fileName, mimeMap[ext] || "image/png");
+          const textarea = textareaRef.current;
+          if (textarea) {
+            applyMarkdown(textarea, "image", content, setContent, `![${fileName}](${url})`);
+          }
         }
       } finally {
         setUploading?.(false);
