@@ -69,9 +69,10 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
-            ### New in v0.9.5 — Large Font Fix
-            Fixed layout overflow when using Large or Extra Large font on Windows.
-            - **Flex-wrap everywhere** — feed header, note card headers, note actions, compose box, settings theme grid, font size presets, media feed tabs, and profile header buttons all wrap gracefully instead of overflowing off-screen at high zoom levels
+            ### New in v0.9.6 — Font Size Fix
+            Fixed font scaling breaking layouts, especially on Windows.
+            - **Content-only zoom** — font size scaling now applies only to the content area, not the sidebar; sidebar stays consistent and readable at all sizes
+            - **Flex-wrap everywhere** — feed header, note card headers, note actions, compose box, settings theme grid, font size presets, media feed tabs, and profile header buttons all wrap gracefully at large zoom
             - **Themes grid** — switched from fixed 4-column grid to responsive wrapping layout
 
             ### Previous: v0.9.4 — Search, Follows, Editor & Polish
