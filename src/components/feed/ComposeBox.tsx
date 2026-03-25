@@ -229,7 +229,7 @@ export function ComposeBox({ onPublished, onNoteInjected }: { onPublished?: () =
             <p className="text-danger text-[11px] mb-2">{error}</p>
           )}
 
-          <div className="flex items-center justify-between mt-1">
+          <div className="flex flex-wrap items-center justify-between gap-y-1 mt-1">
             <span className={`text-[10px] ${overLimit ? "text-danger" : warnLimit ? "text-warning" : "text-text-dim"}`}>
               {uploading ? (
                 <span className="inline-flex items-center gap-1">
@@ -241,7 +241,7 @@ export function ComposeBox({ onPublished, onNoteInjected }: { onPublished?: () =
                 <span className="ml-1 text-text-dim">(draft)</span>
               )}
             </span>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <div className="relative">
                 <button
                   onClick={() => setShowEmoji((v) => !v)}

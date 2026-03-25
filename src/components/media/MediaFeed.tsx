@@ -44,8 +44,8 @@ export function MediaFeed() {
 
   return (
     <div className="h-full flex flex-col">
-      <header className="border-b border-border px-4 py-2.5 flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-1">
+      <header className="border-b border-border px-4 py-2.5 flex flex-wrap items-center justify-between gap-y-1 shrink-0">
+        <div className="flex flex-wrap items-center gap-1">
           <h1 className="text-text text-sm font-medium mr-3">Media</h1>
           {(["all", "videos", "images", "audio"] as const).map((t) => (
             <button

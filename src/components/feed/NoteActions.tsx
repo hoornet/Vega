@@ -79,7 +79,7 @@ export function NoteActions({ event, onReplyToggle, showReply }: NoteActionsProp
 
   return (
     <>
-      <div className="flex items-center gap-4 mt-2">
+      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
         <button
           onClick={onReplyToggle}
           className={`text-[11px] transition-colors ${

@@ -82,7 +82,7 @@ export function NoteCard({ event, focused, onReplyInThread }: NoteCardProps) {
 
         {/* Content */}
         <div className="min-w-0 flex-1">
-          <div className="flex items-baseline gap-2 mb-0.5">
+          <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mb-0.5">
             <button
               className="text-text font-medium truncate text-[13px] cursor-pointer hover:text-accent transition-colors text-left"
               onClick={() => openProfile(event.pubkey)}

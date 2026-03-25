@@ -109,7 +109,7 @@ export function Feed() {
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
-      <header className="border-b border-border px-4 py-2.5 flex items-center justify-between shrink-0">
+      <header className="border-b border-border px-4 py-2.5 flex flex-wrap items-center justify-between gap-y-1 shrink-0">
         <div className="flex items-center gap-1">
           <button
             onClick={() => setTab("global")}
@@ -144,7 +144,7 @@ export function Feed() {
             Trending
           </button>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2">
           <select
             value={feedLanguageFilter ?? ""}
             onChange={(e) => setFeedLanguageFilter(e.target.value || null)}

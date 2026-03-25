@@ -291,12 +291,12 @@ function ThemeSection() {
       <h2 className="text-text text-[11px] font-medium uppercase tracking-widest mb-3 text-text-dim">
         Theme
       </h2>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="flex flex-wrap gap-2">
         {themes.map((theme) => (
           <button
             key={theme.id}
             onClick={() => setTheme(theme.id)}
-            className={`flex flex-col items-center gap-1.5 p-2 border transition-colors rounded-sm ${
+            className={`flex flex-col items-center gap-1.5 p-2 border transition-colors rounded-sm w-20 ${
               themeId === theme.id
                 ? "border-accent bg-bg-hover"
                 : "border-border hover:border-accent/40"
@@ -333,7 +333,7 @@ function FontSizeSection() {
       <h2 className="text-text text-[11px] font-medium uppercase tracking-widest mb-2 text-text-dim">
         Font Size
       </h2>
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-center gap-2">
         {FONT_PRESETS.map(({ label, size }) => (
           <button
             key={size}
