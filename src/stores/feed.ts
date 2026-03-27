@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { NDKEvent, NDKFilter, NDKKind, NDKSubscription, NDKSubscriptionCacheUsage } from "@nostr-dev-kit/ndk";
 import { connectToRelays, ensureConnected, resetNDK, fetchGlobalFeed, fetchBatchEngagement, fetchTrendingCandidates, getNDK } from "../lib/nostr";
+import { seedReactionsCache } from "../hooks/useReactions";
 import { useToastStore } from "./toast";
 import { dbLoadFeed, dbSaveNotes } from "../lib/db";
 import { diagWrapFetch, logDiag, startRelaySnapshots, getRelayStates } from "../lib/feedDiagnostics";
@@ -231,6 +232,13 @@ export const useFeedStore = create<FeedState>((set, get) => ({
 
       const eventIds = notes.map((n) => n.id).filter(Boolean) as string[];
       const engagement = await fetchBatchEngagement(eventIds);
+
+      // Seed per-note reaction cache so emoji pills render instantly
+      for (const [id, eng] of engagement) {
+        if (eng.reactionGroups.size > 0) {
+          seedReactionsCache(id, eng.reactionGroups, eng.myReactions);
+        }
+      }
 
       const now = Math.floor(Date.now() / 1000);
       const scored = notes

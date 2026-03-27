@@ -15,12 +15,6 @@ export async function publishReaction(eventId: string, eventPubkey: string, reac
   await event.publish();
 }
 
-export async function fetchReactionCount(eventId: string): Promise<number> {
-  const instance = getNDK();
-  const filter: NDKFilter = { kinds: [NDKKind.Reaction], "#e": [eventId] };
-  const events = await fetchWithTimeout(instance, filter, SINGLE_TIMEOUT);
-  return events.size;
-}
 
 export interface GroupedReactions {
   groups: Map<string, number>;
