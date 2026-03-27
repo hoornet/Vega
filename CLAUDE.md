@@ -57,7 +57,8 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 - `src/lib/nostr/` — NDK wrapper split into domain modules (`core.ts`, `notes.ts`, `social.ts`, `articles.ts`, `engagement.ts`, `dms.ts`, `bookmarks.ts`, `muting.ts`, `search.ts`, `relays.ts`, `trending.ts`); barrel `index.ts` re-exports all; all Nostr calls go through here
 - `src/lib/themes.ts` — Color theme definitions (7 themes) and `applyTheme()` utility
 - `src/lib/lightning/` — NWC client (`nwc.ts`); Lightning payment logic
-- `src/hooks/` — `useProfile.ts`, `useReactionCount.ts`
+- `src/hooks/` — `useProfile.ts`, `useReactions.ts` (grouped emoji reactions with throttled fetch queue)
+- `src/lib/debug.ts` — Dev-only logger (silent in production builds)
 - `src/components/feed/` — Feed, NoteCard, NoteContent, NoteActions, InlineReplyBox, TextSegments, MediaCards, ComposeBox
 - `src/components/profile/` — ProfileView, EditProfileForm, ImageField, Nip05Field, ProfileMediaGallery
 - `src/components/thread/` — ThreadView
@@ -102,7 +103,7 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 **Implemented:**
 - Onboarding: key generation, nsec backup flow, login with nsec/npub
 - Global + following feed, compose, reply, thread view
-- Reactions (NIP-25) with live network counts
+- Reactions (NIP-25) with **grouped emoji pills** (❤️5 🤙3 🔥2), multi-reaction per note, throttled fetch queue
 - Follow/unfollow (NIP-02), contact list publishing
 - Profile view + edit (kind 0) with Notes/Articles tab toggle
 - Long-form article editor (NIP-23) with **markdown toolbar** (bold, italic, heading, link, image, quote, code, list), **keyboard shortcuts** (Ctrl+B/I/K), **multi-draft management**, **cover image file picker**
@@ -113,7 +114,7 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 - **NIP-98 HTTP Auth** for image uploads with fallback services (nostr.build, void.cat, nostrimg.com)
 - Zaps: NWC wallet connect (NIP-47) + NIP-57 via NDKZapper
 - **Advanced search** — query parser with modifiers: `by:author`, `mentions:npub`, `kind:N`, `is:article`, `has:image`, `since:date`, `until:date`, `#hashtag`, `"phrase"`, boolean `OR`; NIP-05 resolution; client-side content filters; search help panel
-- Search: NIP-50 full-text, hashtag (#t filter), people, articles
+- Search: NIP-50 full-text, hashtag (#t filter), people, articles, **npub/nprofile direct navigation**
 - Settings: color themes (7 presets), font size presets, NWC wallet, notifications, data export, identity, mute lists
 - **Relay management** — consolidated Relays view with add/remove individual relays, health checker (NIP-11 info, WebSocket latency, online/slow/offline status), expandable cards with all supported NIPs, per-relay remove button, "Remove dead" workflow, publish relay list (NIP-65)
 - **Relay recommendations** — suggest relays based on follows' NIP-65 relay lists; "Discover relays" button with follow count, one-click "Add"
@@ -143,7 +144,8 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 - **Dedicated hashtag pages** — clicking #tag opens a live feed, not generic search
 - **Keyword muting** — word/phrase mute list, client-side filtering across all views
 - **Follow suggestion dismissal** — persistent "don't suggest again" per person
-- **Background notification poller** — 60s polling for mentions, zaps, new followers; each type independently toggleable
+- **Background notification poller** — 60s polling for mentions, zaps, new followers; each type independently toggleable; relay-aware startup (waits for connection before first fetch)
+- **Dev-only debug logger** — `debug.log/warn/error` via `src/lib/debug.ts`; uses `import.meta.env.DEV`, silent in production
 - **Trending feed polish** — 24h time window, time decay scoring, articles mixed with notes
 - **NIP-46 remote signer** — bunker:// URI login, session persistence via toPayload/fromPayload, account switching
 - **Media feed** — dedicated "Media" view with All/Videos/Images/Audio tabs; filters notes by embedded media type

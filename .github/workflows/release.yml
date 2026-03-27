@@ -69,11 +69,14 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
-            ### New in v0.9.6 — Font Size Fix
-            Fixed font scaling breaking layouts, especially on Windows.
-            - **Content-only zoom** — font size scaling now applies only to the content area, not the sidebar; sidebar stays consistent and readable at all sizes
-            - **Flex-wrap everywhere** — feed header, note card headers, note actions, compose box, settings theme grid, font size presets, media feed tabs, and profile header buttons all wrap gracefully at large zoom
-            - **Themes grid** — switched from fixed 4-column grid to responsive wrapping layout
+            ### New in v0.9.7 — Emoji Reactions & Search
+            - **Grouped emoji reactions** — reactions display as pills (❤️5 🤙3 🔥2) instead of a single count; multi-reaction per note; throttled fetch queue for reliability
+            - **npub search** — pasting a bare npub or nprofile in search navigates directly to that profile
+            - **Notification reliability** — poller waits for relay connection before first fetch; prevents empty badges on startup
+            - **Dev-only debug logger** — `debug.log/warn/error` silent in production builds
+
+            ### Previous: v0.9.6 — Font Size Fix
+            - Content-only zoom, flex-wrap everywhere, themes grid fix
 
             ### Previous: v0.9.4 — Search, Follows, Editor & Polish
             - Search overhaul (dedicated NIP-50 relays, hybrid results), follows view, article editor improvements (image previews, toolbar labels, drag-drop), auto-expanding textareas, profile layout fix, thread stability fix
