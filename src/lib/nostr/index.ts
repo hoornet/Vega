@@ -2,7 +2,8 @@ export { getNDK, getNDKUptimeMs, connectToRelays, ensureConnected, resetNDK, get
 export { fetchGlobalFeed, fetchFollowFeed, fetchUserNotes, fetchUserNotesNIP65, fetchNoteById, fetchReplies, publishNote, publishReply, publishRepost, publishQuote, fetchHashtagFeed, fetchThreadEvents, fetchAncestors } from "./notes";
 export { publishProfile, publishContactList, fetchProfile, fetchFollowSuggestions, fetchMentions, fetchFollowers, fetchNewFollowers } from "./social";
 export { publishArticle, fetchArticle, fetchAuthorArticles, fetchArticleFeed, searchArticles, fetchByAddr } from "./articles";
-export { publishReaction, fetchReactionCount, fetchReplyCount, fetchZapCount, fetchBatchEngagement, fetchZapsReceived, fetchZapsSent } from "./engagement";
+export { publishReaction, fetchReactionCount, fetchReplyCount, fetchZapCount, fetchReactions, groupReactions, fetchBatchEngagement, fetchZapsReceived, fetchZapsSent } from "./engagement";
+export type { GroupedReactions, BatchEngagement } from "./engagement";
 export { fetchDMConversations, fetchDMThread, sendDM, decryptDM } from "./dms";
 export { fetchBookmarkList, publishBookmarkList, fetchBookmarkListFull, publishBookmarkListFull } from "./bookmarks";
 export { fetchMuteList, publishMuteList } from "./muting";

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { NDKEvent, nip19 } from "@nostr-dev-kit/ndk";
 import { useProfile } from "../../hooks/useProfile";
-import { useReactionCount } from "../../hooks/useReactionCount";
+import { useReactions } from "../../hooks/useReactions";
 import { useReplyCount } from "../../hooks/useReplyCount";
 import { useZapCount } from "../../hooks/useZapCount";
 import { useUserStore } from "../../stores/user";
@@ -26,14 +26,8 @@ export function NoteActions({ event, onReplyToggle, showReply }: NoteActionsProp
   const { bookmarkedIds, addBookmark, removeBookmark } = useBookmarkStore();
   const isBookmarked = bookmarkedIds.includes(event.id!);
 
-  const likedKey = "wrystr_liked";
-  const getLiked = () => {
-    try { return new Set<string>(JSON.parse(localStorage.getItem(likedKey) || "[]")); }
-    catch { return new Set<string>(); }
-  };
-  const [liked, setLiked] = useState(() => getLiked().has(event.id));
-  const [liking, setLiking] = useState(false);
-  const [reactionCount, adjustReactionCount] = useReactionCount(event.id);
+  const [reactionsData, addReaction] = useReactions(event.id);
+  const [reacting, setReacting] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [replyCount] = useReplyCount(event.id);
   const [copied, setCopied] = useState(false);
@@ -43,19 +37,17 @@ export function NoteActions({ event, onReplyToggle, showReply }: NoteActionsProp
   const [reposting, setReposting] = useState(false);
   const [reposted, setReposted] = useState(false);
 
-  const handleReact = async (emoji?: string) => {
-    if (!loggedIn || liked || liking) return;
-    setLiking(true);
+  const myReactions = reactionsData?.myReactions ?? new Set<string>();
+
+  const handleReact = async (emoji: string) => {
+    if (!loggedIn || reacting || myReactions.has(emoji)) return;
+    setReacting(true);
     setShowEmojiPicker(false);
     try {
-      await publishReaction(event.id, event.pubkey, emoji || "+");
-      const likedSet = getLiked();
-      likedSet.add(event.id);
-      localStorage.setItem(likedKey, JSON.stringify(Array.from(likedSet)));
-      setLiked(true);
-      adjustReactionCount(1);
+      await publishReaction(event.id, event.pubkey, emoji);
+      addReaction(emoji);
     } finally {
-      setLiking(false);
+      setReacting(false);
     }
   };
 
@@ -77,9 +69,14 @@ export function NoteActions({ event, onReplyToggle, showReply }: NoteActionsProp
     }
   };
 
+  // Sort emoji groups: most popular first
+  const sortedGroups = reactionsData
+    ? Array.from(reactionsData.groups.entries()).sort((a, b) => b[1] - a[1])
+    : [];
+
   return (
     <>
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2">
         <button
           onClick={onReplyToggle}
           className={`text-[11px] transition-colors ${
@@ -88,25 +85,38 @@ export function NoteActions({ event, onReplyToggle, showReply }: NoteActionsProp
         >
           reply{replyCount !== null && replyCount > 0 ? ` ${replyCount}` : ""}
         </button>
-        <div className="relative flex items-center gap-1">
-          <button
-            onClick={() => handleReact("❤️")}
-            disabled={liked || liking}
-            className={`text-[11px] transition-colors ${
-              liked ? "text-accent" : "text-text-dim hover:text-accent"
-            } disabled:cursor-default`}
-          >
-            {liked ? "♥" : "♡"}{reactionCount !== null && reactionCount > 0 ? ` ${reactionCount}` : liked ? " liked" : " like"}
-          </button>
-          {!liked && !liking && (
+
+        {/* Emoji reaction pills */}
+        <div className="relative flex flex-wrap items-center gap-1">
+          {sortedGroups.map(([emoji, count]) => (
+            <button
+              key={emoji}
+              onClick={() => handleReact(emoji)}
+              disabled={reacting || myReactions.has(emoji)}
+              className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[11px] rounded-sm border transition-colors ${
+                myReactions.has(emoji)
+                  ? "border-accent/40 bg-accent/10 text-accent"
+                  : "border-border hover:border-accent/40 hover:bg-accent/5 text-text-dim"
+              } disabled:cursor-default`}
+            >
+              <span className="text-[13px] leading-none">{emoji}</span>
+              <span>{count}</span>
+            </button>
+          ))}
+
+          {/* Add reaction button */}
+          {loggedIn && (
             <button
               onClick={() => setShowEmojiPicker((v) => !v)}
-              className="text-[10px] text-text-dim hover:text-accent transition-colors opacity-0 group-hover/card:opacity-100"
+              disabled={reacting}
+              className="inline-flex items-center px-1 py-0.5 text-[11px] text-text-dim hover:text-accent border border-transparent hover:border-border rounded-sm transition-colors opacity-0 group-hover/card:opacity-100 disabled:opacity-30"
               title="React with emoji"
             >
               +
             </button>
           )}
+
+          {/* Emoji picker popover */}
           {showEmojiPicker && (
             <>
               <div className="fixed inset-0 z-[9]" onClick={() => setShowEmojiPicker(false)} />
@@ -115,7 +125,10 @@ export function NoteActions({ event, onReplyToggle, showReply }: NoteActionsProp
                   <button
                     key={emoji}
                     onClick={() => handleReact(emoji)}
-                    className="text-[16px] hover:scale-125 transition-transform px-0.5"
+                    disabled={myReactions.has(emoji)}
+                    className={`text-[16px] hover:scale-125 transition-transform px-0.5 ${
+                      myReactions.has(emoji) ? "opacity-30 cursor-default" : ""
+                    }`}
                   >
                     {emoji}
                   </button>
@@ -124,6 +137,7 @@ export function NoteActions({ event, onReplyToggle, showReply }: NoteActionsProp
             </>
           )}
         </div>
+
         <button
           onClick={handleRepost}
           disabled={reposting || reposted}
@@ -188,7 +202,7 @@ export function NoteActions({ event, onReplyToggle, showReply }: NoteActionsProp
 }
 
 export function LoggedOutStats({ event }: { event: NDKEvent }) {
-  const [reactionCount] = useReactionCount(event.id);
+  const [reactionsData] = useReactions(event.id);
   const [replyCount] = useReplyCount(event.id);
   const zapData = useZapCount(event.id);
   const [copied, setCopied] = useState(false);
@@ -200,14 +214,21 @@ export function LoggedOutStats({ event }: { event: NDKEvent }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const sortedGroups = reactionsData
+    ? Array.from(reactionsData.groups.entries()).sort((a, b) => b[1] - a[1])
+    : [];
+
   return (
-    <div className="flex items-center gap-3 mt-1.5">
+    <div className="flex flex-wrap items-center gap-2 mt-1.5">
       {replyCount !== null && replyCount > 0 && (
         <span className="text-text-dim text-[11px]">↩ {replyCount}</span>
       )}
-      {reactionCount !== null && reactionCount > 0 && (
-        <span className="text-text-dim text-[11px]">♥ {reactionCount}</span>
-      )}
+      {sortedGroups.map(([emoji, count]) => (
+        <span key={emoji} className="inline-flex items-center gap-0.5 text-text-dim text-[11px]">
+          <span className="text-[13px] leading-none">{emoji}</span>
+          <span>{count}</span>
+        </span>
+      ))}
       {zapData !== null && zapData.totalSats > 0 && (
         <span className="text-zap text-[11px]">⚡ {zapData.totalSats.toLocaleString()} sats</span>
       )}

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { NDKEvent, nip19 } from "@nostr-dev-kit/ndk";
 import { fetchFollowSuggestions, fetchProfile, advancedSearch, fetchTrendingHashtags } from "../../lib/nostr";
 import { parseSearchQuery, describeSearch } from "../../lib/search";
 import { useUserStore } from "../../stores/user";
@@ -202,6 +202,19 @@ export function SearchView() {
     const q = (overrideQuery ?? query).trim();
     if (!q) return;
     if (overrideQuery) setQuery(overrideQuery);
+
+    // Bare npub/nprofile → navigate directly to profile
+    if (/^(npub1|nprofile1)[a-z0-9]+$/i.test(q)) {
+      try {
+        const decoded = nip19.decode(q);
+        const pubkey = decoded.type === "npub" ? decoded.data
+          : decoded.type === "nprofile" ? decoded.data.pubkey : null;
+        if (pubkey) {
+          useUIStore.getState().openProfile(pubkey);
+          return;
+        }
+      } catch { /* not valid, fall through to normal search */ }
+    }
     setLoading(true);
     setSearched(false);
     setSearchHint(null);

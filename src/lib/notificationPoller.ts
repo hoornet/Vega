@@ -1,6 +1,7 @@
-import { fetchMentions, fetchZapsReceived, fetchNewFollowers, fetchProfile } from "./nostr";
+import { fetchMentions, fetchZapsReceived, fetchNewFollowers, fetchProfile, ensureConnected } from "./nostr";
 import { notifyMention, notifyZap, notifyFollower } from "./notifications";
 import { useNotificationsStore } from "../stores/notifications";
+import { debug } from "./debug";
 
 const POLL_INTERVAL = 60_000; // 60 seconds
 const POLL_TS_KEY = "wrystr_notif_poll_ts";
@@ -42,6 +43,15 @@ async function getProfileName(pubkey: string): Promise<string> {
 }
 
 async function pollOnce(pubkey: string) {
+  // Skip polling if no relays are connected — avoids empty results
+  try {
+    const connected = await ensureConnected();
+    if (!connected) {
+      debug.warn("notif:poll skipped — no relays connected");
+      return;
+    }
+  } catch { return; }
+
   const ts = loadPollTimestamps();
   const now = Math.floor(Date.now() / 1000);
 
@@ -109,10 +119,17 @@ async function pollOnce(pubkey: string) {
 
 export function startNotificationPoller(pubkey: string) {
   stopNotificationPoller();
-  // Fetch notification counts immediately (before full poll)
-  useNotificationsStore.getState().fetchNotifications(pubkey).catch(() => {});
-  // Run first full poll after a short delay (let relays connect)
-  setTimeout(() => pollOnce(pubkey).catch(() => {}), 5000);
+  // Wait for relay connection before first fetch — avoids empty results on startup
+  (async () => {
+    try {
+      const connected = await ensureConnected();
+      debug.log("notif:poller ensureConnected →", connected);
+    } catch { /* continue anyway */ }
+    debug.log("notif:poller initial fetch for", pubkey.slice(0, 8));
+    useNotificationsStore.getState().fetchNotifications(pubkey).catch(() => {});
+  })();
+  // Run first full poll after a longer delay (give relays more time)
+  setTimeout(() => pollOnce(pubkey).catch(() => {}), 8000);
   intervalId = setInterval(() => pollOnce(pubkey).catch(() => {}), POLL_INTERVAL);
 }
 

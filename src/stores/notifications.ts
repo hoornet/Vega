@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { fetchMentions } from "../lib/nostr";
+import { debug } from "../lib/debug";
 
 const NOTIF_READ_KEY = "wrystr_notif_read_ids";
 const DM_SEEN_KEY = "wrystr_dm_last_seen";
@@ -71,18 +72,19 @@ export const useNotificationsStore = create<NotificationsState>((set, get) => ({
       const since = Math.floor(Date.now() / 1000) - 7 * 86400;
       // Fetch more than we need since we filter out own events
       const events = await fetchMentions(pubkey, since, MAX_NOTIFICATIONS * 3);
-      // Filter out own events — your replies shouldn't be notifications
       const others = events.filter((e) => e.pubkey !== pubkey);
       const sorted = others.sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0)).slice(0, MAX_NOTIFICATIONS);
+      debug.log("notif:fetch", events.length, "raw →", others.length, "others →", sorted.length, "kept");
 
       // Don't overwrite existing notifications with empty results (relay timeout/disconnect)
       const { readIds, notifications: existing } = get();
       if (sorted.length === 0 && existing.length > 0) {
-        // Keep existing notifications — relay probably timed out
+        debug.warn("notif:fetch empty result, keeping", existing.length, "existing");
         return;
       }
 
       const unreadCount = sorted.filter((e) => !readIds.has(e.id!)).length;
+      debug.log("notif:set", sorted.length, "notifications,", unreadCount, "unread");
       set({ notifications: sorted, unreadCount });
     } catch {
       // Non-critical — keep existing notifications on error

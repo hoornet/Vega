@@ -48,9 +48,9 @@ describe("useFeedStore - loadTrendingFeed", () => {
     ];
 
     const engagement = new Map([
-      ["a", { reactions: 10, replies: 0, zapSats: 0 }],  // score: 10
-      ["b", { reactions: 0, replies: 5, zapSats: 0 }],   // score: 15
-      ["c", { reactions: 1, replies: 1, zapSats: 100 }],  // score: 5
+      ["a", { reactions: 10, replies: 0, zapSats: 0, reactionGroups: new Map<string, number>(), myReactions: new Set<string>() }],  // score: 10
+      ["b", { reactions: 0, replies: 5, zapSats: 0, reactionGroups: new Map<string, number>(), myReactions: new Set<string>() }],   // score: 15
+      ["c", { reactions: 1, replies: 1, zapSats: 100, reactionGroups: new Map<string, number>(), myReactions: new Set<string>() }],  // score: 5
     ]);
 
     vi.mocked(fetchTrendingCandidates).mockResolvedValue(notes);
@@ -73,8 +73,8 @@ describe("useFeedStore - loadTrendingFeed", () => {
     ];
 
     const engagement = new Map([
-      ["a", { reactions: 5, replies: 0, zapSats: 0 }],
-      ["b", { reactions: 0, replies: 0, zapSats: 0 }],
+      ["a", { reactions: 5, replies: 0, zapSats: 0, reactionGroups: new Map<string, number>(), myReactions: new Set<string>() }],
+      ["b", { reactions: 0, replies: 0, zapSats: 0, reactionGroups: new Map<string, number>(), myReactions: new Set<string>() }],
     ]);
 
     vi.mocked(fetchTrendingCandidates).mockResolvedValue(notes);
@@ -91,7 +91,7 @@ describe("useFeedStore - loadTrendingFeed", () => {
     const now = Math.floor(Date.now() / 1000);
     const notes = Array.from({ length: 60 }, (_, i) => makeMockNote(`n${i}`, now - i));
     const engagement = new Map(
-      notes.map((n) => [n.id, { reactions: 10, replies: 1, zapSats: 0 }])
+      notes.map((n) => [n.id, { reactions: 10, replies: 1, zapSats: 0, reactionGroups: new Map<string, number>(), myReactions: new Set<string>() }])
     );
 
     vi.mocked(fetchTrendingCandidates).mockResolvedValue(notes);
