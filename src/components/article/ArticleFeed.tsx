@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
-import { fetchArticleFeed } from "../../lib/nostr";
+import { fetchArticleFeed, getNDK } from "../../lib/nostr";
 import { useUserStore } from "../../stores/user";
 import { useUIStore } from "../../stores/ui";
+import { dbLoadArticles, dbSaveNotes } from "../../lib/db";
 import { ArticleCard } from "./ArticleCard";
 
 type ArticleTab = "latest" | "following";
@@ -21,11 +22,42 @@ export function ArticleFeed() {
     if (tab === "following" && follows.length === 0) return;
     let cancelled = false;
     setLoading(true);
-    const authors = tab === "following" ? follows : undefined;
-    fetchArticleFeed(40, authors)
-      .then((result) => { if (!cancelled) setArticles(result); })
-      .catch(() => { if (!cancelled) setArticles([]); })
-      .finally(() => { if (!cancelled) setLoading(false); });
+
+    (async () => {
+      // 1) Instant: load from SQLite cache (latest tab only — following is filtered)
+      if (tab === "latest") {
+        const cached = await dbLoadArticles(40);
+        if (!cancelled && cached.length > 0) {
+          const ndk = getNDK();
+          const events = cached
+            .map((raw) => { try { return new NDKEvent(ndk, JSON.parse(raw)); } catch { return null; } })
+            .filter((e): e is NDKEvent => e !== null)
+            .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
+          if (events.length > 0) {
+            setArticles(events);
+            setLoading(false);
+          }
+        }
+      }
+
+      // 2) Background: fetch from relays and merge
+      const authors = tab === "following" ? follows : undefined;
+      try {
+        const result = await fetchArticleFeed(40, authors);
+        if (!cancelled) {
+          setArticles(result);
+          // Save to notes table for next time
+          if (result.length > 0) {
+            dbSaveNotes(result.map((e) => JSON.stringify(e.rawEvent())));
+          }
+        }
+      } catch {
+        if (!cancelled && articles.length === 0) setArticles([]);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
     return () => { cancelled = true; };
   }, [followsKey]);
 

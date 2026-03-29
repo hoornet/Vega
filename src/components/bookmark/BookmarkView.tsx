@@ -2,7 +2,8 @@ import { useEffect, useState } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { useBookmarkStore } from "../../stores/bookmark";
 import { useUserStore } from "../../stores/user";
-import { fetchNoteById, fetchByAddr } from "../../lib/nostr";
+import { fetchNoteById, fetchByAddr, getNDK } from "../../lib/nostr";
+import { dbLoadBookmarkedNotes, dbSaveBookmarkedNotes } from "../../lib/db";
 import { NoteCard } from "../feed/NoteCard";
 import { ArticleCard } from "../article/ArticleCard";
 import { SkeletonNoteList } from "../shared/Skeleton";
@@ -46,53 +47,84 @@ export function BookmarkView() {
     if (pubkey) fetchBookmarks(pubkey);
   }, [pubkey]);
 
+  // Load bookmarked notes: DB cache first (instant), then relay fetch for missing
   useEffect(() => {
     if (bookmarkedIds.length === 0) {
       setNotes([]);
       return;
     }
-    loadNotes();
+    let cancelled = false;
+    setLoadingNotes(true);
+
+    (async () => {
+      // 1) Instant: load from SQLite cache
+      if (pubkey) {
+        const cached = await dbLoadBookmarkedNotes(pubkey);
+        if (!cancelled && cached.length > 0) {
+          const ndk = getNDK();
+          const events = cached
+            .map((raw) => { try { return new NDKEvent(ndk, JSON.parse(raw)); } catch { return null; } })
+            .filter((e): e is NDKEvent => e !== null)
+            .filter((e) => bookmarkedIds.includes(e.id))
+            .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
+          if (events.length > 0) {
+            setNotes(events);
+            setLoadingNotes(false);
+          }
+        }
+      }
+
+      // 2) Background: fetch from relays and merge
+      try {
+        const results = await Promise.all(
+          bookmarkedIds.map((id) => fetchNoteById(id))
+        );
+        if (!cancelled) {
+          const fetched = results
+            .filter((e): e is NDKEvent => e !== null)
+            .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0));
+          setNotes(fetched);
+          // Save to DB for next time
+          if (pubkey && fetched.length > 0) {
+            dbSaveBookmarkedNotes(fetched.map((e) => JSON.stringify(e.rawEvent())), pubkey);
+          }
+        }
+      } finally {
+        if (!cancelled) setLoadingNotes(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
   }, [bookmarkedIds]);
 
+  // Load bookmarked articles (no DB cache yet — articles are fetched by addr)
   useEffect(() => {
     if (bookmarkedArticleAddrs.length === 0) {
       setArticles([]);
       return;
     }
-    loadArticles();
-  }, [bookmarkedArticleAddrs]);
-
-  const loadNotes = async () => {
-    setLoadingNotes(true);
-    try {
-      const results = await Promise.all(
-        bookmarkedIds.map((id) => fetchNoteById(id))
-      );
-      setNotes(
-        results
-          .filter((e): e is NDKEvent => e !== null)
-          .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))
-      );
-    } finally {
-      setLoadingNotes(false);
-    }
-  };
-
-  const loadArticles = async () => {
+    let cancelled = false;
     setLoadingArticles(true);
-    try {
-      const results = await Promise.all(
-        bookmarkedArticleAddrs.map((addr) => fetchByAddr(addr))
-      );
-      setArticles(
-        results
-          .filter((e): e is NDKEvent => e !== null)
-          .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))
-      );
-    } finally {
-      setLoadingArticles(false);
-    }
-  };
+
+    (async () => {
+      try {
+        const results = await Promise.all(
+          bookmarkedArticleAddrs.map((addr) => fetchByAddr(addr))
+        );
+        if (!cancelled) {
+          setArticles(
+            results
+              .filter((e): e is NDKEvent => e !== null)
+              .sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))
+          );
+        }
+      } finally {
+        if (!cancelled) setLoadingArticles(false);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [bookmarkedArticleAddrs]);
 
   const totalCount = bookmarkedIds.length + bookmarkedArticleAddrs.length;
   const loading = tab === "notes" ? loadingNotes : loadingArticles;

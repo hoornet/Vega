@@ -77,7 +77,14 @@ fn open_db(data_dir: std::path::PathBuf) -> rusqlite::Result<Connection> {
              cached_at    INTEGER NOT NULL,
              PRIMARY KEY (pubkey, owner_pubkey)
          );
-         CREATE INDEX IF NOT EXISTS idx_followers_owner ON followers(owner_pubkey);",
+         CREATE INDEX IF NOT EXISTS idx_followers_owner ON followers(owner_pubkey);
+         CREATE TABLE IF NOT EXISTS bookmarked_notes (
+             id           TEXT PRIMARY KEY,
+             owner_pubkey TEXT NOT NULL,
+             raw          TEXT NOT NULL,
+             cached_at    INTEGER NOT NULL
+         );
+         CREATE INDEX IF NOT EXISTS idx_bookmarks_owner ON bookmarked_notes(owner_pubkey);",
     )?;
     Ok(conn)
 }
@@ -289,6 +296,75 @@ fn db_load_followers(
     Ok(result)
 }
 
+// ── Bookmarks cache ─────────────────────────────────────────────────────────
+
+#[tauri::command]
+fn db_save_bookmarked_notes(
+    state: tauri::State<DbState>,
+    notes: Vec<String>,
+    owner_pubkey: String,
+) -> Result<(), String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .unwrap_or_default()
+        .as_secs() as i64;
+    for raw in &notes {
+        let v: serde_json::Value = serde_json::from_str(raw).map_err(|e| e.to_string())?;
+        let id = v["id"].as_str().unwrap_or_default();
+        conn.execute(
+            "INSERT OR REPLACE INTO bookmarked_notes (id, owner_pubkey, raw, cached_at) VALUES (?1,?2,?3,?4)",
+            params![id, owner_pubkey, raw, now],
+        )
+        .map_err(|e| e.to_string())?;
+    }
+    // Prune to 500 per owner
+    conn.execute(
+        "DELETE FROM bookmarked_notes WHERE owner_pubkey=?1 AND id NOT IN \
+         (SELECT id FROM bookmarked_notes WHERE owner_pubkey=?1 ORDER BY cached_at DESC LIMIT 500)",
+        params![owner_pubkey],
+    )
+    .map_err(|e| e.to_string())?;
+    Ok(())
+}
+
+#[tauri::command]
+fn db_load_bookmarked_notes(
+    state: tauri::State<DbState>,
+    owner_pubkey: String,
+) -> Result<Vec<String>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT raw FROM bookmarked_notes WHERE owner_pubkey=?1 ORDER BY cached_at DESC")
+        .map_err(|e| e.to_string())?;
+    let rows = stmt
+        .query_map([&owner_pubkey], |row| row.get::<_, String>(0))
+        .map_err(|e| e.to_string())?;
+    let mut result = Vec::new();
+    for row in rows {
+        result.push(row.map_err(|e| e.to_string())?);
+    }
+    Ok(result)
+}
+
+// ── Articles cache ──────────────────────────────────────────────────────────
+
+#[tauri::command]
+fn db_load_articles(state: tauri::State<DbState>, limit: u32) -> Result<Vec<String>, String> {
+    let conn = state.0.lock().map_err(|e| e.to_string())?;
+    let mut stmt = conn
+        .prepare("SELECT raw FROM notes WHERE kind=30023 ORDER BY created_at DESC LIMIT ?1")
+        .map_err(|e| e.to_string())?;
+    let rows = stmt
+        .query_map([limit], |row| row.get::<_, String>(0))
+        .map_err(|e| e.to_string())?;
+    let mut result = Vec::new();
+    for row in rows {
+        result.push(row.map_err(|e| e.to_string())?);
+    }
+    Ok(result)
+}
+
 // ── App entry ────────────────────────────────────────────────────────────────
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
@@ -372,6 +448,9 @@ pub fn run() {
             db_newest_notification_ts,
             db_save_followers,
             db_load_followers,
+            db_save_bookmarked_notes,
+            db_load_bookmarked_notes,
+            db_load_articles,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

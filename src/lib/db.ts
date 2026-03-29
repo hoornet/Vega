@@ -62,3 +62,23 @@ export function dbSaveFollowers(followers: string[], ownerPubkey: string): void 
 export async function dbLoadFollowers(ownerPubkey: string): Promise<string[]> {
   return invoke<string[]>("db_load_followers", { ownerPubkey }).catch(() => []);
 }
+
+// ── Bookmarks cache ────────────────────────────────────────────────────────
+
+/** Save bookmarked note events to SQLite. Fire-and-forget. */
+export function dbSaveBookmarkedNotes(raws: string[], ownerPubkey: string): void {
+  if (raws.length === 0) return;
+  invoke("db_save_bookmarked_notes", { notes: raws, ownerPubkey }).catch(() => {});
+}
+
+/** Load cached bookmarked note JSONs for owner. */
+export async function dbLoadBookmarkedNotes(ownerPubkey: string): Promise<string[]> {
+  return invoke<string[]>("db_load_bookmarked_notes", { ownerPubkey }).catch(() => []);
+}
+
+// ── Articles cache ─────────────────────────────────────────────────────────
+
+/** Load cached articles (kind 30023) from the notes table. */
+export async function dbLoadArticles(limit = 100): Promise<string[]> {
+  return invoke<string[]>("db_load_articles", { limit }).catch(() => []);
+}
