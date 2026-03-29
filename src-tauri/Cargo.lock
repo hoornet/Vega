@@ -6157,7 +6157,7 @@ dependencies = [
 
 [[package]]
 name = "wrystr"
-version = "0.9.9"
+version = "0.9.10"
 dependencies = [
  "keyring",
  "rusqlite",

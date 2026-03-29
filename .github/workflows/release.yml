@@ -69,12 +69,16 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
-            ### New in v0.9.9 — Speed, Stability & Linux Fix
-            - **Instant thread loading** — clicked note renders immediately; ancestors and replies load in background; timeouts cut in half
-            - **Image upload fixed on Linux/Wayland** — manual multipart body construction bypasses WebKitGTK FormData bug
-            - **Trending feed reliability** — notes always appear even when engagement data times out
-            - **Notification retry** — longer timeout for mention queries; automatic retry on empty results
-            - **Upload service scope** — void.cat and nostrimg.com fallbacks now properly allowed
+            ### New in v0.9.10 — Instant Everything
+            - **SQLite-backed followers cache** — followers list loads instantly from local DB; relay results merged in background; follower count only grows (never lost to partial relay results)
+            - **SQLite-backed bookmarks cache** — bookmarked notes load instantly from DB; relay fetch fills in any new additions
+            - **SQLite-backed articles cache** — articles feed (latest tab) loads instantly from DB cache
+            - **Instant own-profile load** — sidebar badge shows your name/picture immediately from DB cache, no more raw npub on slow relays
+            - **Followers fetch timeout** — increased from 8s to 15s for slow `#p` tag queries on kind 3
+            - **Retry-on-empty** — followers, profile articles, and hashtag feeds retry once after 3s if relays return empty
+
+            ### Previous: v0.9.9 — Speed, Stability & Linux Fix
+            - Instant thread loading, Linux/Wayland image upload fix, trending feed reliability, notification retry, upload service scope fix
 
             ### Previous: v0.9.8 — Web of Trust & Instant Notifications
             - Web of Trust on profiles (Vertex DVM), SQLite-backed notification cache, profile notes retry, reaction queue fix
