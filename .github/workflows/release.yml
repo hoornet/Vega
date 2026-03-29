@@ -69,11 +69,15 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
-            ### New in v0.9.8 — Web of Trust & Instant Notifications
-            - **Web of Trust on profiles** — personalized "Followed by people you trust" section powered by Vertex DVM; clickable follower avatars with expand/collapse
-            - **Instant notifications** — SQLite-backed notification cache; notifications load instantly on startup instead of waiting for relays; read state persists across restarts
-            - **Profile notes retry** — automatically retries on empty result instead of permanently showing "No notes found"
-            - **Reaction queue fix** — throttle queue no longer jams when relay queries fail
+            ### New in v0.9.9 — Speed, Stability & Linux Fix
+            - **Instant thread loading** — clicked note renders immediately; ancestors and replies load in background; timeouts cut in half
+            - **Image upload fixed on Linux/Wayland** — manual multipart body construction bypasses WebKitGTK FormData bug
+            - **Trending feed reliability** — notes always appear even when engagement data times out
+            - **Notification retry** — longer timeout for mention queries; automatic retry on empty results
+            - **Upload service scope** — void.cat and nostrimg.com fallbacks now properly allowed
+
+            ### Previous: v0.9.8 — Web of Trust & Instant Notifications
+            - Web of Trust on profiles (Vertex DVM), SQLite-backed notification cache, profile notes retry, reaction queue fix
 
             ### Previous: v0.9.7 — Emoji Reactions & Search
             - Grouped emoji reactions (❤️5 🤙3 🔥2), multi-reaction per note, npub search, notification reliability, dev-only debug logger
