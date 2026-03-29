@@ -246,10 +246,11 @@ export const useFeedStore = create<FeedState>((set, get) => ({
           const eng = engagement.get(note.id) ?? { reactions: 0, replies: 0, zapSats: 0 };
           const ageHours = (now - (note.created_at ?? now)) / 3600;
           const decay = 1 / (1 + ageHours * 0.15);
-          const score = (eng.reactions * 1 + eng.replies * 3 + eng.zapSats * 0.01) * decay;
+          const engScore = eng.reactions * 1 + eng.replies * 3 + eng.zapSats * 0.01;
+          // Base recency score ensures notes appear even when engagement data times out
+          const score = (engScore + 0.1) * decay;
           return { note, score };
         })
-        .filter((s) => s.score > 0)
         .sort((a, b) => b.score - a.score)
         .slice(0, 50)
         .map((s) => s.note);

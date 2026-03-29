@@ -14,7 +14,7 @@ export function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Pr
 }
 
 export const FEED_TIMEOUT = 8000;    // 8s for feed fetches
-export const THREAD_TIMEOUT = 10000; // 10s per thread round-trip
+export const THREAD_TIMEOUT = 5000;  // 5s per thread round-trip
 export const SINGLE_TIMEOUT = 5000;  // 5s for single event lookups
 
 const EMPTY_SET = new Set<NDKEvent>();

@@ -40,36 +40,42 @@ export function ThreadView() {
     let cancelled = false;
 
     async function loadThread() {
-      setLoading(true);
       setLoadError(null);
       setTree(null);
       setAncestors([]);
       setRootEvent(null);
       setShowRootReply(false);
 
+      // Show focused note immediately as a minimal tree (no waiting)
+      const minimalTree = buildThreadTree(focusedEvent.id, [focusedEvent]);
+      setRootEvent(focusedEvent);
+      setTree(minimalTree);
+      setLoading(false);
+
       try {
         // Ensure we have relay connectivity before fetching
         const connected = await ensureConnected();
         if (!connected && !cancelled) {
           setLoadError("No relay connections available. Check your network.");
+          return;
         }
 
         const rootId = getRootEventId(focusedEvent);
-        let root: NDKEvent;
+        let root: NDKEvent = focusedEvent;
         let fetchedAncestors: NDKEvent[] = [];
 
-        if (!rootId || rootId === focusedEvent.id) {
-          root = focusedEvent;
-        } else {
-          const fetched = await fetchNoteById(rootId);
+        if (rootId && rootId !== focusedEvent.id) {
+          // Fetch root and ancestors in parallel with thread replies
+          const [fetched, ancestorResult] = await Promise.all([
+            fetchNoteById(rootId),
+            fetchAncestors(focusedEvent),
+          ]);
           if (fetched) {
             root = fetched;
-            fetchedAncestors = await fetchAncestors(focusedEvent);
-            fetchedAncestors = fetchedAncestors.filter((a) => a.id !== root.id);
+            fetchedAncestors = ancestorResult.filter((a) => a.id !== root.id);
             if (!cancelled) setAncestors(fetchedAncestors);
-          } else {
-            root = focusedEvent;
-            if (!cancelled) setLoadError("Could not fetch the root note — relay may be slow.");
+          } else if (!cancelled) {
+            setLoadError("Could not fetch the root note — relay may be slow.");
           }
         }
 
@@ -80,7 +86,6 @@ export function ThreadView() {
         if (cancelled) return;
 
         // Build event list: root + thread replies + focused event + ancestors
-        // Always include focused event — relay may not return it in thread fetch
         const allEvents = [root, ...events.filter((e) => e.id !== root.id)];
         if (focusedEvent.id !== root.id && !allEvents.some((e) => e.id === focusedEvent.id)) {
           allEvents.push(focusedEvent);
@@ -93,16 +98,9 @@ export function ThreadView() {
 
         const built = buildThreadTree(root.id, allEvents);
         setTree(built);
-
-        // Warn if we got zero replies (possible timeout)
-        if (events.length === 0 && !loadError) {
-          console.warn("[Wrystr] Thread fetch returned 0 replies — possible timeout or empty thread");
-        }
       } catch (err) {
         console.error("Failed to load thread:", err);
         if (!cancelled) setLoadError(`Failed to load: ${err}`);
-      } finally {
-        if (!cancelled) setLoading(false);
       }
     }
 

@@ -148,6 +148,8 @@ export async function fetchThreadEvents(rootId: string): Promise<NDKEvent[]> {
   return Array.from(allEvents.values());
 }
 
+const ANCESTOR_TIMEOUT = 2000; // 2s per parent — fail fast
+
 export async function fetchAncestors(event: NDKEvent, maxDepth = 5): Promise<NDKEvent[]> {
   const ancestors: NDKEvent[] = [];
   let current = event;
@@ -162,7 +164,10 @@ export async function fetchAncestors(event: NDKEvent, maxDepth = 5): Promise<NDK
       eTags[eTags.length - 1][1];
 
     if (!parentId) break;
-    const parent = await fetchNoteById(parentId);
+    const instance = getNDK();
+    const filter: NDKFilter = { ids: [parentId], limit: 1 };
+    const events = await fetchWithTimeout(instance, filter, ANCESTOR_TIMEOUT);
+    const parent = Array.from(events)[0] ?? null;
     if (!parent) break;
     ancestors.unshift(parent);
     current = parent;
