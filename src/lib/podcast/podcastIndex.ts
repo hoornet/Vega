@@ -20,7 +20,7 @@ async function apiHeaders(): Promise<Record<string, string>> {
     "X-Auth-Key": API_KEY,
     "X-Auth-Date": apiHeaderTime,
     "Authorization": hash,
-    "User-Agent": "Wrystr/1.0",
+    "User-Agent": "Vega/1.0",
   };
 }
 

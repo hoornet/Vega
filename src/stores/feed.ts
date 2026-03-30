@@ -202,7 +202,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
     });
 
     liveSub = sub;
-    console.log("[Wrystr] Live feed subscription started");
+    console.log("[Vega] Live feed subscription started");
   },
 
   loadTrendingFeed: async (force?: boolean) => {

@@ -1,14 +1,14 @@
-# Wrystr — Roadmap
+# Vega — Roadmap
 
 ---
 
 ## Vision: more than a Nostr client
 
-Wrystr is not just a great desktop Nostr client. **Long-form content is a first-class,
+Vega is not just a great desktop Nostr client. **Long-form content is a first-class,
 distinguishing feature** — not an afterthought, not a checkbox NIP.
 
 The article editor (NIP-23), the reading experience, the writing tools around it — these
-set Wrystr apart from other clients and define its identity. Think of it as a publishing
+set Vega apart from other clients and define its identity. Think of it as a publishing
 platform that happens to live on Nostr, not a social feed that happens to support articles.
 
 ---
@@ -118,8 +118,8 @@ Bugs found during testing are fixed before Phase N+1 starts. A release is cut be
 - ✓ Account switching between local nsec and remote signer accounts
 
 ### NIP-05 monetization (Phase 4 idea)
-- Offer a paid "Verified NIP-05 name" service (e.g. name@wrystr.app)
-- Would need a backend + domain; Wrystr talks to it; users pay sats via Lightning
+- Offer a paid "Verified NIP-05 name" service (e.g. name@vega.app)
+- Would need a backend + domain; Vega talks to it; users pay sats via Lightning
 - Free tier: self-hosted as today; paid tier: managed registration
 
 ---
@@ -216,7 +216,7 @@ Bugs found during testing are fixed before Phase N+1 starts. A release is cut be
 
 ### v0.3.1
 - **Feed tab persists across navigation** — back button now returns to the correct tab (Global/Following) instead of always resetting to Global
-- **Available on AUR** — Arch/Manjaro users can install with `yay -S wrystr-git`
+- **Available on AUR** — Arch/Manjaro users can install with `yay -S vega-git`
 
 ### v0.3.0
 - **Instant feedback** — posted notes appear in feed immediately; thread replies show up without waiting for relay

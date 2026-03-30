@@ -1,19 +1,19 @@
-# Wrystr
+# Vega
 
 A cross-platform desktop Nostr client built with Tauri 2.0 + React + TypeScript. Polished UI, deep Lightning integration, and first-class support for long-form writing.
 
-> Named as a nod to Nostr with a wry twist.
+> Named after Jurij Vega (1754–1802), a Slovenian mathematician who made knowledge accessible through his pioneering logarithm tables — just as Vega makes writing accessible on Nostr.
 
 ## Download
 
-Grab the latest release from the [Releases page](https://github.com/hoornet/wrystr/releases).
+Grab the latest release from the [Releases page](https://github.com/hoornet/vega/releases).
 
 | Platform | File | Command |
 |---|---|---|
-| Ubuntu / Debian / Mint | `.deb` | `sudo dpkg -i wrystr_*.deb` |
-| Fedora | `.rpm` | `sudo rpm -i wrystr-*.rpm` |
-| openSUSE | `.rpm` | `sudo zypper install wrystr-*.rpm` |
-| Arch / Manjaro | AUR | `yay -S wrystr-git` |
+| Ubuntu / Debian / Mint | `.deb` | `sudo dpkg -i vega_*.deb` |
+| Fedora | `.rpm` | `sudo rpm -i vega-*.rpm` |
+| openSUSE | `.rpm` | `sudo zypper install vega-*.rpm` |
+| Arch / Manjaro | AUR | `yay -S vega-git` |
 | Windows | `.exe` installer | run the installer |
 | macOS (Apple Silicon) | `aarch64.dmg` | open and drag to Applications |
 
@@ -77,7 +77,7 @@ sudo dnf install gstreamer1-plugins-base gstreamer1-plugins-good gstreamer1-liba
 - **NWC guided wizard** — wallet picker (Alby Hub, Alby Extension, Mutiny, Phoenix) with per-wallet setup steps and inline URI validation
 - Send zaps via NWC (NIP-47 + NIP-57) with amount presets, custom amounts, comment
 - Zap counts on notes (⚡ N sats inline)
-- **Zap history** — Received and Sent tabs with amounts, counterparts, comments
+- **Zap history** — Received and Sent tabs with amounts, counterparts, comments, and clickable note previews
 - **Support / About page** — zap the developer, Lightning + Bitcoin QR codes, Ko-fi and GitHub links
 
 **Discovery**
@@ -168,11 +168,11 @@ Up next:
 
 ## Support
 
-Wrystr is free and open-source. If it's useful to you:
+Vega is free and open-source. If it's useful to you:
 
 | Method | Details |
 |---|---|
-| ⚡ Zap (in-app) | Open the **support** view in Wrystr's sidebar and zap directly |
+| ⚡ Zap (in-app) | Open the **support** view in Vega's sidebar and zap directly |
 | ⚡ Lightning | `harpos@getalby.com` |
 | ₿ Bitcoin | `bc1qcgaupf80j28ca537xjlcs9dm9s03khezjs7crp` |
 | ☕ Ko-fi | [ko-fi.com/jure](https://ko-fi.com/jure) |
@@ -181,7 +181,7 @@ Wrystr is free and open-source. If it's useful to you:
 
 ## Acknowledgements
 
-Wrystr is built on the shoulders of excellent open-source projects:
+Vega is built on the shoulders of excellent open-source projects:
 
 - [Tauri](https://tauri.app/) — the desktop shell that makes cross-platform Rust+Web apps possible
 - [NDK (Nostr Dev Kit)](https://github.com/nostr-dev-kit/ndk) by [Pablo Fernandez](https://github.com/pablof7z) — the Nostr protocol library that powers all relay communication

@@ -14,7 +14,7 @@ function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div className="h-screen w-screen bg-bg flex items-center justify-center">
       <div className="w-full max-w-md px-8">
-        <div className="text-text-dim text-[10px] font-bold tracking-[0.3em] uppercase mb-8">WRYSTR</div>
+        <div className="text-text-dim text-[10px] font-bold tracking-[0.3em] uppercase mb-8">VEGA</div>
         {children}
       </div>
     </div>
@@ -34,9 +34,9 @@ function Body({ children }: { children: React.ReactNode }) {
 function WelcomeStep({ onCreateNew, onHaveKey }: { onCreateNew: () => void; onHaveKey: () => void }) {
   return (
     <Shell>
-      <Heading>Welcome to Wrystr.</Heading>
+      <Heading>Welcome to Vega.</Heading>
       <Body>
-        Wrystr is a Nostr client — a social platform where you own your identity,
+        Vega is a Nostr client — a social platform where you own your identity,
         your content, and your social graph. No company can delete your account or
         censor your posts.
       </Body>
@@ -138,7 +138,7 @@ function BackupStep({ signer, onComplete }: { signer: NDKPrivateKeySigner; onCom
       <Heading>Save your secret key.</Heading>
       <Body>
         Your <strong className="text-text">secret key</strong> is the only way to recover your
-        account. Save it in a password manager, notes app, or write it down. Wrystr never
+        account. Save it in a password manager, notes app, or write it down. Vega never
         stores it — if you lose it, your account is gone.
       </Body>
 
@@ -187,7 +187,7 @@ function BackupStep({ signer, onComplete }: { signer: NDKPrivateKeySigner; onCom
         disabled={!confirmed || saving}
         className="w-full py-2.5 text-[13px] font-medium bg-accent hover:bg-accent-hover text-white transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        {saving ? "Setting up…" : "Start using Wrystr"}
+        {saving ? "Setting up…" : "Start using Vega"}
       </button>
     </Shell>
   );

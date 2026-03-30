@@ -8,7 +8,7 @@ const DEV_PUBKEY = "c897e36007f7e52d52569439d43bffa903ea2fb845b84936f676b62e9e51
 const LIGHTNING_ADDRESS = "harpos@getalby.com";
 const BITCOIN_ADDRESS = "bc1qcgaupf80j28ca537xjlcs9dm9s03khezjs7crp";
 const KOFI_URL = "https://ko-fi.com/jure";
-const GITHUB_URL = "https://github.com/hoornet/wrystr";
+const GITHUB_URL = "https://github.com/hoornet/vega";
 const GITHUB_SPONSORS_URL = "https://github.com/sponsors/hoornet";
 
 function CopyButton({ text }: { text: string }) {
@@ -50,9 +50,9 @@ export function AboutView() {
       <div className="max-w-xl mx-auto px-6 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-text text-lg font-medium tracking-tight mb-2">Support Wrystr</h1>
+          <h1 className="text-text text-lg font-medium tracking-tight mb-2">Support Vega</h1>
           <p className="text-text-muted text-[13px] leading-relaxed">
-            Wrystr is free, open-source, and built by one person. If it's useful to you,
+            Vega is free, open-source, and built by one person. If it's useful to you,
             any support — a zap, a share, a star on GitHub — genuinely helps.
           </p>
         </div>
@@ -61,7 +61,7 @@ export function AboutView() {
         <section className="mb-8">
           <h2 className="text-text-dim text-[10px] uppercase tracking-widest mb-3">⚡ Zap the developer</h2>
           <p className="text-text-muted text-[12px] mb-3">
-            Send sats directly from Wrystr using your connected Lightning wallet.
+            Send sats directly from Vega using your connected Lightning wallet.
           </p>
           <button
             onClick={() => setShowZap(true)}
@@ -130,7 +130,7 @@ export function AboutView() {
         {/* Version / About */}
         <section className="border-t border-border pt-6">
           <div className="text-text-dim text-[11px] space-y-1">
-            <div>Wrystr v{pkg.version} — MIT License — Copyright (c) 2026 Jure Sršen</div>
+            <div>Vega v{pkg.version} — MIT License — Copyright (c) 2026 Jure Sršen</div>
             <div>
               Built with{" "}
               <a href="https://tauri.app" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent-hover transition-colors">Tauri</a>

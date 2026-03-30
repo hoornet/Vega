@@ -9,6 +9,7 @@ use tauri::{
 
 // ── OS keychain ─────────────────────────────────────────────────────────────
 
+// Keep legacy keyring service name so existing users don't lose their keys
 const KEYRING_SERVICE: &str = "wrystr";
 
 #[tauri::command]
@@ -43,7 +44,13 @@ struct DbState(Mutex<Connection>);
 
 fn open_db(data_dir: std::path::PathBuf) -> rusqlite::Result<Connection> {
     std::fs::create_dir_all(&data_dir).ok();
-    let path = data_dir.join("wrystr.db");
+    // Try new name first, fall back to legacy name for migration
+    let new_path = data_dir.join("vega.db");
+    let legacy_path = data_dir.join("wrystr.db");
+    if !new_path.exists() && legacy_path.exists() {
+        std::fs::rename(&legacy_path, &new_path).ok();
+    }
+    let path = new_path;
     let conn = Connection::open(path)?;
     conn.execute_batch(
         "PRAGMA journal_mode=WAL;
@@ -385,7 +392,7 @@ pub fn run() {
             app.manage(DbState(Mutex::new(conn)));
 
             // ── System tray ──────────────────────────────────────────────────
-            let show_item = MenuItem::with_id(app, "show", "Open Wrystr", true, None::<&str>)?;
+            let show_item = MenuItem::with_id(app, "show", "Open Vega", true, None::<&str>)?;
             let quit_item = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
             let menu = Menu::with_items(app, &[&show_item, &quit_item])?;
 

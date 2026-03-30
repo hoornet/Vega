@@ -183,7 +183,7 @@ function ExportSection() {
     setErrorMsg(null);
     try {
       const filePath = await save({
-        defaultPath: `wrystr-export-${new Date().toISOString().slice(0, 10)}.json`,
+        defaultPath: `vega-export-${new Date().toISOString().slice(0, 10)}.json`,
         filters: [{ name: "JSON", extensions: ["json"] }],
       });
       if (!filePath) {

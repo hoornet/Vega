@@ -7,7 +7,7 @@ export function withTimeout<T>(promise: Promise<T>, ms: number, fallback: T): Pr
   return Promise.race([
     promise,
     new Promise<T>((resolve) => setTimeout(() => {
-      console.warn(`[Wrystr] Fetch timed out after ${ms}ms`);
+      console.warn(`[Vega] Fetch timed out after ${ms}ms`);
       resolve(fallback);
     }, ms)),
   ]);
@@ -110,12 +110,12 @@ export async function resetNDK(): Promise<void> {
   }
 
   // Connect fresh
-  console.log("[Wrystr] NDK instance reset — connecting fresh relays");
+  console.log("[Vega] NDK instance reset — connecting fresh relays");
   await ndk.connect();
   await waitForConnectedRelay(ndk, 5000);
   const relays = Array.from(ndk.pool?.relays?.values() ?? []);
   const connected = relays.filter((r) => r.connected).length;
-  console.log(`[Wrystr] Fresh connection: ${connected}/${relays.length} relays connected`);
+  console.log(`[Vega] Fresh connection: ${connected}/${relays.length} relays connected`);
 }
 
 export function addRelay(url: string): void {
@@ -186,17 +186,17 @@ export async function ensureConnected(): Promise<boolean> {
     return true; // Trust relay.connected — don't probe or disconnect
   }
 
-  console.warn(`[Wrystr] No relays connected (${relays.length} in pool) — attempting reconnect`);
+  console.warn(`[Vega] No relays connected (${relays.length} in pool) — attempting reconnect`);
 
   try {
     await withTimeout(instance.connect(), 4000, undefined);
     await waitForConnectedRelay(instance, 3000);
     const after = Array.from(instance.pool?.relays?.values() ?? []);
     const nowConnected = after.some((r) => r.connected);
-    console.log(`[Wrystr] Reconnect ${nowConnected ? "succeeded" : "failed"}`);
+    console.log(`[Vega] Reconnect ${nowConnected ? "succeeded" : "failed"}`);
     return nowConnected;
   } catch {
-    console.error("[Wrystr] Reconnect failed");
+    console.error("[Vega] Reconnect failed");
     return false;
   }
 }

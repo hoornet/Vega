@@ -61,9 +61,9 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: Wrystr ${{ github.ref_name }}
+          releaseName: Vega ${{ github.ref_name }}
           releaseBody: |
-            ## Wrystr ${{ github.ref_name }}
+            ## Vega ${{ github.ref_name }}
 
             Cross-platform Nostr desktop client — polished UI, deep Lightning integration, first-class long-form writing.
 
@@ -128,23 +128,23 @@ jobs:
 
             **Linux (Ubuntu / Debian / Mint):** Download the `.deb` and run:
             ```
-            sudo dpkg -i wrystr_*.deb
+            sudo dpkg -i vega_*.deb
             ```
             **Linux (Fedora / openSUSE):** Download the `.rpm` and run:
             ```
-            sudo rpm -i wrystr-*.rpm          # Fedora
-            sudo zypper install wrystr-*.rpm  # openSUSE
+            sudo rpm -i vega-*.rpm          # Fedora
+            sudo zypper install vega-*.rpm  # openSUSE
             ```
             **Linux (Arch / Manjaro):** Install from the AUR:
             ```
-            yay -S wrystr-git
+            yay -S vega-git
             ```
 
             **Windows:** Download the `.exe` installer and run it.
             **macOS (Apple Silicon):** Download the `aarch64.dmg` and open it.
 
             ---
-            ⚡ Find Wrystr useful? [Zap the developer](https://github.com/hoornet/wrystr#support) or star the repo.
+            ⚡ Find Vega useful? [Zap the developer](https://github.com/hoornet/vega#support) or star the repo.
           releaseDraft: false
           prerelease: false
           includeUpdaterJson: true

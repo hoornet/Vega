@@ -64,7 +64,7 @@ export function AudioBlock({ sources }: { sources: string[] }) {
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-[12px] text-text truncate">{name}</div>
-              <div className="text-[10px] text-text-dim">audio · play in wrystr</div>
+              <div className="text-[10px] text-text-dim">audio · play in vega</div>
             </div>
           </button>
         );

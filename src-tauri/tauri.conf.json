@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Wrystr",
+  "productName": "Vega",
   "version": "0.9.11",
-  "identifier": "com.hoornet.wrystr",
+  "identifier": "com.hoornet.vega",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Wrystr",
+        "title": "Vega",
         "width": 1200,
         "height": 800,
         "minWidth": 900,
@@ -38,7 +38,7 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://github.com/hoornet/wrystr/releases/latest/download/latest.json"
+        "https://github.com/hoornet/vega/releases/latest/download/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IEY5RDJDMzkyOTc1OTI2NTIKUldSU0psbVhrc1BTK2NTcE9ybm1VcG1KU2VicmJUMWd4TmVTMzNYL1M3ZnhCQWIvU2R2V2V3Tm0K",
       "dialog": false

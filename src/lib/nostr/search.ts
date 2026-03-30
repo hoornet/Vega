@@ -16,7 +16,7 @@ async function getSearchNDK(): Promise<NDK> {
   if (searchNDK) return searchNDK;
   searchNDK = new NDK({ explicitRelayUrls: SEARCH_RELAYS });
   searchNDKConnecting = searchNDK.connect().then(() => {
-    console.log("[Wrystr] Search relays connected");
+    console.log("[Vega] Search relays connected");
     searchNDKConnecting = null;
   });
   await withTimeout(searchNDKConnecting, 5000, undefined);

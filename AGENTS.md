@@ -1,4 +1,4 @@
-# AGENTS.md — Wrystr
+# AGENTS.md — Vega
 
 This file guides AI coding agents (Claude Code, Copilot, etc.) working on this codebase.
 Read it fully before making changes. Follow the conventions here strictly.

@@ -53,7 +53,7 @@ export function Sidebar() {
           /* Expanded: brand on left, collapse chevron on right */
           <>
             <div className="flex flex-col">
-              <span className="text-sm font-bold tracking-widest text-text select-none">WRYSTR</span>
+              <span className="text-sm font-bold tracking-widest text-text select-none">VEGA</span>
               <span className="text-text-dim text-[9px] font-mono opacity-50">v{pkg.version}</span>
             </div>
             <button

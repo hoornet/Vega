@@ -89,7 +89,7 @@ export function FountainCard({ seg }: { seg: ContentSegment }) {
         <button
           onClick={handlePlay}
           className="shrink-0 w-8 h-8 rounded-full border border-border flex items-center justify-center hover:bg-accent/10 transition-colors"
-          title="Play in Wrystr"
+          title="Play in Vega"
         >
           <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor" className="text-accent ml-0.5">
             <polygon points="0,0 10,6 0,12" />

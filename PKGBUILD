@@ -1,10 +1,10 @@
 # Maintainer: hoornet <hoornet@users.noreply.github.com>
-pkgname=wrystr
+pkgname=vega
 pkgver=0.9.11
 pkgrel=1
 pkgdesc="Cross-platform Nostr desktop client with Lightning integration"
 arch=('x86_64')
-url="https://github.com/hoornet/wrystr"
+url="https://github.com/hoornet/vega"
 license=('MIT')
 depends=(
     'webkit2gtk-4.1'
@@ -21,7 +21,7 @@ makedepends=(
     'nodejs'
     'npm'
 )
-source=("$pkgname-$pkgver::git+https://github.com/hoornet/wrystr.git#tag=v$pkgver")
+source=("$pkgname-$pkgver::git+https://github.com/hoornet/vega.git#tag=v$pkgver")
 sha256sums=('SKIP')
 
 build() {
@@ -33,19 +33,19 @@ build() {
 package() {
     cd "$pkgname-$pkgver"
 
-    install -Dm755 "src-tauri/target/release/wrystr" \
-        "$pkgdir/usr/bin/wrystr"
+    install -Dm755 "src-tauri/target/release/vega" \
+        "$pkgdir/usr/bin/vega"
 
     install -Dm644 "src-tauri/icons/128x128.png" \
-        "$pkgdir/usr/share/icons/hicolor/128x128/apps/wrystr.png"
+        "$pkgdir/usr/share/icons/hicolor/128x128/apps/vega.png"
 
     install -Dm644 /dev/stdin \
-        "$pkgdir/usr/share/applications/wrystr.desktop" << 'EOF'
+        "$pkgdir/usr/share/applications/vega.desktop" << 'EOF'
 [Desktop Entry]
-Name=Wrystr
+Name=Vega
 Comment=Nostr desktop client
-Exec=env WEBKIT_DISABLE_DMABUF_RENDERER=1 /usr/bin/wrystr
-Icon=wrystr
+Exec=env WEBKIT_DISABLE_DMABUF_RENDERER=1 /usr/bin/vega
+Icon=vega
 Type=Application
 Categories=Network;InstantMessaging;
 StartupNotify=true

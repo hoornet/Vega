@@ -35,7 +35,7 @@ function UpdateBanner() {
   return (
     <div className="flex items-center justify-between px-4 py-2 bg-accent/10 border-b border-accent/30 text-[12px] shrink-0">
       <span className="text-text">
-        Wrystr {version} is available.{" "}
+        Vega {version} is available.{" "}
         {error && <span className="text-danger ml-1">{error}</span>}
       </span>
       <div className="flex items-center gap-3">

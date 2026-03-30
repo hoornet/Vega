@@ -48,7 +48,7 @@ export async function uploadImage(file: File): Promise<string> {
  * through Tauri's HTTP plugin, so we construct the raw bytes ourselves.
  */
 function buildMultipart(fieldName: string, data: Uint8Array, fileName: string, mimeType: string): { body: Uint8Array; contentType: string } {
-  const boundary = "----WrystrUpload" + Math.random().toString(36).slice(2);
+  const boundary = "----VegaUpload" + Math.random().toString(36).slice(2);
   const encoder = new TextEncoder();
 
   const header = encoder.encode(
