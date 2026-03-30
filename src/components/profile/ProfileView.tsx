@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { NDKEvent } from "@nostr-dev-kit/ndk";
+import { NDKEvent, nip19 } from "@nostr-dev-kit/ndk";
 import { useUIStore } from "../../stores/ui";
 import { useUserStore } from "../../stores/user";
 import { useMuteStore } from "../../stores/mute";
@@ -65,6 +65,7 @@ export function ProfileView() {
   const [bannerLoaded, setBannerLoaded] = useState(false);
   const [bannerError, setBannerError] = useState(false);
   const [wotExpanded, setWotExpanded] = useState(false);
+  const [npubCopied, setNpubCopied] = useState(false);
 
   const isFollowing = follows.includes(pubkey);
   const { mutedPubkeys, mute, unmute } = useMuteStore();
@@ -260,7 +261,18 @@ export function ProfileView() {
                 {isOwn && !about && (
                   <p className="text-text-dim text-[12px] mt-2 italic">No bio yet — click "edit profile" to add one.</p>
                 )}
-                <div className="text-text-dim text-[10px] font-mono mt-2">{shortenPubkey(pubkey)}</div>
+                <button
+                  onClick={() => {
+                    const npub = nip19.npubEncode(pubkey);
+                    navigator.clipboard.writeText(npub);
+                    setNpubCopied(true);
+                    setTimeout(() => setNpubCopied(false), 2000);
+                  }}
+                  className="text-text-dim text-[10px] font-mono mt-2 hover:text-accent transition-colors cursor-pointer"
+                  title="Copy npub to clipboard"
+                >
+                  {npubCopied ? "copied!" : shortenPubkey(pubkey)}
+                </button>
               </div>
             </div>
 

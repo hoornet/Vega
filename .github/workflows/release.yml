@@ -69,60 +69,32 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
-            ### New in v0.9.11 — Notifications & Bookmarks Polish
-            - **Follower notifications cleaned up** — followers no longer appear in the Notifications list (they only show in the Follows badge + OS notification); no more confusing "click a contact list" experience
-            - **Follower OS notification dedup** — fixed repeated notifications for the same person (kind 3 replaceable event IDs change on every contact list update)
-            - **Article bookmarks fixed** — articles now correctly appear under the Articles tab in Bookmarks, not Notes
-            - **Notification dedup** — kind 3 follower events deduplicated by pubkey in the notification store
+            ### New in v0.10.0 — Renamed to Vega + UX Improvements
+            - **Renamed from Wrystr to Vega** — named after Jurij Vega (1754–1802), Slovenian mathematician and artillery officer. Fresh identity, same mission: a desktop Nostr client built for writers.
+            - **Paste nevent/note1/naddr in search** — pasting a Nostr event link navigates directly to the note or article (GitHub #2)
+            - **Copy npub from profiles** — click the pubkey on any profile to copy the full npub to clipboard (GitHub #2)
+            - **Zap reliability fix** — custom outbox relays replace broken default (purplepag.es DNS failure), 45s timeout prevents indefinite hang
+            - **Zap history note preview** — zap entries now show a preview of the zapped note with click-to-navigate
+            - **Follower notification dedup** — fixed repeated OS notifications for the same follower (in-memory store now updated alongside DB)
+            - **Data migration** — existing Wrystr users automatically migrate settings, database, and keychain on first launch
+
+            ### Previous: v0.9.11 — Notifications & Bookmarks Polish
+            - Follower notifications cleaned up, follower OS notification dedup, article bookmarks fixed
 
             ### Previous: v0.9.10 — Instant Everything
-            - SQLite-backed followers, bookmarks, and articles cache; instant own-profile load; retry-on-empty for followers, articles, hashtags
+            - SQLite-backed followers, bookmarks, and articles cache; instant own-profile load
 
-            ### Previous: v0.9.9 — Speed, Stability & Linux Fix
-            - Instant thread loading, Linux/Wayland image upload fix, trending feed reliability, notification retry, upload service scope fix
+            ### Previous: v0.9.8–v0.9.9 — Web of Trust, Speed & Linux Fix
+            - Web of Trust (Vertex DVM), SQLite-backed notifications, instant threads, Linux upload fix, trending reliability
 
-            ### Previous: v0.9.8 — Web of Trust & Instant Notifications
-            - Web of Trust on profiles (Vertex DVM), SQLite-backed notification cache, profile notes retry, reaction queue fix
-
-            ### Previous: v0.9.7 — Emoji Reactions & Search
-            - Grouped emoji reactions (❤️5 🤙3 🔥2), multi-reaction per note, npub search, notification reliability, dev-only debug logger
-
-            ### Previous: v0.9.6 — Font Size Fix
-            - Content-only zoom, flex-wrap everywhere, themes grid fix
-
-            ### Previous: v0.9.4 — Search, Follows, Editor & Polish
-            - Search overhaul (dedicated NIP-50 relays, hybrid results), follows view, article editor improvements (image previews, toolbar labels, drag-drop), auto-expanding textareas, profile layout fix, thread stability fix
-
-            ### Previous: v0.9.3 — Themes, Font Size & Settings Polish
-            - 7 color themes, font size presets, collapsible muted accounts, removed old connection indicator
-
-            ### Previous: v0.9.2 — Relay Status, Toasts & Debug Tools
-            - Relay status badge, toast notifications, per-tab timestamps, debug panel (Ctrl+Shift+D), consolidated relay management
-
-            ### Previous: v0.9.1 — Live Feed & Relay Reliability
-            - Live streaming feed, timeouts on all relay fetches, fixed relay death spiral, NDK subscription hygiene, feed diagnostics, background relay recovery
-
-            ### Previous: v0.9.0 — Thread Conversation Overhaul
-            - Nested thread trees, reply-to-any-note, recursive reply fetching, ancestor chain, multi-level back navigation, thread collapse, mute filtering in trees, podcast subscriptions
-
-            ### Previous: v0.8.4 — Codebase Refactor & Bug Fixes
-            - Codebase refactor (split 5 files into focused modules), Supported NIPs table in README, bug fixes
-
-            ### Previous: v0.8.3 — Trending, Remote Signer, Media
-            - Trending feed (24h engagement decay), NIP-46 remote signer (bunker://), media feed, profile media gallery, OS push notifications, NIP-05 badges, hashtag pages, keyword muting, emoji picker
-
-            ### Previous: v0.8.0 — Polish, Portability & Discovery
-            - Profile banner polish, data export, relay recommendations, reading list tracking, trending hashtags
+            ### Previous: v0.9.0–v0.9.7 — Reactions, Search, Threads & Themes
+            - Grouped emoji reactions, advanced search (NIP-50), follows view, nested thread trees, 7 color themes, font size presets, relay management, live feed, NIP-46 remote signer
 
             ### Previous highlights
-            - v0.7.1: Relay health checker, advanced search with modifiers
-            - v0.7.0: NIP-98 uploads, markdown toolbar, multi-draft management
-            - v0.6.0: Article discovery feed, article cards, article search, profile Articles tab
-            - v0.5.0: Note sharing, reply counts
-            - v0.4.0: Image lightbox, bookmarks (NIP-51), discover people, language filter
-            - v0.3.0: Instant feedback, image paste, feed refresh on login
-            - v0.2.0: Feed reply context, NIP-65 outbox, notifications, DM badges, keyboard shortcuts
-            - v0.1.3–v0.1.7: OS keychain, multi-account, SQLite cache, zap history, DMs, system tray
+            - v0.8.x: Trending feed, media feed, profile gallery, OS notifications, NIP-05 badges, hashtag pages, keyword muting, emoji picker, data export, relay health checker
+            - v0.7.x: NIP-98 uploads, markdown toolbar, multi-draft management, advanced search with modifiers
+            - v0.6.x: Article discovery feed, article cards, article search
+            - v0.5.x and earlier: Note sharing, reply counts, image lightbox, bookmarks, DMs, multi-account, system tray, auto-updater
 
             ### Install
 

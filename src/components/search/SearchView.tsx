@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { NDKEvent, nip19 } from "@nostr-dev-kit/ndk";
-import { fetchFollowSuggestions, fetchProfile, advancedSearch, fetchTrendingHashtags } from "../../lib/nostr";
+import { fetchFollowSuggestions, fetchProfile, advancedSearch, fetchTrendingHashtags, fetchNoteById } from "../../lib/nostr";
 import { parseSearchQuery, describeSearch } from "../../lib/search";
 import { useUserStore } from "../../stores/user";
 import { useMuteStore } from "../../stores/mute";
@@ -211,6 +211,23 @@ export function SearchView() {
           : decoded.type === "nprofile" ? decoded.data.pubkey : null;
         if (pubkey) {
           useUIStore.getState().openProfile(pubkey);
+          return;
+        }
+      } catch { /* not valid, fall through to normal search */ }
+    }
+
+    // Bare note1/nevent1/naddr1 → navigate directly to thread/article
+    if (/^(note1|nevent1|naddr1)[a-z0-9]+$/i.test(q)) {
+      try {
+        const decoded = nip19.decode(q);
+        if (decoded.type === "note") {
+          const event = await fetchNoteById(decoded.data);
+          if (event) { useUIStore.getState().openThread(event); return; }
+        } else if (decoded.type === "nevent") {
+          const event = await fetchNoteById(decoded.data.id);
+          if (event) { useUIStore.getState().openThread(event); return; }
+        } else if (decoded.type === "naddr") {
+          useUIStore.getState().openArticle(q);
           return;
         }
       } catch { /* not valid, fall through to normal search */ }
