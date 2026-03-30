@@ -69,13 +69,14 @@ jobs:
 
             > **Windows note:** The installer is not yet code-signed. Windows SmartScreen will show an "Unknown publisher" warning — click "More info → Run anyway" to install.
 
-            ### New in v0.9.10 — Instant Everything
-            - **SQLite-backed followers cache** — followers list loads instantly from local DB; relay results merged in background; follower count only grows (never lost to partial relay results)
-            - **SQLite-backed bookmarks cache** — bookmarked notes load instantly from DB; relay fetch fills in any new additions
-            - **SQLite-backed articles cache** — articles feed (latest tab) loads instantly from DB cache
-            - **Instant own-profile load** — sidebar badge shows your name/picture immediately from DB cache, no more raw npub on slow relays
-            - **Followers fetch timeout** — increased from 8s to 15s for slow `#p` tag queries on kind 3
-            - **Retry-on-empty** — followers, profile articles, and hashtag feeds retry once after 3s if relays return empty
+            ### New in v0.9.11 — Notifications & Bookmarks Polish
+            - **Follower notifications cleaned up** — followers no longer appear in the Notifications list (they only show in the Follows badge + OS notification); no more confusing "click a contact list" experience
+            - **Follower OS notification dedup** — fixed repeated notifications for the same person (kind 3 replaceable event IDs change on every contact list update)
+            - **Article bookmarks fixed** — articles now correctly appear under the Articles tab in Bookmarks, not Notes
+            - **Notification dedup** — kind 3 follower events deduplicated by pubkey in the notification store
+
+            ### Previous: v0.9.10 — Instant Everything
+            - SQLite-backed followers, bookmarks, and articles cache; instant own-profile load; retry-on-empty for followers, articles, hashtags
 
             ### Previous: v0.9.9 — Speed, Stability & Linux Fix
             - Instant thread loading, Linux/Wayland image upload fix, trending feed reliability, notification retry, upload service scope fix

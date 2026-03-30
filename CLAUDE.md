@@ -156,6 +156,11 @@ CI triggers on the tag and builds all three platforms (Ubuntu, Windows, macOS AR
 - **Font size presets** — Small/Normal/Large/Extra Large; CSS zoom scaling on document root; persisted to localStorage
 - **Web of Trust** — Vertex DVM integration (kind 5312→6312); personalized "Followed by people you trust" on profiles with clickable follower avatars
 - **SQLite-backed notifications** — instant load on startup from local cache; relay diff merged in background; read state persists in DB across restarts
+- **SQLite-backed followers cache** — instant load from DB, relay results merged in background; follower count only grows (never lost to partial relay results)
+- **SQLite-backed bookmarks cache** — bookmarked notes load instantly from DB; relay fetch fills in any new additions; articles auto-classified to correct tab
+- **SQLite-backed articles cache** — articles feed (latest tab) loads instantly from DB
+- **Instant own-profile load** — sidebar badge shows name/picture from DB cache immediately, no raw npub on slow relays
+- **Retry-on-empty pattern** — followers, profile notes/articles, hashtag feeds retry once after 3s if relays return empty
 
 **Not yet implemented:**
 - NIP-96 file storage
