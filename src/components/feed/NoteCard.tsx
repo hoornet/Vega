@@ -38,7 +38,10 @@ export function NoteCard({ event, focused, onReplyInThread }: NoteCardProps) {
   const { openProfile, openThread, currentView } = useUIStore();
 
   const parentEventId = getParentEventId(event);
-  const parentAuthorPubkey = event.tags.find((t) => t[0] === "p")?.[1] ?? null;
+  // The immediate parent author is typically the last p tag (NIP-10 ordering mirrors e tags).
+  // First p tag is usually the root author, not who this note directly replies to.
+  const pTags = event.tags.filter((t) => t[0] === "p");
+  const parentAuthorPubkey = pTags.length > 0 ? pTags[pTags.length - 1][1] : null;
 
   const cardRef = useRef<HTMLElement>(null);
   useEffect(() => {
