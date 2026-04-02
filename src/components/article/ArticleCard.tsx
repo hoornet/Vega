@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { NDKEvent, nip19 } from "@nostr-dev-kit/ndk";
 import { useProfile } from "../../hooks/useProfile";
 import { useUIStore } from "../../stores/ui";
@@ -21,7 +22,7 @@ function buildNaddr(event: NDKEvent): string {
   });
 }
 
-export function ArticleCard({ event }: { event: NDKEvent }) {
+export const ArticleCard = memo(function ArticleCard({ event }: { event: NDKEvent }) {
   const { openArticle, openProfile } = useUIStore();
   const profile = useProfile(event.pubkey);
 
@@ -117,4 +118,4 @@ export function ArticleCard({ event }: { event: NDKEvent }) {
       </div>
     </div>
   );
-}
+});

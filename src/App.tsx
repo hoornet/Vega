@@ -1,29 +1,31 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { openUrl } from "@tauri-apps/plugin-opener";
 import { Sidebar } from "./components/sidebar/Sidebar";
 import { Feed } from "./components/feed/Feed";
-import { SearchView } from "./components/search/SearchView";
-import { RelaysView } from "./components/shared/RelaysView";
-import { SettingsView } from "./components/shared/SettingsView";
-import { ProfileView } from "./components/profile/ProfileView";
-import { ThreadView } from "./components/thread/ThreadView";
-import { ArticleEditor } from "./components/article/ArticleEditor";
-import { ArticleView } from "./components/article/ArticleView";
-import { ArticleFeed } from "./components/article/ArticleFeed";
-import { MediaFeed } from "./components/media/MediaFeed";
 import { OnboardingFlow } from "./components/onboarding/OnboardingFlow";
-import { AboutView } from "./components/shared/AboutView";
-import { ZapHistoryView } from "./components/zap/ZapHistoryView";
-import { DMView } from "./components/dm/DMView";
-import { NotificationsView } from "./components/notifications/NotificationsView";
-import { BookmarkView } from "./components/bookmark/BookmarkView";
-import { HashtagFeed } from "./components/feed/HashtagFeed";
-import { PodcastsView } from "./components/podcast/PodcastsView";
-import { FollowsView } from "./components/follows/FollowsView";
 import { PodcastPlayerBar } from "./components/podcast/PodcastPlayerBar";
 import { ToastContainer } from "./components/shared/ToastContainer";
-import { DebugPanel } from "./components/shared/DebugPanel";
-import { HelpModal } from "./components/shared/HelpModal";
+
+// Lazy-loaded views — only fetched when navigated to
+const SearchView = lazy(() => import("./components/search/SearchView").then(m => ({ default: m.SearchView })));
+const RelaysView = lazy(() => import("./components/shared/RelaysView").then(m => ({ default: m.RelaysView })));
+const SettingsView = lazy(() => import("./components/shared/SettingsView").then(m => ({ default: m.SettingsView })));
+const ProfileView = lazy(() => import("./components/profile/ProfileView").then(m => ({ default: m.ProfileView })));
+const ThreadView = lazy(() => import("./components/thread/ThreadView").then(m => ({ default: m.ThreadView })));
+const ArticleEditor = lazy(() => import("./components/article/ArticleEditor").then(m => ({ default: m.ArticleEditor })));
+const ArticleView = lazy(() => import("./components/article/ArticleView").then(m => ({ default: m.ArticleView })));
+const ArticleFeed = lazy(() => import("./components/article/ArticleFeed").then(m => ({ default: m.ArticleFeed })));
+const MediaFeed = lazy(() => import("./components/media/MediaFeed").then(m => ({ default: m.MediaFeed })));
+const AboutView = lazy(() => import("./components/shared/AboutView").then(m => ({ default: m.AboutView })));
+const ZapHistoryView = lazy(() => import("./components/zap/ZapHistoryView").then(m => ({ default: m.ZapHistoryView })));
+const DMView = lazy(() => import("./components/dm/DMView").then(m => ({ default: m.DMView })));
+const NotificationsView = lazy(() => import("./components/notifications/NotificationsView").then(m => ({ default: m.NotificationsView })));
+const BookmarkView = lazy(() => import("./components/bookmark/BookmarkView").then(m => ({ default: m.BookmarkView })));
+const HashtagFeed = lazy(() => import("./components/feed/HashtagFeed").then(m => ({ default: m.HashtagFeed })));
+const PodcastsView = lazy(() => import("./components/podcast/PodcastsView").then(m => ({ default: m.PodcastsView })));
+const FollowsView = lazy(() => import("./components/follows/FollowsView").then(m => ({ default: m.FollowsView })));
+const DebugPanel = lazy(() => import("./components/shared/DebugPanel").then(m => ({ default: m.DebugPanel })));
+const HelpModal = lazy(() => import("./components/shared/HelpModal").then(m => ({ default: m.HelpModal })));
 import { useUIStore } from "./stores/ui";
 import { getTheme, applyTheme } from "./lib/themes";
 import { useUpdater } from "./hooks/useUpdater";
@@ -111,23 +113,25 @@ function App() {
         <div className={currentView === "feed" ? "contents" : "hidden"}>
           <Feed />
         </div>
-        {currentView === "search" && <SearchView />}
-        {currentView === "relays" && <RelaysView />}
-        {currentView === "settings" && <SettingsView />}
-        {currentView === "profile" && <ProfileView />}
-        {currentView === "thread" && <ThreadView />}
-        {currentView === "articles" && <ArticleFeed />}
-        {currentView === "media" && <MediaFeed />}
-        {currentView === "article-editor" && <ArticleEditor />}
-        {currentView === "article" && <ArticleView />}
-        {currentView === "about" && <AboutView />}
-        {currentView === "zaps" && <ZapHistoryView />}
-        {currentView === "dm" && <DMView />}
-        {currentView === "notifications" && <NotificationsView />}
-        {currentView === "bookmarks" && <BookmarkView />}
-        {currentView === "hashtag" && <HashtagFeed />}
-        {currentView === "podcasts" && <PodcastsView />}
-        {currentView === "follows" && <FollowsView />}
+        <Suspense fallback={null}>
+          {currentView === "search" && <SearchView />}
+          {currentView === "relays" && <RelaysView />}
+          {currentView === "settings" && <SettingsView />}
+          {currentView === "profile" && <ProfileView />}
+          {currentView === "thread" && <ThreadView />}
+          {currentView === "articles" && <ArticleFeed />}
+          {currentView === "media" && <MediaFeed />}
+          {currentView === "article-editor" && <ArticleEditor />}
+          {currentView === "article" && <ArticleView />}
+          {currentView === "about" && <AboutView />}
+          {currentView === "zaps" && <ZapHistoryView />}
+          {currentView === "dm" && <DMView />}
+          {currentView === "notifications" && <NotificationsView />}
+          {currentView === "bookmarks" && <BookmarkView />}
+          {currentView === "hashtag" && <HashtagFeed />}
+          {currentView === "podcasts" && <PodcastsView />}
+          {currentView === "follows" && <FollowsView />}
+        </Suspense>
       </main>
       </div>
       <PodcastPlayerBar />

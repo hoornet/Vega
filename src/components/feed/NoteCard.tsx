@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, memo } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
 import { useProfile } from "../../hooks/useProfile";
 import { useNip05Verified } from "../../hooks/useNip05Verified";
@@ -25,7 +25,7 @@ function ParentAuthorName({ pubkey }: { pubkey: string }) {
   return <span className="text-accent">@{name}</span>;
 }
 
-export function NoteCard({ event, focused, onReplyInThread }: NoteCardProps) {
+export const NoteCard = memo(function NoteCard({ event, focused, onReplyInThread }: NoteCardProps) {
   const profile = useProfile(event.pubkey);
   const rawName = profile?.displayName || profile?.name;
   const name = (typeof rawName === "string" ? rawName : null) || shortenPubkey(event.pubkey);
@@ -34,10 +34,18 @@ export function NoteCard({ event, focused, onReplyInThread }: NoteCardProps) {
   const verified = useNip05Verified(event.pubkey, nip05);
   const time = event.created_at ? timeAgo(event.created_at) : "";
 
-  const { loggedIn, pubkey: ownPubkey, follows, follow, unfollow } = useUserStore();
-  const { mutedPubkeys, mute, unmute } = useMuteStore();
+  const loggedIn = useUserStore((s) => s.loggedIn);
+  const ownPubkey = useUserStore((s) => s.pubkey);
+  const follows = useUserStore((s) => s.follows);
+  const follow = useUserStore((s) => s.follow);
+  const unfollow = useUserStore((s) => s.unfollow);
+  const mutedPubkeys = useMuteStore((s) => s.mutedPubkeys);
+  const mute = useMuteStore((s) => s.mute);
+  const unmute = useMuteStore((s) => s.unmute);
   const isMuted = mutedPubkeys.includes(event.pubkey);
-  const { openProfile, openThread, currentView } = useUIStore();
+  const openProfile = useUIStore((s) => s.openProfile);
+  const openThread = useUIStore((s) => s.openThread);
+  const currentView = useUIStore((s) => s.currentView);
 
   const parentEventId = getParentEventId(event);
   // The immediate parent author is typically the last p tag (NIP-10 ordering mirrors e tags).
@@ -194,4 +202,4 @@ export function NoteCard({ event, focused, onReplyInThread }: NoteCardProps) {
       </div>
     </article>
   );
-}
+});

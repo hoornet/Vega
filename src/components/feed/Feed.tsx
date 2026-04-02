@@ -24,10 +24,25 @@ function timeAgo(ts: number): string {
 }
 
 export function Feed() {
-  const { notes, loading, error, connect, loadCachedFeed, loadFeed, trendingNotes, trendingLoading, loadTrendingFeed, focusedNoteIndex, lastUpdated } = useFeedStore();
-  const { loggedIn, follows } = useUserStore();
-  const { mutedPubkeys, contentMatchesMutedKeyword } = useMuteStore();
-  const { feedTab: tab, setFeedTab: setTab, feedLanguageFilter, setFeedLanguageFilter } = useUIStore();
+  const notes = useFeedStore((s) => s.notes);
+  const loading = useFeedStore((s) => s.loading);
+  const error = useFeedStore((s) => s.error);
+  const connect = useFeedStore((s) => s.connect);
+  const loadCachedFeed = useFeedStore((s) => s.loadCachedFeed);
+  const loadFeed = useFeedStore((s) => s.loadFeed);
+  const trendingNotes = useFeedStore((s) => s.trendingNotes);
+  const trendingLoading = useFeedStore((s) => s.trendingLoading);
+  const loadTrendingFeed = useFeedStore((s) => s.loadTrendingFeed);
+  const focusedNoteIndex = useFeedStore((s) => s.focusedNoteIndex);
+  const lastUpdated = useFeedStore((s) => s.lastUpdated);
+  const loggedIn = useUserStore((s) => s.loggedIn);
+  const follows = useUserStore((s) => s.follows);
+  const mutedPubkeys = useMuteStore((s) => s.mutedPubkeys);
+  const contentMatchesMutedKeyword = useMuteStore((s) => s.contentMatchesMutedKeyword);
+  const tab = useUIStore((s) => s.feedTab);
+  const setTab = useUIStore((s) => s.setFeedTab);
+  const feedLanguageFilter = useUIStore((s) => s.feedLanguageFilter);
+  const setFeedLanguageFilter = useUIStore((s) => s.setFeedLanguageFilter);
   const [followNotes, setFollowNotes] = useState<NDKEvent[]>([]);
   const [followLoading, setFollowLoading] = useState(false);
   const [, setTick] = useState(0);
