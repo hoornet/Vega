@@ -99,6 +99,25 @@ body {
   animation: fade-in 150ms ease-out;
 }
 
+/* Toast slide-in */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+.toast-enter {
+  animation: toast-in 200ms ease-out;
+}
+
+/* Reduced motion: collapse all animations/transitions */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 12px;
