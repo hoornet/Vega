@@ -24,6 +24,7 @@ const BookmarkView = lazy(() => import("./components/bookmark/BookmarkView").the
 const HashtagFeed = lazy(() => import("./components/feed/HashtagFeed").then(m => ({ default: m.HashtagFeed })));
 const PodcastsView = lazy(() => import("./components/podcast/PodcastsView").then(m => ({ default: m.PodcastsView })));
 const FollowsView = lazy(() => import("./components/follows/FollowsView").then(m => ({ default: m.FollowsView })));
+const V4VView = lazy(() => import("./components/v4v/V4VView").then(m => ({ default: m.V4VView })));
 const DebugPanel = lazy(() => import("./components/shared/DebugPanel").then(m => ({ default: m.DebugPanel })));
 const HelpModal = lazy(() => import("./components/shared/HelpModal").then(m => ({ default: m.HelpModal })));
 import { useUIStore } from "./stores/ui";
@@ -131,6 +132,7 @@ function App() {
           {currentView === "hashtag" && <HashtagFeed />}
           {currentView === "podcasts" && <PodcastsView />}
           {currentView === "follows" && <FollowsView />}
+          {currentView === "v4v" && <V4VView />}
         </Suspense>
       </main>
       </div>

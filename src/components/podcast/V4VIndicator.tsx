@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { usePodcastStore } from "../../stores/podcast";
+import { useV4VStore } from "../../stores/v4v";
+import { useUIStore } from "../../stores/ui";
 import { startStreaming, stopStreaming, boost } from "../../lib/podcast/v4v";
 
-const RATE_OPTIONS = [5, 10, 21, 50, 100];
 const NWC_KEY = "wrystr_nwc_uri";
 
 // Track which episodes have shown the nudge this session (not persisted)
@@ -20,15 +21,47 @@ export function V4VIndicator() {
   const v4vStreaming = usePodcastStore((s) => s.v4vStreaming);
   const v4vTotalStreamed = usePodcastStore((s) => s.v4vTotalStreamed);
   const playbackState = usePodcastStore((s) => s.playbackState);
-  const { setV4VEnabled, setV4VSatsPerMinute, setV4VStreaming, addStreamedSats } = usePodcastStore.getState();
+  const { setV4VEnabled, setV4VStreaming, addStreamedSats } = usePodcastStore.getState();
 
-  // Show nudge when a V4V episode starts playing and streaming is off
+  const autoEnabled = useV4VStore((s) => s.autoEnabled);
+  const defaultRate = useV4VStore((s) => s.defaultRate);
+  const capReachedReason = useV4VStore((s) => s.capReachedReason);
+
+  const nwcUri = localStorage.getItem(NWC_KEY) ?? "";
+  const hasWallet = !!nwcUri;
+  const hasRecipients = episode?.value && episode.value.length > 0;
+
+  // Auto-start streaming when autoEnabled and V4V episode starts playing
+  useEffect(() => {
+    if (
+      autoEnabled &&
+      playbackState === "playing" &&
+      hasRecipients &&
+      hasWallet &&
+      !v4vStreaming &&
+      episode
+    ) {
+      const intervalId = startStreaming(
+        episode,
+        defaultRate,
+        nwcUri,
+        (amount) => addStreamedSats(amount),
+      );
+      if (intervalId >= 0) {
+        setV4VStreaming(true, intervalId);
+        setV4VEnabled(true);
+      }
+    }
+  }, [playbackState, episode?.guid, autoEnabled]);
+
+  // Show nudge when a V4V episode starts playing and streaming is off (manual mode)
   useEffect(() => {
     if (
       playbackState === "playing" &&
       episode?.value &&
       episode.value.length > 0 &&
       !v4vStreaming &&
+      !autoEnabled &&
       !nudgedGuids.has(episode.guid)
     ) {
       nudgedGuids.add(episode.guid);
@@ -38,11 +71,7 @@ export function V4VIndicator() {
     return () => {
       if (nudgeTimer.current) clearTimeout(nudgeTimer.current);
     };
-  }, [playbackState, episode?.guid, v4vStreaming]);
-
-  const nwcUri = localStorage.getItem(NWC_KEY) ?? "";
-  const hasWallet = !!nwcUri;
-  const hasRecipients = episode?.value && episode.value.length > 0;
+  }, [playbackState, episode?.guid, v4vStreaming, autoEnabled]);
 
   const toggleStreaming = useCallback(() => {
     if (!episode || !hasWallet) return;
@@ -52,9 +81,10 @@ export function V4VIndicator() {
       setV4VStreaming(false);
       setV4VEnabled(false);
     } else {
+      const rate = autoEnabled ? defaultRate : v4vSatsPerMinute;
       const intervalId = startStreaming(
         episode,
-        v4vSatsPerMinute,
+        rate,
         nwcUri,
         (amount) => addStreamedSats(amount),
       );
@@ -63,7 +93,7 @@ export function V4VIndicator() {
         setV4VEnabled(true);
       }
     }
-  }, [episode, v4vStreaming, v4vSatsPerMinute, nwcUri, hasWallet]);
+  }, [episode, v4vStreaming, v4vSatsPerMinute, defaultRate, autoEnabled, nwcUri, hasWallet]);
 
   const handleBoost = useCallback(async () => {
     if (!episode || !hasWallet || boosting) return;
@@ -82,16 +112,26 @@ export function V4VIndicator() {
     <div className="relative shrink-0">
       <button
         onClick={() => { setOpen(!open); setShowNudge(false); }}
-        className={`text-[11px] px-1.5 py-0.5 rounded-sm transition-colors ${
-          v4vStreaming
-            ? "text-amber-400 bg-amber-500/10 animate-pulse"
-            : hasRecipients && !v4vStreaming
-              ? "text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
-              : "text-text-dim hover:text-text"
+        className={`text-[11px] px-1.5 py-0.5 rounded-sm transition-colors flex items-center gap-1 ${
+          capReachedReason
+            ? "text-text-dim bg-border/50"
+            : v4vStreaming
+              ? "text-amber-400 bg-amber-500/10 animate-pulse"
+              : hasRecipients
+                ? "text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
+                : "text-text-dim hover:text-text"
         }`}
         title="Value 4 Value"
       >
-        {v4vStreaming ? `⚡ ${v4vTotalStreamed} sats` : hasRecipients ? "⚡ V4V" : "V4V"}
+        {v4vStreaming && autoEnabled && (
+          <span className="text-[8px] text-accent bg-accent/15 px-1 rounded-sm font-medium">AUTO</span>
+        )}
+        {capReachedReason
+          ? `⚡ ${v4vTotalStreamed} sats (capped)`
+          : v4vStreaming
+            ? `⚡ ${v4vTotalStreamed} sats`
+            : hasRecipients ? "⚡ V4V" : "V4V"
+        }
       </button>
 
       {/* Brief nudge when V4V episode starts — once per episode per session */}
@@ -107,7 +147,15 @@ export function V4VIndicator() {
 
       {open && (
         <div className="absolute bottom-full right-0 mb-2 w-56 bg-bg border border-border rounded-sm shadow-lg p-3 z-50">
-          <div className="text-[11px] text-text font-medium mb-2">Value 4 Value</div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-[11px] text-text font-medium">Value 4 Value</div>
+            <button
+              onClick={() => { setOpen(false); useUIStore.getState().setView("v4v"); }}
+              className="text-[9px] text-accent hover:text-accent-hover transition-colors"
+            >
+              open v4v ↗
+            </button>
+          </div>
 
           {!hasWallet && (
             <div className="text-[10px] text-text-dim mb-2">
@@ -138,25 +186,6 @@ export function V4VIndicator() {
                     }`}
                   />
                 </button>
-              </div>
-
-              {/* Rate picker */}
-              <div className="flex items-center gap-1 mb-2">
-                <span className="text-[10px] text-text-dim shrink-0">Rate:</span>
-                {RATE_OPTIONS.map((rate) => (
-                  <button
-                    key={rate}
-                    onClick={() => setV4VSatsPerMinute(rate)}
-                    className={`text-[10px] px-1.5 py-0.5 rounded-sm transition-colors ${
-                      v4vSatsPerMinute === rate
-                        ? "bg-accent/20 text-accent"
-                        : "text-text-dim hover:text-text"
-                    }`}
-                  >
-                    {rate}
-                  </button>
-                ))}
-                <span className="text-[9px] text-text-dim">/min</span>
               </div>
 
               {/* Recipients */}

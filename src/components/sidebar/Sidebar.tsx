@@ -18,6 +18,7 @@ const NAV_ITEMS = [
   { id: "notifications" as const, label: "notifications", icon: "🔔" },
   { id: "follows" as const, label: "follows", icon: "♺" },
   { id: "zaps" as const, label: "zaps", icon: "⚡" },
+  { id: "v4v" as const, label: "v4v", icon: "⚡" },
   { id: "relays" as const, label: "relays", icon: "⟐" },
   { id: "settings" as const, label: "settings", icon: "⚙" },
   { id: "about" as const, label: "support", icon: "♥" },
