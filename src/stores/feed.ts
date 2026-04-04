@@ -247,10 +247,16 @@ export const useFeedStore = create<FeedState>((set, get) => ({
 
     set({ trendingLoading: true, ...(force ? { trendingNotes: [] } : {}) });
     try {
-      const notes = await fetchTrendingCandidates(200, 24);
+      let notes = await fetchTrendingCandidates(200, 24);
+
+      // Retry once after 3s if relays returned nothing (common on slow startup)
+      if (notes.length === 0) {
+        await new Promise((r) => setTimeout(r, 3000));
+        notes = await fetchTrendingCandidates(200, 24);
+      }
 
       if (notes.length === 0) {
-        set({ trendingNotes: [], trendingLoading: false });
+        set({ trendingLoading: false });
         return;
       }
 
