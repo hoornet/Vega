@@ -2,6 +2,7 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import type { PodcastEpisode } from "../../types/podcast";
 import { usePodcastStore } from "../../stores/podcast";
 import { publishNote } from "../../lib/nostr";
+import { stopStreaming } from "../../lib/podcast/v4v";
 import { V4VIndicator } from "./V4VIndicator";
 
 function formatTime(seconds: number): string {
@@ -104,12 +105,18 @@ export function PodcastPlayerBar() {
     };
     audio.addEventListener("canplaythrough", onCanPlay);
 
-    // Timeout: if audio doesn't load within 15s, show helpful error
+    // Timeout: if audio doesn't load within 15s, show helpful error and stop V4V
     const timeout = setTimeout(() => {
       if (!loaded) {
         audio.removeEventListener("canplaythrough", onCanPlay);
         setAudioError("Audio file not available — the podcast host may be down or the episode URL is broken.");
         setPlaybackState("paused");
+        // Stop V4V streaming if it auto-started before the audio failed
+        if (usePodcastStore.getState().v4vStreaming) {
+          stopStreaming();
+          usePodcastStore.getState().setV4VStreaming(false);
+          usePodcastStore.getState().setV4VEnabled(false);
+        }
       }
     }, 15000);
 
@@ -246,6 +253,11 @@ export function PodcastPlayerBar() {
           const msg = audioRef.current?.error?.message;
           setAudioError(`Audio error ${code}: ${msg || "failed to load"}`);
           setPlaybackState("paused");
+          if (usePodcastStore.getState().v4vStreaming) {
+            stopStreaming();
+            usePodcastStore.getState().setV4VStreaming(false);
+            usePodcastStore.getState().setV4VEnabled(false);
+          }
         }}
       />
       {!episode ? null : (
