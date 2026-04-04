@@ -33,6 +33,21 @@ sudo apt install gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.
 sudo dnf install gstreamer1-plugins-base gstreamer1-plugins-good gstreamer1-libav
 ```
 
+### Verifying signatures
+
+Release updater artifacts (`.tar.gz`, `.nsis.zip`, `.app.tar.gz`) include `.sig` files signed with minisign. To verify:
+
+```bash
+# Save the public key
+echo "untrusted comment: minisign public key: F9D2C39297592652
+RWRSJlmXksPS+cSpOrnmUpmJSebrbT1gxNeS33X/S7fxBAb/SdvWewNm" > vega.pub
+
+# Verify an artifact
+minisign -Vm vega_0.12.1_amd64.AppImage.tar.gz -p vega.pub
+```
+
+**Note:** The standalone `.deb`, `.rpm`, and `.dmg` installers do not have signatures yet — only the updater bundles do.
+
 ## Features
 
 **Identity & accounts**
