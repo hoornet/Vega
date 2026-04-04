@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NDKEvent } from "@nostr-dev-kit/ndk";
-import { fetchGlobalFeed } from "../../lib/nostr";
+import { fetchMediaFeed } from "../../lib/nostr";
 import { useMuteStore } from "../../stores/mute";
 import { parseContent, ContentSegment } from "../../lib/parsing";
 import { NoteCard } from "../feed/NoteCard";
@@ -28,7 +28,7 @@ export function MediaFeed() {
 
   useEffect(() => {
     setLoading(true);
-    fetchGlobalFeed(300)
+    fetchMediaFeed(500)
       .then((notes) => {
         const mediaNotes = notes.filter((n) => hasMediaType(n.content, MEDIA_TYPES.all));
         setAllNotes(mediaNotes);
