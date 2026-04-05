@@ -39,6 +39,7 @@ export async function fetchWithTimeout(
 export const RELAY_STORAGE_KEY = "wrystr_relays";
 
 export const FALLBACK_RELAYS = [
+  "wss://relay.veganostr.com",
   "wss://relay.damus.io",
   "wss://nos.lol",
   "wss://relay.snort.social",
@@ -46,6 +47,7 @@ export const FALLBACK_RELAYS = [
 
 // Override NDK's default outbox relays (purplepag.es can have DNS issues)
 export const OUTBOX_RELAYS = [
+  "wss://relay.veganostr.com/",
   "wss://relay.damus.io/",
   "wss://nos.lol/",
   "wss://relay.nostr.band/",
@@ -56,6 +58,9 @@ export function normalizeRelayUrl(url: string): string {
   return url.replace(/\/+$/, "");
 }
 
+const VEGA_RELAY = "wss://relay.veganostr.com";
+const VEGA_RELAY_MIGRATED_KEY = "wrystr_vega_relay_added";
+
 export function getStoredRelayUrls(): string[] {
   try {
     const stored = localStorage.getItem(RELAY_STORAGE_KEY);
@@ -63,11 +68,22 @@ export function getStoredRelayUrls(): string[] {
       // Deduplicate on load (handles legacy duplicates from trailing-slash mismatch)
       const urls: string[] = JSON.parse(stored);
       const seen = new Set<string>();
-      return urls.map(normalizeRelayUrl).filter((u) => {
+      const deduped = urls.map(normalizeRelayUrl).filter((u) => {
         if (seen.has(u)) return false;
         seen.add(u);
         return true;
       });
+
+      // One-time: inject Vega relay for existing users
+      if (!localStorage.getItem(VEGA_RELAY_MIGRATED_KEY)) {
+        localStorage.setItem(VEGA_RELAY_MIGRATED_KEY, "1");
+        if (!deduped.includes(VEGA_RELAY)) {
+          deduped.unshift(VEGA_RELAY);
+          saveRelayUrls(deduped);
+        }
+      }
+
+      return deduped;
     }
   } catch { /* ignore */ }
   return FALLBACK_RELAYS;
