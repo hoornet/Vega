@@ -27,10 +27,19 @@ OPENSATS_APPLICATION.md
 PHASE6.md
 RENAME_ARTICLE_DRAFT.md
 TODO.md
+NOSTR_POST_*.md
+SHELLEY_SPEC.md
+docs/
 test/accounts.json
 
-# Skills / agents
+# AI agent / editor state
 .agents/
+.claude/
+.omc/
+.pi/
+.windsurf/
+.impeccable.md
+skills-lock.json
 
 # Editor directories and files
 .vscode/*
