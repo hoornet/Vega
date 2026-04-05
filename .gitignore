@@ -18,18 +18,11 @@ dist-ssr
 # Build artifacts / test screenshots
 squashfs-root/
 phase-4-tests/
-phase-4.md
 *.png
 !src-tauri/icons/*.png
 
-# Private / not for public repo
-OPENSATS_APPLICATION.md
-PHASE6.md
-RENAME_ARTICLE_DRAFT.md
-TODO.md
-NOSTR_POST_*.md
-SHELLEY_SPEC.md
-docs/
+# Private docs (drafts, specs, research, grant applications)
+private_docs/
 test/accounts.json
 
 # AI agent / editor state
