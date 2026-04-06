@@ -1,5 +1,5 @@
 import { NDKEvent, NDKKind, giftWrap, giftUnwrap } from "@nostr-dev-kit/ndk";
-import { getNDK, fetchWithTimeout, withTimeout, FEED_TIMEOUT } from "./core";
+import { getNDK, fetchWithTimeout, FEED_TIMEOUT } from "./core";
 import { debug } from "../debug";
 
 /** Fetch gift wraps via subscribe (fetchEvents doesn't reliably return kind 1059). */
