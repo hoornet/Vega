@@ -67,7 +67,7 @@ export function EpisodeList({ show, onBack }: EpisodeListProps) {
           onClick={onBack}
           className="text-text-muted hover:text-accent text-[12px] mt-1 shrink-0"
         >
-          back
+          Back
         </button>
         {show.artworkUrl && (
           <img
@@ -96,7 +96,7 @@ export function EpisodeList({ show, onBack }: EpisodeListProps) {
       {/* Episodes */}
       <div className="flex-1 overflow-y-auto">
         {loading ? (
-          <div className="p-4 text-text-dim text-[12px]">Loading episodes...</div>
+          <div className="p-4 text-text-dim text-[12px]">Loading episodes…</div>
         ) : episodes.length === 0 ? (
           <div className="p-4 text-text-dim text-[12px]">No episodes found</div>
         ) : (
@@ -132,7 +132,7 @@ export function EpisodeList({ show, onBack }: EpisodeListProps) {
                       <span className="text-[10px] text-accent">resumed</span>
                     )}
                     {ep.value && ep.value.length > 0 && (
-                      <span className="text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded-sm font-medium">
+                      <span className="text-[10px] text-zap bg-zap/10 px-1.5 py-0.5 rounded-sm font-medium">
                         ⚡ V4V
                       </span>
                     )}

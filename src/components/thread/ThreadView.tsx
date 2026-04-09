@@ -7,6 +7,7 @@ import { useMuteStore } from "../../stores/mute";
 import { fetchNoteById, fetchThreadEvents, fetchAncestors, publishReply, getNDK, ensureConnected } from "../../lib/nostr";
 import { buildThreadTree, getRootEventId } from "../../lib/threadTree";
 import type { ThreadNode } from "../../lib/threadTree";
+import { debug } from "../../lib/debug";
 import { AncestorChain } from "./AncestorChain";
 import { ThreadNodeComponent } from "./ThreadNode";
 import { NoteCard } from "../feed/NoteCard";
@@ -99,7 +100,7 @@ export function ThreadView() {
         const built = buildThreadTree(root.id, allEvents);
         setTree(built);
       } catch (err) {
-        console.error("Failed to load thread:", err);
+        debug.error("Failed to load thread:", err);
         if (!cancelled) setLoadError(`Failed to load: ${err}`);
       }
     }
@@ -160,7 +161,7 @@ export function ThreadView() {
           onClick={goBack}
           className="text-text-dim hover:text-text text-[11px] transition-colors"
         >
-          ← back
+          ← Back
         </button>
         <h1 className="text-text text-sm font-medium">Thread</h1>
       </header>
@@ -174,7 +175,7 @@ export function ThreadView() {
               onClick={() => setRetryCount((c) => c + 1)}
               className="text-[11px] text-accent hover:text-accent-hover transition-colors px-2 py-0.5 border border-accent/30 hover:border-accent"
             >
-              retry
+              Retry
             </button>
           </div>
         )}
@@ -250,7 +251,7 @@ export function ThreadView() {
                     disabled={!replyText.trim() || replying}
                     className="px-3 py-1 text-[11px] bg-accent hover:bg-accent-hover text-accent-text rounded-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
                   >
-                    {replySent ? "replied ✓" : replying ? "posting…" : "reply"}
+                    {replySent ? "Replied ✓" : replying ? "Posting…" : "Reply"}
                   </button>
                 </div>
               </div>
@@ -286,7 +287,7 @@ export function ThreadView() {
               onClick={() => setRetryCount((c) => c + 1)}
               className="text-[11px] text-accent hover:text-accent-hover transition-colors px-3 py-1 border border-accent/30 hover:border-accent"
             >
-              retry
+              Retry
             </button>
           </div>
         )}

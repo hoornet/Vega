@@ -77,7 +77,7 @@ function FollowRow({
               : "bg-accent hover:bg-accent-hover text-accent-text"
           }`}
         >
-          {isFollowing ? "unfollow" : "follow"}
+          {isFollowing ? "Unfollow" : "Follow"}
         </button>
       )}
     </div>
@@ -151,15 +151,15 @@ export function FollowsView() {
   const followersSet = new Set(followers);
 
   const tabs: Array<{ id: "followers" | "following"; label: string; count?: number }> = [
-    { id: "followers", label: "followers", count: followersFetched ? followers.length : undefined },
-    { id: "following", label: "following", count: follows.length },
+    { id: "followers", label: "Followers", count: followersFetched ? followers.length : undefined },
+    { id: "following", label: "Following", count: follows.length },
   ];
 
   return (
     <div className="h-full flex flex-col">
       {/* Header */}
       <div className="border-b border-border px-4 py-2.5 flex items-center gap-4 shrink-0">
-        <span className="text-text font-medium text-[13px]">follows</span>
+        <span className="text-text font-medium text-[13px]">Follows</span>
         <div className="flex gap-3 ml-auto">
           {tabs.map((t) => (
             <button

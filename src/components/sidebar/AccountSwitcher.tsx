@@ -76,7 +76,7 @@ export function AccountSwitcher() {
             onClick={() => setShowAddLogin(true)}
             className="w-full px-2 py-1.5 text-[11px] border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors"
           >
-            login
+            Login
           </button>
         </div>
         {showAddLogin && <LoginModal onClose={() => setShowAddLogin(false)} />}
@@ -116,7 +116,7 @@ export function AccountSwitcher() {
               className="w-full flex items-center gap-2 px-3 py-2 text-text-dim hover:text-accent hover:bg-bg-hover text-[11px] transition-colors"
             >
               <span className="w-6 text-center text-[12px]">+</span>
-              <span>add account</span>
+              <span>Add account</span>
             </button>
 
             <div className="border-t border-border mx-3 my-1" />
@@ -126,13 +126,13 @@ export function AccountSwitcher() {
                 onClick={() => { setOpen(false); logout(); }}
                 className="text-text-dim hover:text-danger text-[10px] transition-colors"
               >
-                sign out
+                Sign out
               </button>
               <button
                 onClick={() => { setOpen(false); removeAccount(pubkey); }}
                 className="text-text-dim hover:text-danger text-[10px] transition-colors"
               >
-                remove
+                Remove
               </button>
             </div>
           </div>

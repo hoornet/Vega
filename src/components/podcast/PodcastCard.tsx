@@ -48,7 +48,7 @@ export function PodcastCard({ show, onClick }: PodcastCardProps) {
             : "border-border text-text-muted hover:text-accent hover:border-accent/40"
         }`}
       >
-        {subscribed ? "subscribed" : "+ subscribe"}
+        {subscribed ? "Subscribed" : "+ Subscribe"}
       </button>
     </div>
   );

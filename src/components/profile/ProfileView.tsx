@@ -143,7 +143,7 @@ export function ProfileView() {
             onClick={editing ? () => setEditing(false) : goBack}
             className="text-text-dim hover:text-text text-[11px] transition-colors"
           >
-            ← {editing ? "cancel" : "back"}
+            ← {editing ? "Cancel" : "Back"}
           </button>
           <h1 className="text-text text-sm font-medium">{isOwn ? "Your Profile" : "Profile"}</h1>
           {isOwn && !getNDK().signer && (
@@ -157,7 +157,7 @@ export function ProfileView() {
             onClick={() => setEditing(true)}
             className="text-[11px] px-3 py-1 border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors"
           >
-            edit profile
+            Edit profile
           </button>
         )}
         {!isOwn && loggedIn && (
@@ -167,7 +167,7 @@ export function ProfileView() {
                 onClick={() => setShowZap(true)}
                 className="text-[11px] px-3 py-1 border border-border text-zap hover:border-zap/40 hover:bg-zap/5 transition-colors"
               >
-                ⚡ zap
+                ⚡ Zap
               </button>
             )}
             <button
@@ -179,7 +179,7 @@ export function ProfileView() {
                   : "border-accent/60 text-accent hover:bg-accent hover:text-accent-text"
               }`}
             >
-              {followPending ? "…" : isFollowing ? "unfollow" : "follow"}
+              {followPending ? "…" : isFollowing ? "Unfollow" : "Follow"}
             </button>
             <button
               onClick={() => isMuted ? unmute(pubkey) : mute(pubkey)}
@@ -189,13 +189,13 @@ export function ProfileView() {
                   : "border-border text-text-dim hover:text-danger hover:border-danger/40"
               }`}
             >
-              {isMuted ? "unmute" : "mute"}
+              {isMuted ? "Unmute" : "Mute"}
             </button>
             <button
               onClick={() => openDM(pubkey)}
               className="text-[11px] px-3 py-1 border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors"
             >
-              ✉ message
+              ✉ Message
             </button>
           </div>
         )}
@@ -334,7 +334,7 @@ export function ProfileView() {
                   : "border-transparent text-text-dim hover:text-text"
               }`}
             >
-              {t}
+              {t === "notes" ? "Notes" : t === "articles" ? "Articles" : "Media"}
             </button>
           ))}
         </div>
