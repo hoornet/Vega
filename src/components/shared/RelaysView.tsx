@@ -243,7 +243,7 @@ export function RelaysView() {
           </div>
           <div className="flex items-center gap-2">
             {lastChecked && (
-              <span className="text-text-dim text-[9px]">
+              <span className="text-text-dim text-[10px]">
                 {new Date(lastChecked).toLocaleTimeString()}
               </span>
             )}

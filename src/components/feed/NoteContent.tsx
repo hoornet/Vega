@@ -97,10 +97,10 @@ function ImageGrid({ images, onImageClick }: { images: string[]; onImageClick: (
           />
           {idx === 3 && extraCount > 0 && (
             <div
-              className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-sm cursor-zoom-in"
+              className="absolute inset-0 bg-bg/60 flex items-center justify-center rounded-sm cursor-zoom-in"
               onClick={(e) => { e.stopPropagation(); onImageClick(idx); }}
             >
-              <span className="text-white text-lg font-semibold">+{extraCount}</span>
+              <span className="text-text text-[14px] font-semibold">+{extraCount}</span>
             </div>
           )}
         </div>

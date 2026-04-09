@@ -22,7 +22,7 @@ function HistoryRow({ entry }: { entry: V4VHistoryEntry }) {
             <div className="text-[10px] text-text-dim truncate">{entry.showTitle}</div>
           </div>
           <div className="shrink-0 text-right ml-3">
-            <div className="text-[12px] text-amber-400 font-medium">{totalSats} sats</div>
+            <div className="text-[12px] text-zap font-medium">{totalSats} sats</div>
             <div className="text-[9px] text-text-dim">{formatDate(entry.timestamp)}</div>
           </div>
         </div>

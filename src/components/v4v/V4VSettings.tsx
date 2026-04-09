@@ -46,7 +46,7 @@ export function V4VSettings() {
         </p>
         {autoEnabled && (
           <div className="mt-2 text-[10px] text-success flex items-center gap-1">
-            <span>&#9679;</span> Auto-streaming is active
+            <span className="text-[8px]">&#9679;</span> Auto-streaming is active
           </div>
         )}
       </section>

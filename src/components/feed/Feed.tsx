@@ -172,7 +172,7 @@ export function Feed() {
           </select>
           <RelayStatusBadge />
           {lastUpdated[tab] && (
-            <span className="text-text-dim text-[10px]">{timeAgo(lastUpdated[tab])}</span>
+            <span className="text-text-dim text-[11px]">{timeAgo(lastUpdated[tab])}</span>
           )}
           <button
             onClick={() => {
