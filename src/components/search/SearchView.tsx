@@ -77,7 +77,7 @@ function UserRow({ user }: { user: ParsedUser }) {
               : "border-accent/60 text-accent hover:bg-accent hover:text-accent-text"
           }`}
         >
-          {pending ? "…" : isFollowing ? "unfollow" : "follow"}
+          {pending ? "…" : isFollowing ? "Unfollow" : "Follow"}
         </button>
       )}
     </div>
@@ -288,7 +288,7 @@ export function SearchView() {
             disabled={!query.trim() || loading}
             className="text-[11px] px-3 py-1 border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
           >
-            {loading ? "…" : "search"}
+            {loading ? "…" : "Search"}
           </button>
         </div>
       </header>
@@ -308,7 +308,7 @@ export function SearchView() {
                     : "border-transparent text-text-dim hover:text-text"
                 }`}
               >
-                {tab} {count > 0 ? `(${count})` : ""}
+                {tab.charAt(0).toUpperCase() + tab.slice(1)} {count > 0 ? `(${count})` : ""}
               </button>
             );
           })}

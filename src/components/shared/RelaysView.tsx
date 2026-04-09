@@ -257,7 +257,7 @@ export function RelaysView() {
                   <span className="w-3 h-3 border border-accent border-t-transparent rounded-full animate-spin" />
                   checking…
                 </span>
-              ) : "check all"}
+              ) : "Check all"}
             </button>
           </div>
         </div>
@@ -405,8 +405,8 @@ function SuggestedRelays() {
               onClick={() => handleAdd(s.url)}
               className="text-accent hover:text-accent-hover text-[10px] opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
             >
-              add
-            </button>
+              Add
+</button>
           </div>
         ))}
       </div>

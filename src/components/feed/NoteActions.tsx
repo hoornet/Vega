@@ -264,7 +264,7 @@ export function LoggedOutStats({ event }: { event: NDKEvent }) {
           copied ? "text-accent" : "text-text-dim hover:text-text"
         }`}
       >
-        {copied ? "copied ✓" : "share"}
+        {copied ? "copied ✓" : "Share"}
       </button>
     </div>
   );

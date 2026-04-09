@@ -128,8 +128,8 @@ function MutedKeywordsSection() {
           onClick={handleAdd}
           className="px-3 py-1.5 text-[11px] border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors shrink-0"
         >
-          add
-        </button>
+          Add
+</button>
       </div>
       {error && <p className="text-danger text-[11px] mt-1">{error}</p>}
     </section>
@@ -233,7 +233,7 @@ function ExportSection() {
           disabled={status === "saving"}
           className="px-3 py-1.5 text-[11px] border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          {status === "saving" ? "exporting…" : status === "done" ? "exported ✓" : "export data"}
+          {status === "saving" ? "Exporting…" : status === "done" ? "Exported ✓" : "Export data"}
         </button>
         <span className="text-text-dim text-[10px]">
           {bookmarkedIds.length} notes · {bookmarkedArticleAddrs.length} articles · {follows.length} follows · {getStoredRelayUrls().length} relays
