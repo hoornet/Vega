@@ -89,7 +89,7 @@ export function EditProfileForm({ pubkey, onSaved }: { pubkey: string; onSaved: 
           disabled={saving || saved}
           className="px-4 py-1.5 text-[11px] bg-accent hover:bg-accent-hover text-accent-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          {saved ? "saved ✓" : saving ? "saving…" : "save profile"}
+          {saved ? "Saved ✓" : saving ? "Saving…" : "Save profile"}
         </button>
       </div>
     </div>

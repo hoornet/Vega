@@ -23,6 +23,10 @@ export function V4VIndicator() {
   const playbackState = usePodcastStore((s) => s.playbackState);
   const { setV4VEnabled, setV4VStreaming, addStreamedSats } = usePodcastStore.getState();
 
+  // Tracks when the user explicitly turned off streaming mid-episode.
+  // Prevents the auto-start effect from re-engaging until a new episode loads.
+  const userDisabledRef = useRef(false);
+
   const autoEnabled = useV4VStore((s) => s.autoEnabled);
   const defaultRate = useV4VStore((s) => s.defaultRate);
   const capReachedReason = useV4VStore((s) => s.capReachedReason);
@@ -30,6 +34,11 @@ export function V4VIndicator() {
   const nwcUri = localStorage.getItem(NWC_KEY) ?? "";
   const hasWallet = !!nwcUri;
   const hasRecipients = episode?.value && episode.value.length > 0;
+
+  // Reset user-disabled flag when a new episode loads
+  useEffect(() => {
+    userDisabledRef.current = false;
+  }, [episode?.guid]);
 
   // Auto-start streaming when autoEnabled and V4V episode starts playing
   useEffect(() => {
@@ -39,6 +48,7 @@ export function V4VIndicator() {
       hasRecipients &&
       hasWallet &&
       !v4vStreaming &&
+      !userDisabledRef.current &&
       episode
     ) {
       const intervalId = startStreaming(
@@ -77,10 +87,12 @@ export function V4VIndicator() {
     if (!episode || !hasWallet) return;
 
     if (v4vStreaming) {
+      userDisabledRef.current = true;
       stopStreaming();
       setV4VStreaming(false);
       setV4VEnabled(false);
     } else {
+      userDisabledRef.current = false;
       const rate = autoEnabled ? defaultRate : v4vSatsPerMinute;
       const intervalId = startStreaming(
         episode,
@@ -116,9 +128,9 @@ export function V4VIndicator() {
           capReachedReason
             ? "text-text-dim bg-border/50"
             : v4vStreaming
-              ? "text-amber-400 bg-amber-500/10 animate-pulse"
+              ? "text-zap bg-zap/10 animate-pulse"
               : hasRecipients
-                ? "text-amber-400 bg-amber-500/10 hover:bg-amber-500/20"
+                ? "text-zap bg-zap/10 hover:bg-zap/20"
                 : "text-text-dim hover:text-text"
         }`}
         title="Value 4 Value"

@@ -40,7 +40,7 @@ export function ImageField({ label, value, onChange }: { label: string; value: s
           className="px-2 py-1.5 text-[10px] border border-border text-text-dim hover:text-accent hover:border-accent/40 transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
           title="Upload from your computer"
         >
-          {uploading ? "uploading…" : "upload"}
+          {uploading ? "Uploading…" : "Upload"}
         </button>
       </div>
       {uploadError && <p className="text-danger text-[10px] mt-1">{uploadError}</p>}

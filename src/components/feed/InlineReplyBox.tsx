@@ -184,8 +184,9 @@ export function InlineReplyBox({ event, name, rootEvent }: InlineReplyBoxProps) 
                 onClick={() => removeAttachment(i)}
                 className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-danger text-accent-text text-[10px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                 title="Remove"
+                aria-label="Remove attachment"
               >
-                x
+                ×
               </button>
             </div>
           ))}
@@ -205,6 +206,7 @@ export function InlineReplyBox({ event, name, rootEvent }: InlineReplyBoxProps) 
           onClick={handleFilePicker}
           disabled={uploading}
           title="Attach image or video"
+          aria-label="Attach image or video"
           className="text-text-dim hover:text-text text-[16px] transition-colors disabled:opacity-30"
         >
           +
@@ -213,6 +215,7 @@ export function InlineReplyBox({ event, name, rootEvent }: InlineReplyBoxProps) 
           <button
             onClick={() => setShowReplyEmoji((v) => !v)}
             title="Insert emoji"
+            aria-label="Insert emoji"
             className="text-text-dim hover:text-text text-[16px] transition-colors"
           >
             ☺

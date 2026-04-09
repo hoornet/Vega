@@ -284,7 +284,7 @@ export function ArticleEditor() {
       <header className="border-b border-border px-4 py-2.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button onClick={() => setActiveDraft(null)} className="text-text-dim hover:text-text text-[11px] transition-colors">
-            ← drafts
+            ← Drafts
           </button>
           <span className="text-text-dim text-[10px]">{wordCount > 0 ? `${wordCount} words` : "New article"}</span>
           {activeDraft && !published && lastSaved && (
@@ -310,13 +310,13 @@ export function ArticleEditor() {
               onClick={() => setMode("write")}
               className={`px-3 py-1 transition-colors ${mode === "write" ? "bg-accent/10 text-accent" : "text-text-muted hover:text-text"}`}
             >
-              write
+              Write
             </button>
             <button
               onClick={() => setMode("preview")}
               className={`px-3 py-1 transition-colors ${mode === "preview" ? "bg-accent/10 text-accent" : "text-text-muted hover:text-text"}`}
             >
-              preview
+              Preview
             </button>
           </div>
 
@@ -325,14 +325,14 @@ export function ArticleEditor() {
             className="px-3 py-1 text-[11px] border border-border text-text-muted hover:text-text transition-colors"
             title="Focus mode (F11)"
           >
-            zen
+            Zen
           </button>
 
           <button
             onClick={() => setShowMeta((v) => !v)}
             className={`px-3 py-1 text-[11px] border border-border transition-colors ${showMeta ? "text-accent border-accent/40" : "text-text-muted hover:text-text"}`}
           >
-            meta
+            Meta
           </button>
 
           <button
@@ -340,7 +340,7 @@ export function ArticleEditor() {
             disabled={!canPublish || publishing || published}
             className="px-4 py-1 text-[11px] bg-accent hover:bg-accent-hover text-accent-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            {published ? "published ✓" : publishing ? "publishing…" : "publish"}
+            {published ? "Published ✓" : publishing ? "Publishing…" : "Publish"}
           </button>
         </div>
       </header>
@@ -497,7 +497,7 @@ function DraftListView({ onNewDraft }: { onNewDraft: () => void }) {
       <header className="border-b border-border px-4 py-2.5 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-3">
           <button onClick={goBack} className="text-text-dim hover:text-text text-[11px] transition-colors">
-            ← back
+            ← Back
           </button>
           <h2 className="text-text text-[13px] font-medium">Drafts</h2>
           <span className="text-text-dim text-[11px]">{drafts.length} {drafts.length === 1 ? "draft" : "drafts"}</span>
@@ -506,7 +506,7 @@ function DraftListView({ onNewDraft }: { onNewDraft: () => void }) {
           onClick={onNewDraft}
           className="px-3 py-1 text-[11px] bg-accent hover:bg-accent-hover text-accent-text transition-colors"
         >
-          new draft
+          New draft
         </button>
       </header>
 
@@ -515,7 +515,7 @@ function DraftListView({ onNewDraft }: { onNewDraft: () => void }) {
           <div className="px-4 py-12 text-center space-y-2">
             <p className="text-text-dim text-[13px]">No drafts yet.</p>
             <p className="text-text-dim text-[11px] opacity-60">
-              Click "new draft" to start writing an article.
+              Click "New draft" to start writing an article.
             </p>
           </div>
         )}

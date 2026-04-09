@@ -277,7 +277,7 @@ export function RelaysView() {
             onClick={handleAddRelay}
             className="px-3 py-1.5 text-[11px] border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors shrink-0"
           >
-            add
+            Add
           </button>
           {loggedIn && !!getNDK().signer && (
             <button
@@ -285,7 +285,7 @@ export function RelaysView() {
               disabled={republishing}
               className="px-3 py-1.5 text-[11px] border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors disabled:opacity-40 shrink-0"
             >
-              {republishing ? "publishing…" : "publish list"}
+              {republishing ? "Publishing…" : "Publish list"}
             </button>
           )}
         </div>
@@ -303,7 +303,7 @@ export function RelaysView() {
             disabled={removing}
             className="px-3 py-1 text-[11px] border border-danger/30 text-danger hover:bg-danger/10 transition-colors disabled:opacity-40"
           >
-            {removing ? "removing…" : "remove dead"}
+            {removing ? "Removing…" : "Remove dead"}
           </button>
         </div>
       )}
@@ -384,9 +384,9 @@ function SuggestedRelays() {
           {loading ? (
             <span className="inline-flex items-center gap-1">
               <span className="w-3 h-3 border border-accent border-t-transparent rounded-full animate-spin" />
-              discovering…
+              Discovering…
             </span>
-          ) : "discover relays"}
+          ) : "Discover relays"}
         </button>
       </div>
 
