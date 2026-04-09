@@ -63,7 +63,7 @@ export const PollWidget = memo(function PollWidget({ event }: { event: NDKEvent 
             disabled={showResults}
             className={`
               relative w-full text-left px-3 py-2 rounded-sm overflow-hidden
-              transition-all duration-200
+              transition-colors duration-200
               ${showResults
                 ? isMyVote
                   ? "border border-accent/60"

@@ -229,19 +229,17 @@ export function ProfileView() {
 
             {/* Avatar + info */}
             <div className="px-4 py-4 flex gap-4 items-start">
-              <div className="shrink-0" style={{ width: 64, height: 64 }}>
+              <div className="shrink-0 w-16 h-16">
                 {avatar ? (
                   <img
                     src={avatar}
                     alt={`${name}'s avatar`}
-                    style={{ width: 64, height: 64 }}
-                    className="rounded-sm object-cover bg-bg-raised"
+                    className="w-16 h-16 rounded-sm object-cover bg-bg-raised"
                     onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
                   />
                 ) : (
                   <div
-                    style={{ width: 64, height: 64 }}
-                    className="rounded-sm bg-bg-raised border border-border flex items-center justify-center text-text-dim text-lg"
+                    className="w-16 h-16 rounded-sm bg-bg-raised border border-border flex items-center justify-center text-text-dim text-lg"
                   >
                     {name.charAt(0).toUpperCase()}
                   </div>

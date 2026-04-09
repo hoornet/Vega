@@ -116,6 +116,7 @@ export function NoteActions({ event, onReplyToggle, showReply }: NoteActionsProp
               disabled={reacting}
               className="inline-flex items-center px-1.5 py-0.5 text-[12px] text-text-dim hover:text-accent border border-border hover:border-accent/40 rounded-sm transition-colors disabled:opacity-30"
               title="React with emoji"
+              aria-label="React with emoji"
             >
               +
             </button>
@@ -125,7 +126,7 @@ export function NoteActions({ event, onReplyToggle, showReply }: NoteActionsProp
           {showEmojiPicker && (
             <>
               <div className="fixed inset-0 z-[9]" role="presentation" onClick={() => setShowEmojiPicker(false)} />
-              <div className="absolute bottom-6 left-0 bg-bg-raised border border-border shadow-lg z-10 flex gap-0.5 px-1.5 py-1">
+              <div className="absolute bottom-6 left-0 bg-bg-raised border border-border rounded-sm shadow-lg z-10 flex gap-0.5 px-1.5 py-1">
                 {REACTION_EMOJIS.map((emoji) => (
                   <button
                     key={emoji}
@@ -244,7 +245,7 @@ export function LoggedOutStats({ event }: { event: NDKEvent }) {
     : [];
 
   return (
-    <div className="flex flex-wrap items-center gap-2 mt-1.5">
+    <div className="flex flex-wrap items-center gap-2 mt-2">
       {replyCount !== null && replyCount > 0 && (
         <span className="text-text-dim text-[11px]">↩ {replyCount}</span>
       )}

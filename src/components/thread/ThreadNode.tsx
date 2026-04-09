@@ -57,7 +57,7 @@ function InlineThreadReply({ replyTo, rootEvent, onPublished }: {
   };
 
   return (
-    <div className="border-l-2 border-accent/40 ml-3 pl-3 py-2">
+    <div className="border-l-2 border-accent/40 ml-4 pl-3 py-2">
       <div className="text-text-dim text-[10px] mb-1">replying to <span className="text-accent">@{name}</span></div>
       <textarea
         ref={ref}
@@ -95,13 +95,12 @@ function InlineThreadReply({ replyTo, rootEvent, onPublished }: {
             />
           )}
         </div>
-        <span className="text-text-dim text-[10px]">Ctrl+Enter</span>
         <button
           onClick={handleSubmit}
           disabled={!text.trim() || replying}
-          className="px-2 py-0.5 text-[10px] bg-accent hover:bg-accent-hover text-accent-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+          className="px-3 py-1 text-[11px] bg-accent hover:bg-accent-hover text-accent-text rounded-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          {sent ? "replied ✓" : replying ? "posting..." : "reply"}
+          {sent ? "replied ✓" : replying ? "posting…" : "reply"}
         </button>
       </div>
     </div>

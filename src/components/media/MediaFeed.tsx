@@ -51,10 +51,10 @@ export function MediaFeed() {
             <button
               key={t}
               onClick={() => setTab(t)}
-              className={`px-3 py-1 text-[12px] transition-colors ${
+              className={`px-3 py-1 text-[12px] transition-colors border-b-2 ${
                 tab === t
-                  ? "text-text border-b-2 border-accent"
-                  : "text-text-muted hover:text-text"
+                  ? "text-text border-accent"
+                  : "text-text-muted hover:text-text border-transparent"
               }`}
             >
               {t.charAt(0).toUpperCase() + t.slice(1)}

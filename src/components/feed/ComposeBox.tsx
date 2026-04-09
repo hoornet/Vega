@@ -270,7 +270,7 @@ export function ComposeBox({ onPublished, onNoteInjected }: { onPublished?: () =
                   )}
                   <button
                     onClick={() => removeAttachment(i)}
-                    className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-danger text-accent-text text-[10px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-danger text-white text-[10px] rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                     title="Remove"
                   >
                     x
@@ -328,15 +328,14 @@ export function ComposeBox({ onPublished, onNoteInjected }: { onPublished?: () =
               <button
                 onClick={() => setIsPoll((v) => !v)}
                 title={isPoll ? "Cancel poll" : "Create poll"}
-                className={`text-[14px] transition-colors ${isPoll ? "text-accent" : "text-text-dim hover:text-text"}`}
+                className={`text-[16px] transition-colors ${isPoll ? "text-accent" : "text-text-dim hover:text-text"}`}
               >
                 &#9634;&#9634;
               </button>
-              <span className="text-text-dim text-[10px]">Ctrl+Enter to post</span>
               <button
                 onClick={handlePublish}
                 disabled={!canPost}
-                className="px-3 py-1 text-[11px] bg-accent hover:bg-accent-hover text-accent-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+                className="px-3 py-1 text-[11px] bg-accent hover:bg-accent-hover text-accent-text rounded-sm transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
               >
                 {publishing ? "posting…" : isPoll ? "post poll" : "post"}
               </button>

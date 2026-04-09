@@ -80,7 +80,7 @@ function RelayHealthCard({ result, poolConnected, onRemove }: { result: RelayHea
           >
             remove
           </button>
-          <span className="text-text-dim text-[10px]">{expanded ? "▾" : "▸"}</span>
+          <span className={`text-text-dim text-[10px] transition-transform ${expanded ? "rotate-90" : "rotate-0"}`}>▶</span>
         </div>
       </div>
 

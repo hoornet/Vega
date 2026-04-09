@@ -117,7 +117,7 @@ function SuggestionFollowButton({ pubkey }: { pubkey: string }) {
           : "border-accent/60 text-accent hover:bg-accent hover:text-accent-text"
       }`}
     >
-      {pending ? "..." : isFollowing ? "unfollow" : "follow"}
+      {pending ? "…" : isFollowing ? "Unfollow" : "Follow"}
     </button>
   );
 }
@@ -410,7 +410,7 @@ export function SearchView() {
               <p className="text-text-dim text-[10px] mt-0.5">Based on who your follows follow</p>
             </div>
             {suggestionsLoading && (
-              <div className="px-4 py-6 text-text-dim text-[11px] text-center">Finding suggestions...</div>
+              <div className="px-4 py-6 text-text-dim text-[11px] text-center">Finding suggestions…</div>
             )}
             {visibleSuggestions.map((s) => s.profile && (
               <div key={s.pubkey} className="flex items-center gap-3 px-4 py-2.5 border-b border-border hover:bg-bg-hover transition-colors group/suggestion">

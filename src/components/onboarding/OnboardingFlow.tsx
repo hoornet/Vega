@@ -91,6 +91,7 @@ function CreateStep({ onNext }: { onNext: (signer: NDKPrivateKeySigner) => void 
           <span className="text-text font-mono text-[11px] truncate flex-1 select-all">{signer.npub}</span>
           <button
             onClick={handleCopy}
+            aria-label="Copy public key"
             className="text-[10px] text-text-dim hover:text-accent transition-colors shrink-0"
           >
             {copied ? "copied ✓" : "copy"}
@@ -158,6 +159,7 @@ function BackupStep({ signer, onComplete }: { signer: NDKPrivateKeySigner; onCom
           </button>
           <button
             onClick={handleCopy}
+            aria-label="Copy secret key"
             className="text-[10px] text-text-dim hover:text-danger transition-colors shrink-0"
           >
             {copied ? "copied ✓" : "copy"}
@@ -229,10 +231,12 @@ function LoginStep({ onBack, onComplete }: { onBack: () => void; onComplete: () 
     <Shell>
       <Heading>Log in with your key.</Heading>
 
-      <div className="flex border border-border mb-4">
+      <div role="tablist" className="flex border border-border mb-4">
         {(["nsec", "npub", "bunker"] as const).map((m) => (
           <button
             key={m}
+            role="tab"
+            aria-selected={mode === m}
             onClick={() => { setMode(m); setValue(""); }}
             className={`flex-1 py-2 text-[11px] transition-colors ${
               mode === m ? "bg-accent/10 text-accent" : "text-text-dim hover:text-text"

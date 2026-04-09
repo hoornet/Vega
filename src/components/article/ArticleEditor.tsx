@@ -20,6 +20,16 @@ function extractImages(md: string): { alt: string; url: string }[] {
   return images;
 }
 
+function formatSavedAgo(elapsedMs: number): string {
+  const s = Math.floor(elapsedMs / 1000);
+  if (s < 5) return "just now";
+  if (s < 60) return `${s}s ago`;
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  return `${h}h ago`;
+}
+
 export function ArticleEditor() {
   const { goBack } = useUIStore();
   const { activeDraftId, drafts, updateDraft, deleteDraft, setActiveDraft, createDraft } = useDraftStore();
@@ -279,7 +289,7 @@ export function ArticleEditor() {
           <span className="text-text-dim text-[10px]">{wordCount > 0 ? `${wordCount} words` : "New article"}</span>
           {activeDraft && !published && lastSaved && (
             <span className="text-text-dim text-[10px]">
-              · saved {Math.floor((Date.now() - lastSaved) / 1000) < 5 ? "just now" : `${Math.floor((Date.now() - lastSaved) / 1000)}s ago`}
+              · saved {formatSavedAgo(Date.now() - lastSaved)}
             </span>
           )}
           {published && publishedRelays > 0 && (
@@ -396,6 +406,7 @@ export function ArticleEditor() {
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Title"
             className="w-full bg-transparent text-text text-2xl font-bold placeholder:text-text-dim focus:outline-none"
+            style={{ fontFamily: "var(--font-reading)" }}
           />
         </div>
 

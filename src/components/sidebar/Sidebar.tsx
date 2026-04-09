@@ -46,6 +46,7 @@ export function Sidebar() {
           <button
             onClick={toggleSidebar}
             title="Expand sidebar"
+            aria-label="Expand sidebar"
             className="w-full flex items-center justify-center text-text-dim hover:text-accent transition-colors"
           >
             <span className="text-[13px]">›</span>
@@ -60,6 +61,7 @@ export function Sidebar() {
             <button
               onClick={toggleSidebar}
               title="Collapse sidebar"
+              aria-label="Collapse sidebar"
               className="text-text-dim hover:text-accent transition-colors px-1"
             >
               <span className="text-[13px]">‹</span>
@@ -89,7 +91,7 @@ export function Sidebar() {
             </span>
             {!c && <span>write article</span>}
             {!c && draftCount > 0 && (
-              <span className="ml-auto text-[10px] bg-accent/20 text-accent px-1 rounded-sm">{draftCount}</span>
+              <span className="ml-auto text-[10px] bg-accent/20 text-accent px-1.5 py-0.5 rounded-sm">{draftCount}</span>
             )}
           </button>
         )}
@@ -103,7 +105,7 @@ export function Sidebar() {
               title={c ? item.label : undefined}
               className={`w-full text-left px-3 py-1.5 flex items-center gap-2 text-[12px] transition-colors ${
                 currentView === item.id
-                  ? "text-accent bg-accent/8"
+                  ? "text-accent bg-accent/10"
                   : "text-text-muted hover:text-text hover:bg-bg-hover"
               }`}
             >
@@ -115,7 +117,7 @@ export function Sidebar() {
               </span>
               {!c && <span>{item.label}</span>}
               {!c && badge > 0 && (
-                <span className="ml-auto text-[10px] bg-accent/20 text-accent px-1 rounded-sm">{badge}</span>
+                <span className="ml-auto text-[10px] bg-accent/20 text-accent px-1.5 py-0.5 rounded-sm">{badge}</span>
               )}
             </button>
           );

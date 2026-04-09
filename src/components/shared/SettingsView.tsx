@@ -50,7 +50,7 @@ function MuteSection() {
         onClick={() => setExpanded(!expanded)}
         className="flex items-center gap-2 w-full text-left group"
       >
-        <span className="text-text-dim text-[10px] transition-transform" style={{ transform: expanded ? "rotate(90deg)" : "rotate(0deg)" }}>
+        <span className={`text-text-dim text-[10px] transition-transform ${expanded ? "rotate-90" : "rotate-0"}`}>
           ▶
         </span>
         <h2 className="text-text text-[11px] font-medium uppercase tracking-widest text-text-dim group-hover:text-text transition-colors">
@@ -280,7 +280,7 @@ function NotificationSection() {
               }`}
             >
               <span
-                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+                className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-bg transition-transform ${
                   settings[key] ? "translate-x-4" : "translate-x-0"
                 }`}
               />
@@ -412,7 +412,7 @@ function ExperimentalSection() {
           }`}
         >
           <span
-            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-white transition-transform ${
+            className={`absolute top-0.5 left-0.5 w-4 h-4 rounded-full bg-bg transition-transform ${
               enabled ? "translate-x-4" : "translate-x-0"
             }`}
           />

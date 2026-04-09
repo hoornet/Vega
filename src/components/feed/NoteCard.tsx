@@ -121,18 +121,18 @@ export const NoteCard = memo(function NoteCard({ event, focused, onReplyInThread
                 {menuOpen && (
                   <>
                     <div className="fixed inset-0 z-[9]" role="presentation" onClick={() => setMenuOpen(false)} />
-                    <div role="menu" className="absolute right-0 top-5 bg-bg-raised border border-border shadow-lg z-10 w-32">
+                    <div role="menu" className="absolute right-0 top-5 bg-bg-raised border border-border rounded-sm shadow-lg z-10 w-32">
                       <button
                         onClick={() => { setMenuOpen(false); follows.includes(event.pubkey) ? unfollow(event.pubkey) : follow(event.pubkey); }}
                         className="w-full text-left px-3 py-2 text-[11px] text-text-muted hover:text-accent hover:bg-bg-hover transition-colors"
                       >
-                        {follows.includes(event.pubkey) ? `unfollow` : `follow`}
+                        {follows.includes(event.pubkey) ? "Unfollow" : "Follow"}
                       </button>
                       <button
                         onClick={() => { setMenuOpen(false); isMuted ? unmute(event.pubkey) : mute(event.pubkey); }}
                         className="w-full text-left px-3 py-2 text-[11px] text-text-muted hover:text-danger hover:bg-bg-hover transition-colors"
                       >
-                        {isMuted ? `unmute` : `mute`}
+                        {isMuted ? "Unmute" : "Mute"}
                       </button>
                     </div>
                   </>

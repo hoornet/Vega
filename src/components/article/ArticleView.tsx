@@ -306,7 +306,7 @@ export function ArticleView() {
             value={commentText}
             onChange={(e) => { setCommentText(e.target.value); autoResize(e); }}
             onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleComment(); } }}
-            placeholder="Write a comment about this article..."
+            placeholder="Write a comment…"
             rows={3}
             className="w-full bg-bg-raised border border-border rounded-sm px-3 py-2 text-[12px] text-text placeholder:text-text-dim resize-none focus:outline-none focus:border-accent leading-relaxed"
             autoFocus

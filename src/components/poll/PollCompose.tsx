@@ -52,7 +52,7 @@ export function PollCompose({ options, onChange }: PollComposeProps) {
           onClick={addOption}
           className="text-accent hover:text-accent-hover text-[11px] transition-colors"
         >
-          ＋ Add option
+          + Add option
         </button>
       )}
     </div>
