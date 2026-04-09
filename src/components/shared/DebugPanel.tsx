@@ -71,7 +71,7 @@ export function DebugPanel({ onClose }: { onClose: () => void }) {
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border/50">
         <span className="text-text-muted uppercase tracking-widest text-[10px]">Debug</span>
-        <button onClick={onClose} className="text-text-dim hover:text-text transition-colors">×</button>
+        <button onClick={onClose} aria-label="Close debug panel" className="text-text-dim hover:text-text transition-colors">×</button>
       </div>
 
       {/* Uptime + Live Sub */}

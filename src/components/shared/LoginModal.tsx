@@ -71,7 +71,7 @@ function NewAccountTab({ onClose }: { onClose: () => void }) {
         disabled={!confirmed || logging}
         className="w-full px-4 py-2 text-[12px] bg-accent hover:bg-accent-hover text-accent-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        {logging ? "logging in…" : "create account"}
+        {logging ? "Logging in…" : "create account"}
       </button>
     </div>
   );

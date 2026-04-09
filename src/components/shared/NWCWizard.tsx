@@ -115,7 +115,7 @@ function ConnectedState({ nwcUri, onDisconnect }: { nwcUri: string; onDisconnect
           onClick={onDisconnect}
           className="text-[10px] text-text-dim hover:text-danger transition-colors shrink-0"
         >
-          disconnect
+          Disconnect
         </button>
       </div>
       <p className="text-text-dim text-[10px] px-1">
@@ -246,7 +246,7 @@ function PasteStep({
         disabled={!valid}
         className="px-4 py-1.5 text-[11px] border border-border text-text-muted hover:text-accent hover:border-accent/40 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
       >
-        connect wallet
+        Connect wallet
       </button>
     </div>
   );

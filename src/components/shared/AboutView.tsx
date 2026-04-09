@@ -31,6 +31,7 @@ function CopyButton({ text }: { text: string }) {
 function QRBlock({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col items-center gap-2">
+      {/* bg-white intentional — required for QR code scan contrast */}
       <div className="bg-white p-2.5 inline-block">
         <QRCode value={value} size={120} />
       </div>

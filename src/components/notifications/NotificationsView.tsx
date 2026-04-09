@@ -43,7 +43,7 @@ export function NotificationsView() {
             onClick={markAllRead}
             className="text-[11px] text-text-dim hover:text-accent transition-colors"
           >
-            mark all read
+            Mark all read
           </button>
         )}
       </header>

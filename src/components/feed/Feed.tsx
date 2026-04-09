@@ -182,7 +182,7 @@ export function Feed() {
             disabled={isLoading}
             className="text-text-muted hover:text-text text-[11px] px-2 py-1 border border-border hover:border-text-dim transition-colors disabled:opacity-40"
           >
-            {isLoading ? "loading…" : "refresh"}
+            {isLoading ? "Loading…" : "Refresh"}
           </button>
         </div>
       </header>

@@ -27,7 +27,7 @@ function ArticleCardWithReadStatus({ event }: { event: NDKEvent }) {
           onClick={() => isRead ? markArticleUnread(fullAddr) : markArticleRead(fullAddr)}
           className="absolute right-3 top-3 text-[10px] text-text-dim hover:text-accent opacity-0 group-hover:opacity-100 transition-opacity z-10"
         >
-          {isRead ? "mark unread" : "mark read"}
+          {isRead ? "Mark unread" : "Mark read"}
         </button>
       )}
     </div>
@@ -173,7 +173,7 @@ export function BookmarkView() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <h2 className="text-text text-[13px] font-medium">Bookmarks</h2>
-            <div className="flex border border-border text-[11px]">
+            <div className="flex border border-border rounded-sm overflow-hidden text-[11px]">
               <button
                 onClick={() => setTab("notes")}
                 className={`px-3 py-0.5 transition-colors ${tab === "notes" ? "bg-accent/10 text-accent" : "text-text-muted hover:text-text"}`}

@@ -26,7 +26,7 @@ export function V4VView() {
                     : "border-transparent text-text-dim hover:text-text"
                 }`}
               >
-                {t}
+                {t.charAt(0).toUpperCase() + t.slice(1)}
               </button>
             ))}
           </div>

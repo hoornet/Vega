@@ -70,7 +70,7 @@ export function ZapModal({ target, recipientName, onClose }: ZapModalProps) {
               onClick={() => { onClose(); setView("settings"); }}
               className="px-4 py-1.5 text-[11px] border border-accent/60 text-accent hover:bg-accent hover:text-accent-text transition-colors"
             >
-              go to settings →
+              Go to settings →
             </button>
           </div>
         )}
@@ -155,7 +155,7 @@ export function ZapModal({ target, recipientName, onClose }: ZapModalProps) {
               onClick={() => setState("idle")}
               className="w-full py-1.5 text-[11px] border border-border text-text-muted hover:text-text transition-colors"
             >
-              try again
+              Try again
             </button>
           </div>
         )}

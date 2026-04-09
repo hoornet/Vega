@@ -23,6 +23,7 @@ export function ToastContainer() {
             <span className="text-[12px] text-text">{toast.message}</span>
             <button
               onClick={() => removeToast(toast.id)}
+              aria-label="Dismiss"
               className="text-text-dim hover:text-text transition-colors text-[12px] shrink-0"
             >
               ×

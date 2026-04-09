@@ -63,9 +63,9 @@ export function V4VDashboard() {
             Playing <span className="text-text">{episode.title}</span> — no V4V recipients.
           </div>
         ) : v4vStreaming ? (
-          <div className="bg-amber-500/5 border border-amber-500/20 rounded-sm p-3">
+          <div className="bg-zap/5 border border-zap/20 rounded-sm p-3">
             <div className="flex items-center gap-2 mb-2">
-              <span className="text-amber-400 animate-pulse text-[12px]">&#9889;</span>
+              <span className="text-zap animate-pulse text-[12px]">&#9889;</span>
               <span className="text-[12px] text-text font-medium">Streaming</span>
               {autoEnabled && (
                 <span className="text-[9px] text-accent bg-accent/10 px-1.5 py-0.5 rounded-sm">AUTO</span>

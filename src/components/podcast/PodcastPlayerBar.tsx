@@ -49,7 +49,7 @@ function ShareButton({ episode }: { episode: PodcastEpisode | null }) {
         {state === "shared" ? "shared" : state === "confirm" ? "publish?" : "share"}
       </button>
       {state === "confirm" && (
-        <button onClick={handleCancel} className="text-[10px] text-text-dim hover:text-text">x</button>
+        <button onClick={handleCancel} aria-label="Cancel share" className="text-[10px] text-text-dim hover:text-text">×</button>
       )}
     </span>
   );
@@ -291,7 +291,7 @@ export function PodcastPlayerBar() {
               <rect x="7" y="1" width="3" height="10" rx="0.5" />
             </svg>
           ) : playbackState === "loading" ? (
-            <span className="text-[10px] text-text-dim animate-pulse">...</span>
+            <span className="text-[10px] text-text-dim animate-pulse">…</span>
           ) : (
             <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" className="text-text ml-0.5">
               <polygon points="2,1 11,6 2,11" />
@@ -354,10 +354,11 @@ export function PodcastPlayerBar() {
         {/* Close */}
         <button
           onClick={saveAndStop}
+          aria-label="Stop and close player"
           className="text-text-dim hover:text-text transition-colors shrink-0 text-[14px]"
           title="Stop"
         >
-          x
+          ×
         </button>
       </div>
       )}
