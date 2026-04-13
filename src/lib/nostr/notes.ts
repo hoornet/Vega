@@ -146,16 +146,16 @@ export async function fetchThreadEvents(rootId: string): Promise<NDKEvent[]> {
   const directEvents = await fetchWithTimeout(instance, directFilter, THREAD_TIMEOUT);
 
   const allEvents = new Map<string, NDKEvent>();
-  for (const e of directEvents) allEvents.set(e.id, e);
+  // Hard-truncate: relays often ignore `limit` on #e filters, so we enforce it client-side
+  for (const e of [...directEvents].slice(0, THREAD_EVENT_LIMIT)) allEvents.set(e.id, e);
 
-  // Round-trip 2: replies to events in the thread — only if round 1 returned < limit
-  // Skip deep fetch on large threads to avoid OOM
-  if (allEvents.size < THREAD_EVENT_LIMIT) {
-    const knownIds = Array.from(allEvents.keys()).slice(0, 50); // cap #e filter size
+  // Round-trip 2: only attempt if round 1 was small (skip entirely on big threads)
+  if (allEvents.size < 50) {
+    const knownIds = Array.from(allEvents.keys());
     if (knownIds.length > 0) {
-      const deepFilter: NDKFilter = { kinds: [NDKKind.Text], "#e": knownIds, limit: THREAD_EVENT_LIMIT - allEvents.size };
+      const deepFilter: NDKFilter = { kinds: [NDKKind.Text], "#e": knownIds, limit: THREAD_EVENT_LIMIT };
       const deepEvents = await fetchWithTimeout(instance, deepFilter, THREAD_TIMEOUT);
-      for (const e of deepEvents) allEvents.set(e.id, e);
+      for (const e of [...deepEvents].slice(0, THREAD_EVENT_LIMIT - allEvents.size)) allEvents.set(e.id, e);
     }
   }
 
