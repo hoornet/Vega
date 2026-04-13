@@ -4,7 +4,7 @@ import { useUserStore } from "../../stores/user";
 import { useMuteStore } from "../../stores/mute";
 import { useUIStore } from "../../stores/ui";
 import { useWoTStore } from "../../stores/wot";
-import { fetchFollowFeed, getNDK, ensureConnected } from "../../lib/nostr";
+import { fetchFollowFeed, getNDK, ensureConnected, batchFetchProfileAges } from "../../lib/nostr";
 import { diagWrapFetch, logDiag } from "../../lib/feedDiagnostics";
 import { detectScript, getEventLanguageTag, FILTER_SCRIPTS } from "../../lib/language";
 import { NoteCard } from "./NoteCard";
@@ -63,7 +63,10 @@ export function Feed() {
   useEffect(() => {
     // Show cached notes immediately, then fetch fresh ones once connected
     loadCachedFeed();
-    connect().then(() => loadFeed());
+    connect().then(() => loadFeed().then(() => {
+      const pubkeys = [...new Set(useFeedStore.getState().notes.map((e) => e.pubkey))];
+      batchFetchProfileAges(pubkeys);
+    }));
   }, []);
 
 

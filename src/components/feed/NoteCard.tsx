@@ -6,7 +6,7 @@ import { useUserStore } from "../../stores/user";
 import { useMuteStore } from "../../stores/mute";
 import { useUIStore } from "../../stores/ui";
 import { timeAgo, shortenPubkey } from "../../lib/utils";
-import { getNDK, fetchNoteById, ensureConnected } from "../../lib/nostr";
+import { getNDK, fetchNoteById, ensureConnected, getProfileAge } from "../../lib/nostr";
 import { getParentEventId } from "../../lib/threadTree";
 import { NoteContent } from "./NoteContent";
 import { NoteActions, LoggedOutStats } from "./NoteActions";
@@ -34,7 +34,7 @@ export const NoteCard = memo(function NoteCard({ event, focused, onReplyInThread
   const nip05 = typeof profile?.nip05 === "string" ? profile.nip05 : null;
   const verified = useNip05Verified(event.pubkey, nip05);
   const time = event.created_at ? timeAgo(event.created_at) : "";
-  const profileCreatedAt = typeof profile?._createdAt === "number" ? profile._createdAt : null;
+  const profileCreatedAt = getProfileAge(event.pubkey);
   const isNewAccount = profileCreatedAt !== null && (Date.now() / 1000 - profileCreatedAt) < 60 * 24 * 3600;
 
   const loggedIn = useUserStore((s) => s.loggedIn);

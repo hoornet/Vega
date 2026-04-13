@@ -33,14 +33,26 @@ export async function publishContactList(pubkeys: string[]): Promise<void> {
 
 export async function fetchProfile(pubkey: string) {
   const instance = getNDK();
-  const events = await fetchWithTimeout(instance, { kinds: [0], authors: [pubkey] }, FEED_TIMEOUT);
-  const event = [...events].sort((a, b) => (b.created_at ?? 0) - (a.created_at ?? 0))[0];
-  if (!event) return null;
-  try {
-    const content = JSON.parse(event.content) as Record<string, unknown>;
-    return { ...content, _createdAt: event.created_at ?? null };
-  } catch {
-    return null;
+  const user = instance.getUser({ pubkey });
+  await user.fetchProfile();
+  return user.profile ?? null;
+}
+
+// Bulk-fetch kind-0 events for many pubkeys in one relay query and populate
+// the profile-age cache. Called once per feed/thread load — not per note.
+const profileAgeCache = new Map<string, number>();
+
+export function getProfileAge(pubkey: string): number | null {
+  return profileAgeCache.get(pubkey) ?? null;
+}
+
+export async function batchFetchProfileAges(pubkeys: string[]): Promise<void> {
+  const needed = pubkeys.filter((pk) => !profileAgeCache.has(pk));
+  if (needed.length === 0) return;
+  const instance = getNDK();
+  const events = await fetchWithTimeout(instance, { kinds: [0], authors: needed }, FEED_TIMEOUT);
+  for (const event of events) {
+    if (event.created_at) profileAgeCache.set(event.pubkey, event.created_at);
   }
 }
 

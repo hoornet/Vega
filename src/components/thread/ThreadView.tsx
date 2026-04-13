@@ -4,7 +4,7 @@ import { useAutoResize } from "../../hooks/useAutoResize";
 import { useUIStore } from "../../stores/ui";
 import { useUserStore } from "../../stores/user";
 import { useMuteStore } from "../../stores/mute";
-import { fetchNoteById, fetchThreadEvents, fetchAncestors, publishReply, getNDK, ensureConnected } from "../../lib/nostr";
+import { fetchNoteById, fetchThreadEvents, fetchAncestors, publishReply, getNDK, ensureConnected, batchFetchProfileAges } from "../../lib/nostr";
 import { buildThreadTree, getRootEventId } from "../../lib/threadTree";
 import type { ThreadNode } from "../../lib/threadTree";
 import { debug } from "../../lib/debug";
@@ -99,6 +99,7 @@ export function ThreadView() {
 
         const built = buildThreadTree(root.id, allEvents);
         setTree(built);
+        batchFetchProfileAges([...new Set(allEvents.map((e) => e.pubkey))]);
       } catch (err) {
         debug.error("Failed to load thread:", err);
         if (!cancelled) setLoadError(`Failed to load: ${err}`);
