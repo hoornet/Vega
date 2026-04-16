@@ -71,10 +71,10 @@ jobs:
 
             ### v0.12.8 — Fix Linux OOM crash
 
-            - **Fix Linux memory crash** — Vega no longer crashes or freezes the OS on Linux; memory now plateaus at ~950MB during heavy use instead of spiking to 32GB+
-            - **Following feed capped** — following feed was rendering up to 80 notes (vs. 30 for global), causing 4GB+ spikes on media-heavy accounts; now capped at 30
-            - **WebKit rendering fix** — switched to `WEBKIT_FORCE_SOFTWARE_RENDERING=1` which fixes the blank window issue on Hyprland/Wayland while keeping memory low
-            - **Notification fetch dedup** — `fetchNotifications` was firing 3× in the first 8 seconds of login; now fires once and the first background poll is delayed to 90s
+            - **Fix Linux memory crash** — Vega no longer crashes on Linux. Memory now oscillates at ~1.1–1.6 GB during heavy use instead of climbing to 8–12 GB. Root cause traced to v0.12.6: the Blossom SHA-256 URL auto-detection regex caused 3–5× more `<img>` elements per feed page, which combined with WebKitGTK's weak bitmap eviction pushed the WebKit process past its 8 GB self-kill threshold. Blossom auto-detection is temporarily disabled pending proper validation in v0.12.9.
+            - **Feed depths restored** — the v0.12.7 OOM firefighting that slashed follow/global feed limits to 30 is reverted; follow feed now fetches 100 and global caches up to 200, matching pre-crisis v0.12.6 behavior.
+            - **WebKit rendering fix** — `WEBKIT_FORCE_SOFTWARE_RENDERING=1` keeps the Wayland compositor path intact on Hyprland.
+            - **Notification fetch dedup** — `fetchNotifications` was firing 3× in the first 8 seconds of login; now fires once and the first background poll is delayed to 90s.
 
             ### v0.12.7 — Upload Fixes
 

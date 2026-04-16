@@ -11,7 +11,7 @@ import { debug } from "../lib/debug";
 
 const TRENDING_CACHE_KEY = "wrystr_trending_cache";
 const TRENDING_TTL = 10 * 60 * 1000; // 10 minutes
-const MAX_FEED_SIZE = 30;
+const MAX_FEED_SIZE = 200;
 
 // Live subscription handle — persists across store calls
 let liveSub: NDKSubscription | null = null;
@@ -187,7 +187,7 @@ export const useFeedStore = create<FeedState>((set, get) => ({
     set({ loading: true, error: null });
     try {
       await ensureConnected();
-      const fresh = await diagWrapFetch("global_fetch", () => fetchGlobalFeed(80));
+      const fresh = await diagWrapFetch("global_fetch", () => fetchGlobalFeed(100));
 
       // Merge with currently displayed notes
       const freshIds = new Set(fresh.map((n) => n.id));

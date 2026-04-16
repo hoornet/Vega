@@ -3,8 +3,11 @@ import { nip19 } from "@nostr-dev-kit/ndk";
 // Regex patterns
 const URL_REGEX = /https?:\/\/[^\s<>"')\]]+/g;
 const IMAGE_EXTENSIONS = /\.(jpg|jpeg|jpg2|jp2|jpe|png|gif|webp|svg|avif|bmp|tiff?)(\?[^\s]*)?$/i;
-// Blossom / NIP-96 content-addressed URLs: SHA-256 hash (64 hex) as filename, any extension
-const BLOSSOM_URL_REGEX = /\/[0-9a-f]{64}(\.[a-z0-9]{0,5})?$/i;
+// Blossom / NIP-96 content-addressed URLs: SHA-256 hash (64 hex) as filename.
+// DISABLED pending OOM investigation — rendering these as <img> roughly doubled
+// decoded-bitmap pressure on WebKitGTK and is suspected to have pushed the feed
+// past the kill threshold starting in v0.12.6.
+// const BLOSSOM_URL_REGEX = /\/[0-9a-f]{64}(\.[a-z0-9]{0,5})?$/i;
 const VIDEO_EXTENSIONS = /\.(mp4|webm|mov|ogg|m4v|avi)(\?[^\s]*)?$/i;
 const AUDIO_EXTENSIONS = /\.(mp3|wav|flac|aac|m4a|opus|ogg)(\?[^\s]*)?$/i;
 const YOUTUBE_REGEX = /(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
@@ -39,7 +42,7 @@ export function parseContent(content: string): ContentSegment[] {
     // Clean trailing punctuation that's likely not part of the URL
     const cleaned = url.replace(/[.,;:!?)]+$/, "");
 
-    if (IMAGE_EXTENSIONS.test(cleaned) || BLOSSOM_URL_REGEX.test(cleaned)) {
+    if (IMAGE_EXTENSIONS.test(cleaned)) {
       allMatches.push({
         index: match.index,
         length: cleaned.length,
