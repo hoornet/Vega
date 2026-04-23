@@ -79,6 +79,7 @@ minisign -Vm vega_0.12.1_amd64.AppImage.tar.gz -p vega.pub
 - **External links** — all http(s) links open in your system browser via Tauri opener
 - **Emoji reactions** — reaction picker with common emojis on note cards; emoji insertion in compose and reply boxes via categorized emoji picker
 - **Keyword muting** — word/phrase mute list with client-side filtering across all views
+- **Web of Trust filter** — hide notes, reactions, and zaps from people outside your social graph (people you follow + follows-of-follows), powered by Vertex DVM trust scoring; toggleable in Settings
 - **Direct Messages** (NIP-04 + NIP-17 gift wrap) — conversation list, thread view, per-message decryption; unread badge in sidebar
 - **Notifications** — background poller (60s) for mentions, zaps, new followers; each type independently toggleable; OS push notifications; 🔔 in sidebar with unread badge
 - **New follower badges** — recently gained followers marked with a "new" badge and sorted to the top of your follows list
@@ -161,6 +162,7 @@ minisign -Vm vega_0.12.1_amd64.AppImage.tar.gz -p vega.pub
 | [NIP-23](https://github.com/nostr-protocol/nips/blob/master/23.md) | Long-form content (articles) | Full (editor, reader, feed, search) |
 | [NIP-25](https://github.com/nostr-protocol/nips/blob/master/25.md) | Reactions | Full (emoji reactions) |
 | [NIP-27](https://github.com/nostr-protocol/nips/blob/master/27.md) | Text note references | Full |
+| [NIP-32](https://github.com/nostr-protocol/nips/blob/master/32.md) | Labeling | Partial (language filter via script tags) |
 | [NIP-46](https://github.com/nostr-protocol/nips/blob/master/46.md) | Nostr Connect (remote signer) | Full (bunker:// login) |
 | [NIP-47](https://github.com/nostr-protocol/nips/blob/master/47.md) | Wallet Connect (NWC) | Full |
 | [NIP-50](https://github.com/nostr-protocol/nips/blob/master/50.md) | Search | Full (notes, articles, people) |
@@ -196,10 +198,10 @@ npm run tauri build     # production binary
 See [ROADMAP.md](./ROADMAP.md) for the full prioritised next steps.
 
 Up next:
-- Custom Go relay (`wss://relay2.veganostr.com`) with NIP-45 COUNT, NIP-50 Search, NIP-77 Negentropy
 - Custom feeds / lists
-- NIP research sprint — expanding protocol support
+- NIP-96 file storage
 - NIP-58 badges, NIP-72 communities
+- WoT-powered feed ranking
 
 ## Support
 
