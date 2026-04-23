@@ -4,11 +4,13 @@
 
 A cross-platform desktop Nostr client built with Tauri 2.0 + React + TypeScript. Polished UI, deep Lightning integration, and first-class support for long-form writing.
 
+**Website:** [veganostr.com](https://veganostr.com) · **Download:** [Releases](https://github.com/hoornet/vega/releases) · **AUR:** `vega-nostr-git`
+
 > Named after Jurij Vega (1754–1802), a Slovenian mathematician who made knowledge accessible through his pioneering logarithm tables — just as Vega makes writing accessible on Nostr.
 
 ## Download
 
-Grab the latest release from the [Releases page](https://github.com/hoornet/vega/releases).
+Grab the latest release from the [Releases page](https://github.com/hoornet/vega/releases), or visit **[veganostr.com](https://veganostr.com)** for screenshots and an introduction.
 
 | Platform | File | Command |
 |---|---|---|
@@ -43,10 +45,10 @@ echo "untrusted comment: minisign public key: F9D2C39297592652
 RWRSJlmXksPS+cSpOrnmUpmJSebrbT1gxNeS33X/S7fxBAb/SdvWewNm" > vega.pub
 
 # Verify an artifact
-minisign -Vm vega_0.12.1_amd64.AppImage.tar.gz -p vega.pub
+minisign -Vm Vega_0.12.9_amd64.deb -p vega.pub
 ```
 
-**Note:** The standalone `.deb`, `.rpm`, and `.dmg` installers do not have signatures yet — only the updater bundles do.
+**Note:** The macOS `.dmg` is not yet signed. Linux `.deb`/`.rpm` and Windows `.exe`/`.msi` ship with minisign `.sig` files — the same signatures used by the auto-updater.
 
 ## Features
 
