@@ -3,6 +3,7 @@ import { NDKEvent, NDKFilter, NDKKind, NDKSubscription, NDKSubscriptionCacheUsag
 import { connectToRelays, ensureConnected, resetNDK, fetchGlobalFeed, fetchBatchEngagement, fetchTrendingCandidates, getNDK } from "../lib/nostr";
 import { seedReactionsCache } from "../hooks/useReactions";
 import { useToastStore } from "./toast";
+import { useWoTStore } from "./wot";
 import { dbLoadFeed, dbSaveNotes } from "../lib/db";
 import { diagWrapFetch, logDiag, startRelaySnapshots, startDiagFileFlusher, getRelayStates } from "../lib/feedDiagnostics";
 import { debug } from "../lib/debug";
@@ -301,12 +302,14 @@ export const useFeedStore = create<FeedState>((set, get) => ({
       }
 
       const eventIds = notes.map((n) => n.id).filter(Boolean) as string[];
-      const engagement = await fetchBatchEngagement(eventIds);
+      const wotState = useWoTStore.getState();
+      const wotActive = wotState.enabled && wotState.wotSet.size > 0;
+      const engagement = await fetchBatchEngagement(eventIds, undefined, wotActive ? wotState.wotSet : undefined);
 
       // Seed per-note reaction cache so emoji pills render instantly
       for (const [id, eng] of engagement) {
         if (eng.reactionGroups.size > 0) {
-          seedReactionsCache(id, eng.reactionGroups, eng.myReactions);
+          seedReactionsCache(id, eng.reactionGroups, eng.myReactions, wotActive);
         }
       }
 

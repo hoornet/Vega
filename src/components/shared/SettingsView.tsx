@@ -162,7 +162,8 @@ function WoTSection() {
         Web of Trust filter
       </h2>
       <p className="text-text-dim text-[11px] mb-3">
-        Only show global feed notes from people you follow or people they follow.
+        Hide notes, reactions, and zaps from outside your social graph
+        (people you follow + people they follow).
       </p>
       <label className={`flex items-center gap-3 ${noFollows ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}>
         <button

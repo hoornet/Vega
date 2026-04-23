@@ -105,7 +105,7 @@ export function Feed() {
   const filteredNotes = activeNotes.filter((event) => {
     if (mutedPubkeys.includes(event.pubkey)) return false;
     if (contentMatchesMutedKeyword(event.content)) return false;
-    if (tab === "global" && wotEnabled && wotSet.size > 0 && !wotSet.has(event.pubkey)) return false;
+    if (wotEnabled && wotSet.size > 0 && !wotSet.has(event.pubkey)) return false;
     const c = event.content.trim();
     if (!c || c.startsWith("{") || c.startsWith("[")) return false;
     // Filter out notes that look like base64 blobs or relay protocol messages

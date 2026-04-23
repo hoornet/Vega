@@ -29,8 +29,39 @@ function normalizeEmoji(content: string): string | null {
   return content;
 }
 
-/** Group reaction events by emoji. Pass myPubkey to track which emojis the user sent. */
-export function groupReactions(events: Iterable<NDKEvent>, myPubkey?: string): GroupedReactions {
+// A zap's outer event.pubkey is the wallet/LNURL service; the real zapper is
+// the pubkey inside the embedded zap request. Returns null if malformed.
+function getZapperPubkey(event: NDKEvent): string | null {
+  const desc = event.tags.find((t) => t[0] === "description")?.[1];
+  if (!desc) return null;
+  try {
+    const zapReq = JSON.parse(desc) as { pubkey?: string };
+    return typeof zapReq.pubkey === "string" ? zapReq.pubkey : null;
+  } catch {
+    return null;
+  }
+}
+
+function getZapAmountSats(event: NDKEvent): number {
+  const desc = event.tags.find((t) => t[0] === "description")?.[1];
+  if (!desc) return 0;
+  try {
+    const zapReq = JSON.parse(desc) as { tags?: string[][] };
+    const amountTag = zapReq.tags?.find((t) => t[0] === "amount");
+    if (amountTag?.[1]) return Math.round(parseInt(amountTag[1]) / 1000);
+  } catch { /* malformed */ }
+  return 0;
+}
+
+/**
+ * Group reaction events by emoji. Pass myPubkey to track which emojis the user
+ * sent. Pass wotSet to only count reactions from pubkeys in the set.
+ */
+export function groupReactions(
+  events: Iterable<NDKEvent>,
+  myPubkey?: string,
+  wotSet?: Set<string>,
+): GroupedReactions {
   const groups = new Map<string, number>();
   const myReactions = new Set<string>();
   let total = 0;
@@ -38,6 +69,7 @@ export function groupReactions(events: Iterable<NDKEvent>, myPubkey?: string): G
   for (const event of events) {
     const emoji = normalizeEmoji(event.content);
     if (!emoji) continue;
+    if (wotSet && !wotSet.has(event.pubkey)) continue;
     groups.set(emoji, (groups.get(emoji) ?? 0) + 1);
     total++;
     if (myPubkey && event.pubkey === myPubkey) {
@@ -48,11 +80,11 @@ export function groupReactions(events: Iterable<NDKEvent>, myPubkey?: string): G
   return { groups, myReactions, total };
 }
 
-export async function fetchReactions(eventId: string, myPubkey?: string): Promise<GroupedReactions> {
+export async function fetchReactions(eventId: string, myPubkey?: string, wotSet?: Set<string>): Promise<GroupedReactions> {
   const instance = getNDK();
   const filter: NDKFilter = { kinds: [NDKKind.Reaction], "#e": [eventId] };
   const events = await fetchWithTimeout(instance, filter, SINGLE_TIMEOUT);
-  return groupReactions(events, myPubkey);
+  return groupReactions(events, myPubkey, wotSet);
 }
 
 export async function fetchReplyCount(eventId: string): Promise<number> {
@@ -62,22 +94,21 @@ export async function fetchReplyCount(eventId: string): Promise<number> {
   return events.size;
 }
 
-export async function fetchZapCount(eventId: string): Promise<{ count: number; totalSats: number }> {
+export async function fetchZapCount(eventId: string, wotSet?: Set<string>): Promise<{ count: number; totalSats: number }> {
   const instance = getNDK();
   const filter: NDKFilter = { kinds: [NDKKind.Zap], "#e": [eventId] };
   const events = await fetchWithTimeout(instance, filter, SINGLE_TIMEOUT);
   let totalSats = 0;
+  let count = 0;
   for (const event of events) {
-    const desc = event.tags.find((t) => t[0] === "description")?.[1];
-    if (desc) {
-      try {
-        const zapReq = JSON.parse(desc) as { tags?: string[][] };
-        const amountTag = zapReq.tags?.find((t) => t[0] === "amount");
-        if (amountTag?.[1]) totalSats += Math.round(parseInt(amountTag[1]) / 1000);
-      } catch { /* malformed */ }
+    if (wotSet) {
+      const zapper = getZapperPubkey(event);
+      if (!zapper || !wotSet.has(zapper)) continue;
     }
+    totalSats += getZapAmountSats(event);
+    count++;
   }
-  return { count: events.size, totalSats };
+  return { count, totalSats };
 }
 
 export interface BatchEngagement {
@@ -88,7 +119,7 @@ export interface BatchEngagement {
   myReactions: Set<string>;
 }
 
-export async function fetchBatchEngagement(eventIds: string[], myPubkey?: string): Promise<Map<string, BatchEngagement>> {
+export async function fetchBatchEngagement(eventIds: string[], myPubkey?: string, wotSet?: Set<string>): Promise<Map<string, BatchEngagement>> {
   const instance = getNDK();
   const result = new Map<string, BatchEngagement>();
   for (const id of eventIds) {
@@ -111,6 +142,7 @@ export async function fetchBatchEngagement(eventIds: string[], myPubkey?: string
     );
 
     for (const event of reactions) {
+      if (wotSet && !wotSet.has(event.pubkey)) continue;
       const eTag = event.tags.find((t) => t[0] === "e")?.[1];
       if (eTag && result.has(eTag)) {
         const entry = result.get(eTag)!;
@@ -126,21 +158,19 @@ export async function fetchBatchEngagement(eventIds: string[], myPubkey?: string
     }
 
     for (const event of replies) {
+      if (wotSet && !wotSet.has(event.pubkey)) continue;
       const eTag = event.tags.find((t) => t[0] === "e")?.[1];
       if (eTag && result.has(eTag)) result.get(eTag)!.replies++;
     }
 
     for (const event of zaps) {
+      if (wotSet) {
+        const zapper = getZapperPubkey(event);
+        if (!zapper || !wotSet.has(zapper)) continue;
+      }
       const eTag = event.tags.find((t) => t[0] === "e")?.[1];
       if (eTag && result.has(eTag)) {
-        const desc = event.tags.find((t) => t[0] === "description")?.[1];
-        if (desc) {
-          try {
-            const zapReq = JSON.parse(desc) as { tags?: string[][] };
-            const amountTag = zapReq.tags?.find((t) => t[0] === "amount");
-            if (amountTag?.[1]) result.get(eTag)!.zapSats += Math.round(parseInt(amountTag[1]) / 1000);
-          } catch { /* malformed */ }
-        }
+        result.get(eTag)!.zapSats += getZapAmountSats(event);
       }
     }
   }
