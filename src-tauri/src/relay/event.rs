@@ -58,9 +58,7 @@ impl Event {
         };
         let sig = secp256k1::schnorr::Signature::from_byte_array(sig_arr);
 
-        secp256k1::SECP256K1
-            .verify_schnorr(&sig, &msg_bytes, &xonly)
-            .is_ok()
+        secp256k1::schnorr::verify(&sig, &msg_bytes, &xonly).is_ok()
     }
 
     /// Returns true if this event kind is replaceable (NIP-01).
@@ -87,18 +85,17 @@ impl Event {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use secp256k1::{Keypair, Secp256k1};
+    use secp256k1::Keypair;
 
     /// Build a correctly signed event from a fixed key, so the vectors below are
     /// deterministic and don't depend on anything off-machine.
     fn signed_event(content: &str) -> Event {
-        let secp = Secp256k1::new();
-        let keypair = Keypair::from_seckey_byte_array(&secp, [0x42; 32]).unwrap();
+        let keypair = Keypair::from_secret_bytes([0x42; 32]).unwrap();
         let (xonly, _) = keypair.x_only_public_key();
 
         let mut event = Event {
             id: String::new(),
-            pubkey: hex::encode(xonly.serialize()),
+            pubkey: hex::encode(xonly.to_byte_array()),
             created_at: 1_700_000_000,
             kind: 1,
             tags: vec![],
@@ -118,8 +115,7 @@ mod tests {
         event.id = hex::encode(hash);
         // no_aux_rand keeps the fixtures deterministic across runs
         event.sig = hex::encode(
-            secp.sign_schnorr_no_aux_rand(hash.as_slice(), &keypair)
-                .to_byte_array(),
+            secp256k1::schnorr::sign_no_aux_rand(hash.as_slice(), &keypair).to_byte_array(),
         );
         event
     }
